@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:clipToPadding="false"
+    android:background="@color/color_surface"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="24dp">
+
+        <!-- World Map Illustration -->
+        <ImageView
+            android:id="@+id/iv_world_map"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:adjustViewBounds="true"
+            android:maxHeight="180dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/map"
+            android:contentDescription="@string/world_map_desc" />
+
+        <!-- App Logo -->
+        <ImageView
+            android:id="@+id/iv_logo"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/logo"
+            android:contentDescription="@string/app_logo_desc" />
+
+        <!-- Headline (Suez One) -->
+        <TextView
+            android:id="@+id/tv_headline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:text="@string/welcome_headline"
+            android:textColor="@color/color_text_primary"
+            android:textSize="26sp"
+            android:lineSpacingExtra="4dp"
+            android:textAppearance="@style/TextAppearance.App.Headline" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:minHeight="24dp" />
+
+        <!-- Bottom Actions Container -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Account Prompt -->
+            <TextView
+                android:id="@+id/tv_account_prompt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/account_prompt"
+                android:textColor="@color/color_text_hint"
+                android:textSize="13sp"
+                android:textAppearance="@style/TextAppearance.App.Body"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Log In Button (Primary) -->
+            <Button
+                android:id="@+id/btn_login"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/bg_welcome_button_primary"
+                app:backgroundTint="@null"
+                android:text="@string/log_in"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:textAppearance="@style/TextAppearance.App.CTA"
+                android:stateListAnimator="@null"
+                android:elevation="0dp" />
+
+            <!-- "Or" Divider with Horizontal Lines -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="12dp">
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/stroke_width"
+                    android:layout_weight="1"
+                    android:background="@color/color_border" />
+
+                <TextView
+                    android:id="@+id/tv_or"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginEnd="12dp"
+                    android:gravity="center"
+                    android:text="@string/or_divider"
+                    android:textColor="@color/color_text_hint"
+                    android:textSize="13sp"
+                    android:textAppearance="@style/TextAppearance.App.Body" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/stroke_width"
+                    android:layout_weight="1"
+                    android:background="@color/color_border" />
+            </LinearLayout>
+
+            <!-- Sign Up Free Button (Secondary) -->
+            <Button
+                android:id="@+id/btn_signup"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/bg_welcome_button_secondary"
+                app:backgroundTint="@null"
+                android:text="@string/sign_up_free"
+                android:textColor="@color/color_primary"
+                android:textSize="16sp"
+                android:textAppearance="@style/TextAppearance.App.CTA"
+                android:stateListAnimator="@null"
+                android:elevation="0dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

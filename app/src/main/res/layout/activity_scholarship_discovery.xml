@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:clipToPadding="false"
+    android:background="@color/color_surface"
+    tools:context=".ScholarshipDiscoveryActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- 1. Top App Bar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:background="@color/color_surface">
+
+            <ImageButton
+                android:id="@+id/btn_back"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="6dp"
+                android:src="@drawable/ic_arrow_back"
+                android:contentDescription="@string/back_button_desc" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="@string/scholarship_discovery_title"
+                android:textColor="@color/color_text_primary"
+                android:textSize="14sp"
+                android:textAppearance="@style/TextAppearance.App.Headline" />
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/avata_nam"
+                android:contentDescription="@string/app_logo_desc" />
+        </LinearLayout>
+
+        <!-- 2. Search Bar -->
+        <EditText
+            android:id="@+id/et_scholarship_search"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_input_field"
+            android:drawableStart="@drawable/ic_search"
+            android:drawablePadding="12dp"
+            android:hint="@string/search_hint"
+            android:inputType="text"
+            android:autofillHints=""
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:singleLine="true"
+            android:textColor="@color/color_text_primary"
+            android:textColorHint="@color/color_text_hint"
+            android:textSize="14sp"
+            android:textAppearance="@style/TextAppearance.App.Body" />
+
+        <!-- 3. World Map Section -->
+        <ImageView
+            android:id="@+id/iv_world_map"
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="12dp"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/map"
+            android:contentDescription="@string/world_map_desc" />
+
+        <!-- 4. Full-Width Dropdown Filter (Country) -->
+        <LinearLayout
+            android:id="@+id/layout_full_filter"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_input_field"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+            <TextView
+                android:id="@+id/tv_selected_country"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="All countries"
+                android:textColor="@color/color_text_primary"
+                android:textSize="13sp"
+                android:textAppearance="@style/TextAppearance.App.Body" />
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_chevron_right"
+                android:rotation="90"
+                android:contentDescription="@string/world_map_desc" />
+        </LinearLayout>
+
+        <!-- 5. Four Compact Filter Controls -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:baselineAligned="false"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:id="@+id/btn_filter_level"
+                android:layout_width="0dp"
+                android:layout_height="36dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:background="@drawable/bg_input_field"
+                android:gravity="center"
+                android:text="@string/filter_level"
+                android:textColor="@color/color_text_primary"
+                android:textSize="11sp"
+                android:singleLine="true"
+                android:textAppearance="@style/TextAppearance.App.Body" />
+
+            <TextView
+                android:id="@+id/btn_filter_field"
+                android:layout_width="0dp"
+                android:layout_height="36dp"
+                android:layout_weight="1"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
+                android:background="@drawable/bg_input_field"
+                android:gravity="center"
+                android:text="@string/filter_field"
+                android:textColor="@color/color_text_primary"
+                android:textSize="11sp"
+                android:singleLine="true"
+                android:textAppearance="@style/TextAppearance.App.Body" />
+
+            <TextView
+                android:id="@+id/btn_filter_funding"
+                android:layout_width="0dp"
+                android:layout_height="36dp"
+                android:layout_weight="1"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
+                android:background="@drawable/bg_input_field"
+                android:gravity="center"
+                android:text="@string/filter_funding"
+                android:textColor="@color/color_text_primary"
+                android:textSize="11sp"
+                android:singleLine="true"
+                android:textAppearance="@style/TextAppearance.App.Body" />
+
+            <TextView
+                android:id="@+id/btn_filter_deadline"
+                android:layout_width="0dp"
+                android:layout_height="36dp"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:background="@drawable/bg_input_field"
+                android:gravity="center"
+                android:text="@string/filter_deadline"
+                android:textColor="@color/color_text_primary"
+                android:textSize="11sp"
+                android:singleLine="true"
+                android:textAppearance="@style/TextAppearance.App.Body" />
+        </LinearLayout>
+
+        <!-- 6. Section Heading & Sort Dropdown -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:id="@+id/tv_result_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/scholarships_matching_title"
+                android:textColor="@color/color_text_primary"
+                android:textSize="15sp"
+                android:textAppearance="@style/TextAppearance.App.Headline" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/tv_sort"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                android:text="@string/sort_label"
+                android:textColor="@color/color_primary"
+                android:textSize="13sp"
+                android:textAppearance="@style/TextAppearance.App.Button" />
+        </LinearLayout>
+
+        <!-- 7. Dynamic Scholarship Result Cards RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_scholarship_results"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:paddingBottom="24dp"
+            tools:listitem="@layout/item_scholarship_result_card" />
+
+    </LinearLayout>
+</ScrollView>

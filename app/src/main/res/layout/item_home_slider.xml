@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="#E0ECFF">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- Background / Right Illustration Image -->
+        <ImageView
+            android:id="@+id/iv_slider_illustration"
+            android:layout_width="165dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:scaleType="fitEnd"
+            android:src="@drawable/slide_1"
+            android:contentDescription="@string/app_logo_desc" />
+
+        <!-- Left Content Area (Headline, Subtitle, CTA Button) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_toStartOf="@id/iv_slider_illustration"
+            android:orientation="vertical"
+            android:paddingStart="14dp"
+            android:paddingEnd="4dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tv_slider_headline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Kết nối hôm nay,\nkiến tạo tương lai"
+                android:textColor="#0F0954"
+                android:textSize="15sp"
+                android:fontFamily="@font/suez_one"
+                android:lineSpacingExtra="2dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_slider_subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Cùng bạn khám phá học bổng và\ntìm Mentor phù hợp nhất."
+                android:textColor="#64748B"
+                android:textSize="10sp"
+                android:lineSpacingExtra="1dp" />
+
+            <Button
+                android:id="@+id/btn_slider_cta"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_welcome_button_primary"
+                app:backgroundTint="@null"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:text="Khám phá cơ hội"
+                android:textColor="@android:color/white"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:stateListAnimator="@null"
+                android:elevation="0dp" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>

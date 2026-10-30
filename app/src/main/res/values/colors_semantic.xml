@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="color_primary">@color/navy_900</color>
+    <color name="color_secondary">@color/gray_500</color>
+    <color name="color_background">@color/blue_10</color>
+    <color name="color_surface">#FFFFFF</color>
+    <color name="color_text_primary">@color/slate_900</color>
+    <color name="color_text_hint">@color/slate_500</color>
+    <color name="color_border">@color/gray_border</color>
+    <color name="color_success">@color/green_500</color>
+    <color name="color_warning">@color/amber_400</color>
+    <color name="color_error">@color/red_500</color>
+    <color name="color_on_primary">#FFFFFF</color>
+    <color name="color_primary_container">@color/blue_10</color>
+    <color name="color_link">@color/navy_900</color>
+    <color name="color_on_disabled">#610F172A</color>
+    <color name="color_disabled_container">#1F0F172A</color>
+    <color name="color_ripple">#1F0F0954</color>
+    <color name="color_scrim">#52000000</color>
+    <color name="selector_button_primary_text">#FFFFFF</color>
+    <color name="selector_button_primary_bg">@color/color_primary</color>
+    <color name="color_on_gold">#0F172A</color>
+    <color name="color_gold">#FBBF24</color>
+    <color name="color_overlay_image">#66000000</color>
+</resources>
