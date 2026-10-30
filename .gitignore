@@ -23,25 +23,12 @@
 hs_err_pid*
 replay_pid*
 
-# Android Studio
-.idea/
 *.iml
-
-# Gradle
 .gradle/
-build/
-app/build/
-
-# Local config
-local.properties
-
-# APK / AAB
-*.apk
-*.aab
-
-# Native build
-.externalNativeBuild/
-.cxx/
-
-# Captures
-captures/
+/.idea/
+/build/
+/local.properties
+.DS_Store
+/captures
+.externalNativeBuild
+.cxx
