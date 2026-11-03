@@ -9,7 +9,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -31,11 +30,13 @@ public class MentorRankingActivity extends AppCompatActivity {
     private List<MentorRankingItem> filteredMentors;
     private MentorRankingAdapter adapter;
 
-    private TextView tvScholarshipTitle;
+    private EditText tvScholarshipTitle;
     private EditText etFilterScholarship, etFilterMentor;
 
     private String currentScholarshipQuery = "";
     private String currentMentorQuery = "";
+
+    private boolean isUpdatingText = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,22 +69,24 @@ public class MentorRankingActivity extends AppCompatActivity {
             btnBack.setOnClickListener(v -> finish());
         }
 
-        // Title
+        // Editable Title & Filter Inputs
         tvScholarshipTitle = findViewById(R.id.tv_scholarship_ranking_title);
+        etFilterScholarship = findViewById(R.id.et_filter_scholarship);
+        etFilterMentor = findViewById(R.id.et_filter_mentor);
+
         String passedScholarship = getIntent().getStringExtra(EXTRA_SCHOLARSHIP_NAME);
         if (tvScholarshipTitle != null && !TextUtils.isEmpty(passedScholarship)) {
             tvScholarshipTitle.setText(passedScholarship);
         }
 
-        // Filters
-        etFilterScholarship = findViewById(R.id.et_filter_scholarship);
-        etFilterMentor = findViewById(R.id.et_filter_mentor);
+        // Reset Buttons
         Button btnResetScholarship = findViewById(R.id.btn_reset_scholarship);
         Button btnResetMentor = findViewById(R.id.btn_reset_mentor);
 
         if (btnResetScholarship != null) {
             btnResetScholarship.setOnClickListener(v -> {
                 if (etFilterScholarship != null) etFilterScholarship.setText("");
+                if (tvScholarshipTitle != null) tvScholarshipTitle.setText(R.string.default_scholarship_ranking_name);
             });
         }
 
@@ -113,19 +116,41 @@ public class MentorRankingActivity extends AppCompatActivity {
 
     private void loadMentorData() {
         allMentors = new ArrayList<>();
-        allMentors.add(new MentorRankingItem(1, "Nguyen Kim Loan", "92%", "4.9/5", "96%", "98%", "3 years"));
-        allMentors.add(new MentorRankingItem(2, "Minh An", "88%", "4.8/5", "93%", "95%", "2 years"));
-        allMentors.add(new MentorRankingItem(3, "Ha Linh", "85%", "4.7/5", "91%", "94%", "2 years"));
-        allMentors.add(new MentorRankingItem(4, "Tran Minh Hieu", "82%", "4.6/5", "89%", "91%", "3 years"));
-        allMentors.add(new MentorRankingItem(5, "Le Thu Mai", "80%", "4.5/5", "88%", "90%", "2 years"));
-        allMentors.add(new MentorRankingItem(6, "Pham Thi Hoa", "78%", "4.5/5", "85%", "89%", "1 year"));
-        allMentors.add(new MentorRankingItem(7, "Nguyen Anh", "76%", "4.4/5", "84%", "87%", "2 years"));
-        allMentors.add(new MentorRankingItem(8, "Tran Hoang Nam", "74%", "4.3/5", "82%", "85%", "1 year"));
-        allMentors.add(new MentorRankingItem(9, "Kim Ngan", "72%", "4.2/5", "80%", "83%", "1 year"));
-        allMentors.add(new MentorRankingItem(10, "Thu Tram", "70%", "4.1/5", "78%", "82%", "1 year"));
+        allMentors.add(new MentorRankingItem(1, "Nguyen Kim Loan", "94.7%", "92%", "4.9/5", "96%", "98%"));
+        allMentors.add(new MentorRankingItem(2, "Minh An", "91.5%", "88%", "4.8/5", "93%", "95%"));
+        allMentors.add(new MentorRankingItem(3, "Ha Linh", "89.1%", "85%", "4.7/5", "91%", "94%"));
+        allMentors.add(new MentorRankingItem(4, "Tran Minh Hieu", "86.5%", "82%", "4.6/5", "89%", "91%"));
+        allMentors.add(new MentorRankingItem(5, "Le Thu Mai", "84.7%", "80%", "4.5/5", "88%", "90%"));
+        allMentors.add(new MentorRankingItem(6, "Pham Thi Hoa", "83.2%", "78%", "4.5/5", "85%", "89%"));
+        allMentors.add(new MentorRankingItem(7, "Nguyen Anh", "81.3%", "76%", "4.4/5", "84%", "87%"));
+        allMentors.add(new MentorRankingItem(8, "Tran Hoang Nam", "79.3%", "74%", "4.3/5", "82%", "85%"));
+        allMentors.add(new MentorRankingItem(9, "Kim Ngan", "77.3%", "72%", "4.2/5", "80%", "83%"));
+        allMentors.add(new MentorRankingItem(10, "Thu Tram", "75.4%", "70%", "4.1/5", "78%", "82%"));
     }
 
     private void setupFilterListeners() {
+        if (tvScholarshipTitle != null) {
+            tvScholarshipTitle.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    if (!isUpdatingText) {
+                        isUpdatingText = true;
+                        if (etFilterScholarship != null) {
+                            etFilterScholarship.setText(s);
+                            etFilterScholarship.setSelection(s.length());
+                        }
+                        isUpdatingText = false;
+                    }
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {}
+            });
+        }
+
         if (etFilterScholarship != null) {
             etFilterScholarship.addTextChangedListener(new TextWatcher() {
                 @Override
@@ -133,12 +158,16 @@ public class MentorRankingActivity extends AppCompatActivity {
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    currentScholarshipQuery = s.toString().trim();
-                    if (!TextUtils.isEmpty(currentScholarshipQuery) && tvScholarshipTitle != null) {
-                        tvScholarshipTitle.setText(currentScholarshipQuery);
-                    } else if (tvScholarshipTitle != null) {
-                        tvScholarshipTitle.setText(R.string.default_scholarship_ranking_name);
+                    if (!isUpdatingText) {
+                        isUpdatingText = true;
+                        if (!TextUtils.isEmpty(s) && tvScholarshipTitle != null) {
+                            tvScholarshipTitle.setText(s);
+                        } else if (tvScholarshipTitle != null) {
+                            tvScholarshipTitle.setText(R.string.default_scholarship_ranking_name);
+                        }
+                        isUpdatingText = false;
                     }
+                    currentScholarshipQuery = s.toString().trim();
                     applyFilters();
                 }
 

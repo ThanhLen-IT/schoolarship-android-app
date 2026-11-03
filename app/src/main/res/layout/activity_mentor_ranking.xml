@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
@@ -143,18 +144,23 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- Scholarship Title Heading -->
-            <TextView
+            <!-- Editable Scholarship Title Heading -->
+            <EditText
                 android:id="@+id/tv_scholarship_ranking_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginTop="10dp"
+                android:background="@null"
+                android:hint="Scholarship Name"
+                android:inputType="textMultiLine"
                 android:text="@string/default_scholarship_ranking_name"
                 android:textColor="@color/color_primary"
+                android:textColorHint="@color/color_text_hint"
                 android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:autofillHints="" />
 
             <!-- Filters Section -->
             <LinearLayout
@@ -169,28 +175,31 @@
                 <EditText
                     android:id="@+id/et_filter_scholarship"
                     android:layout_width="0dp"
-                    android:layout_height="40dp"
+                    android:layout_height="42dp"
                     android:layout_weight="1"
-                    android:background="@drawable/bg_input_field"
+                    android:background="@drawable/bg_welcome_button_secondary"
                     android:hint="@string/filter_scholarship_label"
                     android:inputType="text"
                     android:autofillHints=""
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
                     android:singleLine="true"
                     android:textColor="@color/color_text_primary"
                     android:textColorHint="@color/color_text_hint"
-                    android:textSize="12sp" />
+                    android:textSize="13sp" />
 
                 <Button
                     android:id="@+id/btn_reset_scholarship"
                     android:layout_width="wrap_content"
-                    android:layout_height="40dp"
+                    android:layout_height="42dp"
                     android:layout_marginStart="8dp"
                     android:background="@drawable/bg_welcome_button_secondary"
+                    app:backgroundTint="@null"
+                    android:paddingStart="18dp"
+                    android:paddingEnd="18dp"
                     android:text="@string/reset_button_label"
                     android:textColor="@color/color_primary"
-                    android:textSize="12sp"
+                    android:textSize="13sp"
                     android:textStyle="bold"
                     android:stateListAnimator="@null"
                     android:elevation="0dp" />
@@ -208,28 +217,31 @@
                 <EditText
                     android:id="@+id/et_filter_mentor"
                     android:layout_width="0dp"
-                    android:layout_height="40dp"
+                    android:layout_height="42dp"
                     android:layout_weight="1"
-                    android:background="@drawable/bg_input_field"
+                    android:background="@drawable/bg_welcome_button_secondary"
                     android:hint="@string/filter_mentor_label"
                     android:inputType="text"
                     android:autofillHints=""
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
                     android:singleLine="true"
                     android:textColor="@color/color_text_primary"
                     android:textColorHint="@color/color_text_hint"
-                    android:textSize="12sp" />
+                    android:textSize="13sp" />
 
                 <Button
                     android:id="@+id/btn_reset_mentor"
                     android:layout_width="wrap_content"
-                    android:layout_height="40dp"
+                    android:layout_height="42dp"
                     android:layout_marginStart="8dp"
                     android:background="@drawable/bg_welcome_button_secondary"
+                    app:backgroundTint="@null"
+                    android:paddingStart="18dp"
+                    android:paddingEnd="18dp"
                     android:text="@string/reset_button_label"
                     android:textColor="@color/color_primary"
-                    android:textSize="12sp"
+                    android:textSize="13sp"
                     android:textStyle="bold"
                     android:stateListAnimator="@null"
                     android:elevation="0dp" />
@@ -276,7 +288,18 @@
                             android:textStyle="bold" />
 
                         <TextView
-                            android:layout_width="120dp"
+                            android:layout_width="80dp"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:paddingStart="4dp"
+                            android:paddingEnd="4dp"
+                            android:text="@string/col_total"
+                            android:textColor="@color/color_primary"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="110dp"
                             android:layout_height="match_parent"
                             android:gravity="center"
                             android:paddingStart="8dp"
@@ -287,7 +310,7 @@
                             android:textStyle="bold" />
 
                         <TextView
-                            android:layout_width="100dp"
+                            android:layout_width="90dp"
                             android:layout_height="match_parent"
                             android:gravity="center"
                             android:paddingStart="8dp"
@@ -298,7 +321,7 @@
                             android:textStyle="bold" />
 
                         <TextView
-                            android:layout_width="110dp"
+                            android:layout_width="100dp"
                             android:layout_height="match_parent"
                             android:gravity="center"
                             android:paddingStart="8dp"
@@ -315,17 +338,6 @@
                             android:paddingStart="8dp"
                             android:paddingEnd="8dp"
                             android:text="@string/col_response_rate"
-                            android:textColor="@color/color_primary"
-                            android:textSize="11sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="110dp"
-                            android:layout_height="match_parent"
-                            android:gravity="center"
-                            android:paddingStart="8dp"
-                            android:paddingEnd="8dp"
-                            android:text="@string/col_experience"
                             android:textColor="@color/color_primary"
                             android:textSize="11sp"
                             android:textStyle="bold" />

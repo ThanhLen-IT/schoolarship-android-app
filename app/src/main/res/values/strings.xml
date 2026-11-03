@@ -238,6 +238,7 @@
     <string name="reset_button_label">Reset</string>
     <string name="col_rank">Rank</string>
     <string name="col_mentor_name">Mentor Name</string>
+    <string name="col_total">Total</string>
     <string name="col_success_rate">Mentee Success Rate</string>
     <string name="col_avg_rating">Average Rating</string>
     <string name="col_completion_rate">Completion Rate</string>
