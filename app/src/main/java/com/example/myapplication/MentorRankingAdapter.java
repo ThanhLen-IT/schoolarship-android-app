@@ -31,11 +31,11 @@ public class MentorRankingAdapter extends RecyclerView.Adapter<MentorRankingAdap
 
         holder.tvRank.setText(String.valueOf(item.getRank()));
         holder.tvMentorName.setText(item.getMentorName());
+        holder.tvTotal.setText(item.getTotal());
         holder.tvSuccessRate.setText(item.getSuccessRate());
         holder.tvAvgRating.setText(item.getAvgRating());
         holder.tvCompletionRate.setText(item.getCompletionRate());
         holder.tvResponseRate.setText(item.getResponseRate());
-        holder.tvExperience.setText(item.getExperience());
     }
 
     @Override
@@ -44,17 +44,17 @@ public class MentorRankingAdapter extends RecyclerView.Adapter<MentorRankingAdap
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvRank, tvMentorName, tvSuccessRate, tvAvgRating, tvCompletionRate, tvResponseRate, tvExperience;
+        TextView tvRank, tvMentorName, tvTotal, tvSuccessRate, tvAvgRating, tvCompletionRate, tvResponseRate;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvRank = itemView.findViewById(R.id.tv_rank);
             tvMentorName = itemView.findViewById(R.id.tv_mentor_name);
+            tvTotal = itemView.findViewById(R.id.tv_total);
             tvSuccessRate = itemView.findViewById(R.id.tv_success_rate);
             tvAvgRating = itemView.findViewById(R.id.tv_avg_rating);
             tvCompletionRate = itemView.findViewById(R.id.tv_completion_rate);
             tvResponseRate = itemView.findViewById(R.id.tv_response_rate);
-            tvExperience = itemView.findViewById(R.id.tv_experience);
         }
     }
 }

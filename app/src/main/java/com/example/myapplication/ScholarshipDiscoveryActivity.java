@@ -34,7 +34,7 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
     private ScholarshipResultAdapter adapter;
 
     // Filter states
-    private String selectedCountry = "All countries";
+    private String selectedCountry = "Tất cả quốc gia";
     private String selectedLevel = "All levels";
     private String selectedField = "All fields";
     private String selectedFunding = "All funding";
@@ -150,27 +150,27 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
         allScholarships = new ArrayList<>();
         try {
             allScholarships.add(new Scholarship(
-                    "1", "Global Excellence Scholarship", "Harvard University", "United States",
+                    "1", "Global Excellence Scholarship", "ASEAN University Network", "Đông Nam Á",
                     "Thạc sĩ", "Công nghệ thông tin", "Toàn phần",
                     "17/10/2026", dateFormat.parse("17/10/2026"), dateFormat.parse("01/01/2026"), 100.0
             ));
             allScholarships.add(new Scholarship(
-                    "2", "Fulbright Leadership Grant", "Fulbright Foundation", "United States",
+                    "2", "KGSP Korean Government Scholarship", "NIIED Korea", "Hàn Quốc",
                     "Thạc sĩ", "Khoa học xã hội", "Toàn phần",
                     "30/11/2026", dateFormat.parse("30/11/2026"), dateFormat.parse("05/01/2026"), 95.0
             ));
             allScholarships.add(new Scholarship(
-                    "3", "Chevening UK Scholarship", "UK Government", "United Kingdom",
+                    "3", "MEXT Government Scholarship", "Japanese Government", "Nhật Bản",
                     "Thạc sĩ", "Kinh doanh", "Toàn phần",
                     "05/11/2026", dateFormat.parse("05/11/2026"), dateFormat.parse("10/01/2026"), 98.0
             ));
             allScholarships.add(new Scholarship(
-                    "4", "Erasmus Mundus Joint Master", "European Union", "France",
+                    "4", "Chinese Government Scholarship", "CSC China", "Trung Quốc",
                     "Thạc sĩ", "Khoa học", "Bán phần",
                     "15/12/2026", dateFormat.parse("15/12/2026"), dateFormat.parse("12/01/2026"), 80.0
             ));
             allScholarships.add(new Scholarship(
-                    "5", "Australia Awards Scholarship", "Australian Government", "Australia",
+                    "5", "Taiwan ICDF Scholarship", "Taiwan ICDF", "Đài Loan",
                     "Đại học", "Y tế", "Toàn phần",
                     "20/10/2026", dateFormat.parse("20/10/2026"), dateFormat.parse("02/01/2026"), 90.0
             ));
@@ -194,7 +194,7 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
             }
 
             // Country filter
-            if (!"All countries".equals(selectedCountry) && !s.getCountry().equalsIgnoreCase(selectedCountry)) {
+            if (!"Tất cả quốc gia".equalsIgnoreCase(selectedCountry) && !"All countries".equalsIgnoreCase(selectedCountry) && !s.getCountry().equalsIgnoreCase(selectedCountry)) {
                 continue;
             }
 
@@ -265,9 +265,9 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
     }
 
     private void showCountryDialog() {
-        String[] countries = {"All countries", "United States", "United Kingdom", "France", "Australia"};
+        String[] countries = {"Tất cả quốc gia", "Đông Nam Á", "Trung Quốc", "Hàn Quốc", "Nhật Bản", "Đài Loan"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Select Country");
+        builder.setTitle("Chọn quốc gia");
         builder.setItems(countries, (dialog, which) -> {
             selectedCountry = countries[which];
             if (tvSelectedCountry != null) {
@@ -279,7 +279,7 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
     }
 
     private void showLevelDialog() {
-        String[] levels = {"All levels", "Đại học", "Thạc sĩ", "Tiến sĩ", "Trao đổi / ngắn hạn"};
+        String[] levels = {"All levels", "Đại học", "Thạc sĩ", "Tiến sĩ"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Bậc học");
         builder.setItems(levels, (dialog, which) -> {
