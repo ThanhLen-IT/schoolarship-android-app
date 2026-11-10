@@ -18,6 +18,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class ScholarshipDetailActivity extends AppCompatActivity {
 
+    public static final String EXTRA_SCHOLARSHIP_ID = "extra_scholarship_id";
     public static final String EXTRA_SCHOLARSHIP_TITLE = "extra_scholarship_title";
     public static final String EXTRA_SCHOLARSHIP_CATEGORY = "extra_scholarship_category";
     public static final String EXTRA_SCHOLARSHIP_IMAGE = "extra_scholarship_image";
@@ -82,6 +83,15 @@ public class ScholarshipDetailActivity extends AppCompatActivity {
         if (ivHero != null && imageResId != 0) {
             ivHero.setImageResource(imageResId);
         }
+
+        Button findMentor = findViewById(R.id.btn_detail_find_mentor);
+        findMentor.setOnClickListener(v -> {
+            Intent ranking = new Intent(this, MentorRankingActivity.class);
+            ranking.putExtra(MentorRankingActivity.EXTRA_SCHOLARSHIP_ID,
+                    getIntent().getStringExtra(EXTRA_SCHOLARSHIP_ID));
+            ranking.putExtra(MentorRankingActivity.EXTRA_SCHOLARSHIP_NAME, title);
+            startActivity(ranking);
+        });
 
         // Apply Now Button
         Button btnApplyNow = findViewById(R.id.btn_apply_now);

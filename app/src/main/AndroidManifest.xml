@@ -60,6 +60,7 @@
             android:name=".CommunityActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".PersonalProfileActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ProfileActivity"
             android:exported="false"

@@ -40,10 +40,16 @@ public class SignInActivity extends AppCompatActivity {
             });
         }
 
+        ((TextView) findViewById(R.id.tv_sign_in_subtitle)).setText(R.string.local_auth_notice);
+
         // Log In button -> navigate to HomeActivity
         Button btnLogin = findViewById(R.id.btn_login);
         if (btnLogin != null) {
             btnLogin.setOnClickListener(v -> {
+                android.widget.EditText email = findViewById(R.id.et_email);
+                android.widget.EditText password = findViewById(R.id.et_password);
+                if (!FormValidation.email(email) || !FormValidation.password(password)) return;
+                Toast.makeText(this, R.string.local_demo_notice, Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(SignInActivity.this, HomeActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);

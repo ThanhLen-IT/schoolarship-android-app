@@ -46,6 +46,8 @@ public class SignUpActivity extends AppCompatActivity {
             });
         }
 
+        ((TextView) findViewById(R.id.tv_sign_up_subtitle)).setText(R.string.local_auth_notice);
+
         // Back button navigation
         ImageButton btnBack = findViewById(R.id.btn_back);
         if (btnBack != null) {
@@ -79,6 +81,14 @@ public class SignUpActivity extends AppCompatActivity {
         Button btnRegister = findViewById(R.id.btn_register);
         if (btnRegister != null) {
             btnRegister.setOnClickListener(v -> {
+                android.widget.EditText name = findViewById(R.id.et_full_name);
+                android.widget.EditText email = findViewById(R.id.et_email);
+                android.widget.EditText phone = findViewById(R.id.et_phone);
+                android.widget.EditText password = findViewById(R.id.et_password);
+                if (!FormValidation.required(name) || !FormValidation.email(email)
+                        || !FormValidation.required(etBirthDate) || !FormValidation.phone(phone)
+                        || !FormValidation.password(password)) return;
+                android.widget.Toast.makeText(this, R.string.local_auth_notice, android.widget.Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(SignUpActivity.this, RegistrationSuccessActivity.class);
                 startActivity(intent);
             });

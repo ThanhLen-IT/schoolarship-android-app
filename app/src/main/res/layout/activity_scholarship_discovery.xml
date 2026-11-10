@@ -223,6 +223,8 @@
         </LinearLayout>
 
         <!-- 7. Dynamic Scholarship Result Cards RecyclerView -->
+<TextView android:id="@+id/tv_search_empty" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone" android:padding="16dp" android:text="@string/search_empty" android:textColor="@color/color_text_hint" />
+<Button android:id="@+id/btn_clear_filters" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/clear_filters" />
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_scholarship_results"
             android:layout_width="match_parent"

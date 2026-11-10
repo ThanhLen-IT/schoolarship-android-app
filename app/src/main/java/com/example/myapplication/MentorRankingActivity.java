@@ -30,13 +30,13 @@ public class MentorRankingActivity extends AppCompatActivity {
     private List<MentorRankingItem> filteredMentors;
     private MentorRankingAdapter adapter;
 
-    private EditText tvScholarshipTitle;
+    private android.widget.TextView tvScholarshipTitle;
+    public static final String EXTRA_SCHOLARSHIP_ID = "extra_scholarship_id";
+    private String selectedScholarshipId = "";
     private EditText etFilterScholarship, etFilterMentor;
 
-    private String currentScholarshipQuery = "";
     private String currentMentorQuery = "";
 
-    private boolean isUpdatingText = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,26 +69,31 @@ public class MentorRankingActivity extends AppCompatActivity {
             btnBack.setOnClickListener(v -> finish());
         }
 
-        // Editable Title & Filter Inputs
+        // Scholarship selector and mentor search
         tvScholarshipTitle = findViewById(R.id.tv_scholarship_ranking_title);
         etFilterScholarship = findViewById(R.id.et_filter_scholarship);
         etFilterMentor = findViewById(R.id.et_filter_mentor);
 
-        String passedScholarship = getIntent().getStringExtra(EXTRA_SCHOLARSHIP_NAME);
-        if (tvScholarshipTitle != null && !TextUtils.isEmpty(passedScholarship)) {
-            tvScholarshipTitle.setText(passedScholarship);
+        if (savedInstanceState != null) {
+            selectedScholarshipId = savedInstanceState.getString("scholarship_id", "");
+        } else {
+            selectedScholarshipId = getIntent().getStringExtra(EXTRA_SCHOLARSHIP_ID);
+            if (selectedScholarshipId == null) selectedScholarshipId = "";
+            if (selectedScholarshipId.isEmpty()) {
+                String name = getIntent().getStringExtra(EXTRA_SCHOLARSHIP_NAME);
+                for (Scholarship scholarship : LocalDemoCatalog.scholarships()) {
+                    if (scholarship.getTitle().equals(name)) selectedScholarshipId = scholarship.getId();
+                }
+            }
         }
-
-        // Reset Buttons
-        Button btnResetScholarship = findViewById(R.id.btn_reset_scholarship);
+        etFilterScholarship.setFocusable(false);
+        etFilterScholarship.setOnClickListener(v -> showScholarshipPicker());
+        tvScholarshipTitle.setOnClickListener(v -> showScholarshipPicker());
+        findViewById(R.id.btn_reset_scholarship).setOnClickListener(v -> {
+            selectedScholarshipId = "";
+            updateScholarship();
+        });
         Button btnResetMentor = findViewById(R.id.btn_reset_mentor);
-
-        if (btnResetScholarship != null) {
-            btnResetScholarship.setOnClickListener(v -> {
-                if (etFilterScholarship != null) etFilterScholarship.setText("");
-                if (tvScholarshipTitle != null) tvScholarshipTitle.setText(R.string.default_scholarship_ranking_name);
-            });
-        }
 
         if (btnResetMentor != null) {
             btnResetMentor.setOnClickListener(v -> {
@@ -97,7 +102,7 @@ public class MentorRankingActivity extends AppCompatActivity {
         }
 
         // Load Data
-        loadMentorData();
+        allMentors = new ArrayList<>();
 
         filteredMentors = new ArrayList<>(allMentors);
         RecyclerView recyclerView = findViewById(R.id.recycler_mentor_ranking);
@@ -109,73 +114,45 @@ public class MentorRankingActivity extends AppCompatActivity {
 
         // Filter TextWatchers
         setupFilterListeners();
+        updateScholarship();
 
         // Setup Bottom Navigation
         setupBottomNavigation();
     }
 
-    private void loadMentorData() {
-        allMentors = new ArrayList<>();
-        allMentors.add(new MentorRankingItem(1, "Nguyen Kim Loan", "94.7%", "92%", "4.9/5", "96%", "98%"));
-        allMentors.add(new MentorRankingItem(2, "Minh An", "91.5%", "88%", "4.8/5", "93%", "95%"));
-        allMentors.add(new MentorRankingItem(3, "Ha Linh", "89.1%", "85%", "4.7/5", "91%", "94%"));
-        allMentors.add(new MentorRankingItem(4, "Tran Minh Hieu", "86.5%", "82%", "4.6/5", "89%", "91%"));
-        allMentors.add(new MentorRankingItem(5, "Le Thu Mai", "84.7%", "80%", "4.5/5", "88%", "90%"));
-        allMentors.add(new MentorRankingItem(6, "Pham Thi Hoa", "83.2%", "78%", "4.5/5", "85%", "89%"));
-        allMentors.add(new MentorRankingItem(7, "Nguyen Anh", "81.3%", "76%", "4.4/5", "84%", "87%"));
-        allMentors.add(new MentorRankingItem(8, "Tran Hoang Nam", "79.3%", "74%", "4.3/5", "82%", "85%"));
-        allMentors.add(new MentorRankingItem(9, "Kim Ngan", "77.3%", "72%", "4.2/5", "80%", "83%"));
-        allMentors.add(new MentorRankingItem(10, "Thu Tram", "75.4%", "70%", "4.1/5", "78%", "82%"));
+    @Override
+    protected void onSaveInstanceState(Bundle state) {
+        state.putString("scholarship_id", selectedScholarshipId);
+        super.onSaveInstanceState(state);
+    }
+
+    private void showScholarshipPicker() {
+        List<Scholarship> scholarships = LocalDemoCatalog.scholarships();
+        String[] titles = new String[scholarships.size()];
+        int checked = -1;
+        for (int i = 0; i < titles.length; i++) {
+            titles[i] = scholarships.get(i).getTitle();
+            if (scholarships.get(i).getId().equals(selectedScholarshipId)) checked = i;
+        }
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle(R.string.choose_scholarship)
+                .setSingleChoiceItems(titles, checked, (dialog, which) -> {
+                    selectedScholarshipId = scholarships.get(which).getId();
+                    updateScholarship();
+                    dialog.dismiss();
+                }).setNegativeButton(R.string.cancel_button, null).show();
+    }
+
+    private void updateScholarship() {
+        Scholarship scholarship = LocalDemoCatalog.find(selectedScholarshipId);
+        String title = scholarship == null ? getString(R.string.choose_scholarship) : scholarship.getTitle();
+        tvScholarshipTitle.setText(title);
+        etFilterScholarship.setText(title);
+        allMentors = LocalDemoCatalog.mentors(selectedScholarshipId);
+        applyFilters();
     }
 
     private void setupFilterListeners() {
-        if (tvScholarshipTitle != null) {
-            tvScholarshipTitle.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    if (!isUpdatingText) {
-                        isUpdatingText = true;
-                        if (etFilterScholarship != null) {
-                            etFilterScholarship.setText(s);
-                            etFilterScholarship.setSelection(s.length());
-                        }
-                        isUpdatingText = false;
-                    }
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {}
-            });
-        }
-
-        if (etFilterScholarship != null) {
-            etFilterScholarship.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    if (!isUpdatingText) {
-                        isUpdatingText = true;
-                        if (!TextUtils.isEmpty(s) && tvScholarshipTitle != null) {
-                            tvScholarshipTitle.setText(s);
-                        } else if (tvScholarshipTitle != null) {
-                            tvScholarshipTitle.setText(R.string.default_scholarship_ranking_name);
-                        }
-                        isUpdatingText = false;
-                    }
-                    currentScholarshipQuery = s.toString().trim();
-                    applyFilters();
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {}
-            });
-        }
-
         if (etFilterMentor != null) {
             etFilterMentor.addTextChangedListener(new TextWatcher() {
                 @Override
@@ -198,16 +175,18 @@ public class MentorRankingActivity extends AppCompatActivity {
 
         for (MentorRankingItem item : allMentors) {
             if (!TextUtils.isEmpty(currentMentorQuery)) {
-                if (!item.getMentorName().toLowerCase().contains(currentMentorQuery.toLowerCase())) {
+                if (!item.getMentorName().toLowerCase(java.util.Locale.ROOT).contains(currentMentorQuery.toLowerCase(java.util.Locale.ROOT))) {
                     continue;
                 }
             }
             filteredMentors.add(item);
         }
 
-        if (adapter != null) {
-            adapter.notifyDataSetChanged();
-        }
+        if (adapter != null) adapter.notifyDataSetChanged();
+        android.widget.TextView empty = findViewById(R.id.tv_ranking_empty);
+        empty.setText(selectedScholarshipId.isEmpty() ? R.string.ranking_choose_first :
+                (allMentors.isEmpty() ? R.string.ranking_no_mentors : R.string.ranking_no_match));
+        empty.setVisibility(filteredMentors.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
     private void setupBottomNavigation() {

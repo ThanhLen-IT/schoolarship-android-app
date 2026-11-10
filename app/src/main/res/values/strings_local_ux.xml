@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="local_demo_notice">Dữ liệu minh họa trên thiết bị • Chưa kết nối máy chủ</string>
+    <string name="local_auth_notice">Bản xem thử giao diện • Chưa xác thực tài khoản qua máy chủ</string>
+    <string name="local_profile_notice">Hồ sơ thử nghiệm lưu trên thiết bị này. Dữ liệu chưa đồng bộ tài khoản.</string>
+    <string name="local_result_count">Dữ liệu minh họa • %1$d học bổng</string>
+    <string name="search_empty">Không tìm thấy học bổng. Hãy đổi từ khóa hoặc xóa bộ lọc.</string>
+    <string name="clear_filters">Xóa tất cả bộ lọc</string>
+    <string name="choose_scholarship">Chọn học bổng</string>
+    <string name="ranking_choose_first">Chọn học bổng để xem bảng xếp hạng mentor.</string>
+    <string name="ranking_no_mentors">Học bổng này chưa có mentor trong dữ liệu minh họa. Hãy chọn học bổng khác.</string>
+    <string name="ranking_no_match">Không tìm thấy mentor phù hợp với từ khóa.</string>
+    <string name="find_mentor_action">Tìm mentor cho học bổng này</string>
+    <string name="profile_back">Quay lại</string>
+    <string name="profile_info_title">Hồ sơ cá nhân</string>
+    <string name="profile_avatar">Ảnh đại diện</string>
+    <string name="profile_pick_avatar">Chọn ảnh đại diện</string>
+    <string name="profile_edit">Chỉnh sửa hồ sơ</string>
+    <string name="profile_save">Lưu hồ sơ</string>
+    <string name="profile_avatar_error">Không thể đọc ảnh đã chọn. Vui lòng chọn ảnh khác.</string>
+    <string name="profile_saved">Đã lưu hồ sơ trên thiết bị</string>
+    <string name="profile_discard_title">Bỏ thay đổi?</string>
+    <string name="profile_discard_message">Các thay đổi chưa lưu sẽ bị bỏ.</string>
+    <string name="profile_keep_editing">Tiếp tục sửa</string>
+    <string name="profile_discard">Bỏ thay đổi</string>
+</resources>
