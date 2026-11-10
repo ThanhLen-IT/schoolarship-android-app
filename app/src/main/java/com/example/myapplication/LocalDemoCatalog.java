@@ -8,6 +8,7 @@ import java.util.Locale;
 
 /** Local fixtures for UX review. IDs and scores do not represent backend records. */
 public final class LocalDemoCatalog {
+    public static final String LEVEL_EXCHANGE = "Trao đổi ngắn hạn (Exchange)";
     private LocalDemoCatalog() {}
     public static List<Scholarship> scholarships() {
         List<Scholarship> allScholarships = new ArrayList<>();
@@ -37,6 +38,11 @@ public final class LocalDemoCatalog {
                     "5", "Taiwan ICDF Scholarship", "Taiwan ICDF", "Đài Loan",
                     "Đại học", "Y tế", "Toàn phần",
                     "20/10/2026", dateFormat.parse("20/10/2026"), dateFormat.parse("02/01/2026"), 90.0
+            ));
+            allScholarships.add(new Scholarship(
+                    "6", "Chương trình trao đổi ngắn hạn (minh họa)", "Đối tác đại học (minh họa)", "Hàn Quốc",
+                    LEVEL_EXCHANGE, "Công nghệ thông tin", "Bán phần",
+                    "31/12/2026", dateFormat.parse("31/12/2026"), dateFormat.parse("01/11/2026"), 70.0
             ));
         } catch (ParseException e) {
             throw new IllegalStateException("Invalid local scholarship date", e);

@@ -3,7 +3,7 @@
     <string name="local_demo_notice">Dữ liệu minh họa trên thiết bị • Chưa kết nối máy chủ</string>
     <string name="local_auth_notice">Bản xem thử giao diện • Chưa xác thực tài khoản qua máy chủ</string>
     <string name="local_profile_notice">Hồ sơ thử nghiệm lưu trên thiết bị này. Dữ liệu chưa đồng bộ tài khoản.</string>
-    <string name="local_result_count">Dữ liệu minh họa • %1$d học bổng</string>
+    <string name="local_result_count">Minh họa • %1$d học bổng</string>
     <string name="search_empty">Không tìm thấy học bổng. Hãy đổi từ khóa hoặc xóa bộ lọc.</string>
     <string name="clear_filters">Xóa tất cả bộ lọc</string>
     <string name="choose_scholarship">Chọn học bổng</string>
@@ -23,4 +23,10 @@
     <string name="profile_discard_message">Các thay đổi chưa lưu sẽ bị bỏ.</string>
     <string name="profile_keep_editing">Tiếp tục sửa</string>
     <string name="profile_discard">Bỏ thay đổi</string>
+    <string name="clear_filters_compact">Xóa lọc</string>
+    <string name="all_study_levels">Tất cả bậc học</string>
+    <string name="study_level_exchange">Trao đổi ngắn hạn (Exchange)</string>
+    <string name="study_level_exchange_short">Trao đổi</string>
+    <string name="scholarship_deadline_value">Hạn: %1$s</string>
+    <string name="local_scholarship_overview">Dữ liệu minh họa để kiểm tra giao diện.\n\nĐơn vị: %1$s\nQuốc gia: %2$s\nBậc học: %3$s\nNgành học: %4$s</string>
 </resources>

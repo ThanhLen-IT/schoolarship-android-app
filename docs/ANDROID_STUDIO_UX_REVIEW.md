@@ -49,7 +49,7 @@ Chưa có tác vụ mạng nên chưa có vòng đời loading/lỗi mạng/th�
    đã lưu. Tiếp tục sửa phải giữ bản nháp. Không cho lưu tên chỉ có khoảng trắng.
    Hủy trình chọn ảnh không đổi ảnh. Xoay máy khi sửa phải giữ bản nháp.
 4. **Tìm học bổng:** phối hợp từ khóa/quốc gia/bậc học/ngành/tài trợ;
-   không có kết quả phải có hướng dẫn, Xóa tất cả bộ lọc trả về 5 học bổng.
+   không có kết quả phải có hướng dẫn, Xóa tất cả bộ lọc trả về 6 học bổng.
 5. **Deadline:** chọn ngày bắt đầu và ngày kết thúc; không thể chọn kết thúc trước
    bắt đầu. Hai đầu mút được tính trong kết quả. Chọn cùng ngày `30/11/2026`
    phải có KGSP. Hủy bước chọn ngày kết thúc không thay bộ lọc cũ.
@@ -71,3 +71,16 @@ Chưa có tác vụ mạng nên chưa có vòng đời loading/lỗi mạng/th�
 - Chưa xác nhận build APK hoặc chạy emulator: Gradle dừng ở bước tải distribution
   do môi trường không kết nối được; không có Android SDK/emulator để chạy UI.
   Cần Gradle Sync/Run và kiểm tra các tình huống trên máy của bạn trước merge.
+
+## Cập nhật theo phản hồi UX/UI
+
+- Xóa thanh nút tím toàn chiều ngang. Thay bằng liên kết “Xóa lọc” nhỏ cạnh số
+  kết quả và Sắp xếp; chỉ xuất hiện khi đang có từ khóa/bộ lọc/sắp xếp được đổi.
+- Bậc học thêm “Trao đổi ngắn hạn (Exchange)”; nhãn chip ngắn “Trao đổi”.
+  Có một học bổng exchange minh họa để thử lọc (ID local 6).
+- Hai card Home hiển thị dữ liệu catalog và mở trực tiếp chi tiết đúng ID.
+  “Xem tất cả” tiếp tục mở tìm kiếm. Chi tiết đọc tên, tài trợ và deadline theo ID.
+
+Kiểm tra thêm: Home → card Global Excellence/KGSP → chi tiết đúng tên, tài trợ,
+ngày hạn → Back về Home. Từ “Xem tất cả”, chọn Exchange → chỉ còn bản ghi minh họa
+trao đổi → xoay máy giữ lựa chọn → Xóa lọc → đủ 6 mục và liên kết Xóa lọc ẩn.

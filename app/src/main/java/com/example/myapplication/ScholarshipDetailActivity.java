@@ -66,8 +66,9 @@ public class ScholarshipDetailActivity extends AppCompatActivity {
         }
 
         // Retrieve Passed Scholarship Data
-        String title = getIntent().getStringExtra(EXTRA_SCHOLARSHIP_TITLE);
-        String category = getIntent().getStringExtra(EXTRA_SCHOLARSHIP_CATEGORY);
+        Scholarship scholarship = LocalDemoCatalog.find(getIntent().getStringExtra(EXTRA_SCHOLARSHIP_ID));
+        String title = scholarship != null ? scholarship.getTitle() : getIntent().getStringExtra(EXTRA_SCHOLARSHIP_TITLE);
+        String category = scholarship != null ? scholarship.getDegreeLevel() : getIntent().getStringExtra(EXTRA_SCHOLARSHIP_CATEGORY);
         int imageResId = getIntent().getIntExtra(EXTRA_SCHOLARSHIP_IMAGE, R.drawable.nen1);
 
         TextView tvTitle = findViewById(R.id.tv_scholarship_detail_title);
@@ -82,6 +83,16 @@ public class ScholarshipDetailActivity extends AppCompatActivity {
         }
         if (ivHero != null && imageResId != 0) {
             ivHero.setImageResource(imageResId);
+        }
+
+        if (scholarship != null) {
+            ((TextView) findViewById(R.id.chip_funding)).setText(scholarship.getFundingType());
+            ((TextView) findViewById(R.id.chip_deadline)).setText(scholarship.getDeadlineStr());
+            if (LocalDemoCatalog.LEVEL_EXCHANGE.equals(scholarship.getDegreeLevel()))
+                chipCategory.setText(R.string.study_level_exchange_short);
+            ((TextView) findViewById(R.id.tv_scholarship_description)).setText(
+                    getString(R.string.local_scholarship_overview, scholarship.getOrganization(),
+                            scholarship.getCountry(), scholarship.getDegreeLevel(), scholarship.getFieldOfStudy()));
         }
 
         Button findMentor = findViewById(R.id.btn_detail_find_mentor);

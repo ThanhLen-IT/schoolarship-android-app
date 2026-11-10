@@ -267,6 +267,7 @@
                         android:layout_height="76dp"
                         android:scaleType="centerCrop"
                         android:src="@drawable/nen1"
+                        android:id="@+id/home_scholarship_image_a"
                         android:contentDescription="@string/sample_scholarship_title_a" />
 
                     <TextView
@@ -278,6 +279,7 @@
                         android:paddingEnd="8dp"
                         android:paddingTop="2dp"
                         android:paddingBottom="2dp"
+                        android:id="@+id/home_scholarship_type_a"
                         android:text="@string/sample_scholarship_type_a"
                         android:textColor="@color/color_primary"
                         android:textSize="10sp"
@@ -287,6 +289,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
+                        android:id="@+id/home_scholarship_deadline_a"
                         android:text="@string/sample_scholarship_deadline_a"
                         android:textColor="@color/color_text_hint"
                         android:textSize="11sp" />
@@ -295,16 +298,20 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
+                        android:id="@+id/home_scholarship_title_a"
                         android:text="@string/sample_scholarship_title_a"
                         android:textColor="@color/color_text_primary"
                         android:textSize="13sp"
                         android:textStyle="bold"
-                        android:singleLine="true" />
+                        android:minLines="2"
+                        android:maxLines="2"
+                        android:ellipsize="end" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
+                        android:id="@+id/home_scholarship_meta_a"
                         android:text="@string/sample_scholarship_meta_a"
                         android:textColor="@color/color_text_hint"
                         android:textSize="10sp" />
@@ -328,6 +335,7 @@
                         android:layout_height="76dp"
                         android:scaleType="centerCrop"
                         android:src="@drawable/nen2"
+                        android:id="@+id/home_scholarship_image_b"
                         android:contentDescription="@string/sample_scholarship_title_b" />
 
                     <TextView
@@ -339,6 +347,7 @@
                         android:paddingEnd="8dp"
                         android:paddingTop="2dp"
                         android:paddingBottom="2dp"
+                        android:id="@+id/home_scholarship_type_b"
                         android:text="@string/sample_scholarship_type_b"
                         android:textColor="@color/color_primary"
                         android:textSize="10sp"
@@ -348,6 +357,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
+                        android:id="@+id/home_scholarship_deadline_b"
                         android:text="@string/sample_scholarship_deadline_b"
                         android:textColor="@color/color_text_hint"
                         android:textSize="11sp" />
@@ -356,16 +366,20 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
+                        android:id="@+id/home_scholarship_title_b"
                         android:text="@string/sample_scholarship_title_b"
                         android:textColor="@color/color_text_primary"
                         android:textSize="13sp"
                         android:textStyle="bold"
-                        android:singleLine="true" />
+                        android:minLines="2"
+                        android:maxLines="2"
+                        android:ellipsize="end" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
+                        android:id="@+id/home_scholarship_meta_b"
                         android:text="@string/sample_scholarship_meta_b"
                         android:textColor="@color/color_text_hint"
                         android:textSize="10sp" />
