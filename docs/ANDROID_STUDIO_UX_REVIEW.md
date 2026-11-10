@@ -84,3 +84,24 @@ Chưa có tác vụ mạng nên chưa có vòng đời loading/lỗi mạng/th�
 Kiểm tra thêm: Home → card Global Excellence/KGSP → chi tiết đúng tên, tài trợ,
 ngày hạn → Back về Home. Từ “Xem tất cả”, chọn Exchange → chỉ còn bản ghi minh họa
 trao đổi → xoay máy giữ lựa chọn → Xóa lọc → đủ 6 mục và liên kết Xóa lọc ẩn.
+
+## Hồ sơ và ảnh đại diện (giao diện mới)
+
+- Nền trắng, thanh tiêu đề có nút quay lại/Sửa, ảnh tròn, thông tin rõ ràng ở chế độ
+  xem. Chỉ khi Sửa mới hiện các ô nhập có viền và thanh Lưu/Hủy.
+- Có thể chạm trực tiếp avatar hoặc Sửa → Đổi ảnh đại diện. App tạo bản sao JPEG
+  512 × 512, tự xoay theo EXIF, lấy vùng giữa ảnh để hiển thị avatar tròn.
+- Đọc/thu nhỏ ảnh trên worker; đang xử lý thì tạm khóa Lưu/Đổi ảnh. Chọn file lỗi
+  hiển thị thông báo và giữ ảnh cũ. Không yêu cầu quyền đọc toàn bộ thư viện.
+- Chỉ nhấn Lưu mới cập nhật tham chiếu avatar trong hồ sơ local. Hủy/Back có xác nhận;
+  bỏ thay đổi giữ ảnh đã lưu. Sau khi Lưu, ảnh không phụ thuộc ảnh gốc trong thư viện.
+- Chưa upload ảnh hoặc đồng bộ hồ sơ lên backend; không dùng để kiểm tra tài khoản thật.
+
+Chạy thử: chọn ảnh dọc/ảnh lớn → xem trước → Lưu → về Profile; đóng/mở app vẫn giữ
+ảnh; xóa ảnh gốc vẫn giữ bản sao. Tiếp tục thử chọn ảnh khác rồi Hủy, hủy trình chọn
+ảnh, chọn file ảnh không đọc được, xoay máy sau khi chọn ảnh và khi đang sửa trường.
+Nếu xoay máy khi ảnh còn đang xử lý, tác vụ của màn cũ bị bỏ; cần chọn ảnh lại.
+Kiểm tra bàn phím mở và cỡ chữ lớn: phần nội dung cuộn được, Lưu/Hủy vẫn truy cập được.
+
+Các kiểm tra mới đã qua: parse Java/XML, đối chiếu resource references và view bindings,
+`git diff --check`. Chưa có kiểm tra ảnh/giao diện trên emulator trong môi trường này.

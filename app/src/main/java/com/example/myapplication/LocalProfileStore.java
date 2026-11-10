@@ -13,13 +13,13 @@ final class LocalProfileStore {
         return prefs(context).getString("name", context.getString(R.string.profile_name_default));
     }
     static void showAvatar(android.widget.ImageView image, String uri) {
-        image.setImageResource(R.drawable.ic_nav_profile);
+        image.setImageResource(R.drawable.ic_profile_placeholder);
         if (!uri.isEmpty()) {
             try {
-                image.setImageURI(android.net.Uri.parse(uri));
-                if (image.getDrawable() == null) image.setImageResource(R.drawable.ic_nav_profile);
-            } catch (RuntimeException e) {
-                image.setImageResource(R.drawable.ic_nav_profile);
+                image.setImageBitmap(LocalAvatarStorage.preview(image.getContext(), android.net.Uri.parse(uri)));
+                if (image.getDrawable() == null) image.setImageResource(R.drawable.ic_profile_placeholder);
+            } catch (java.io.IOException | RuntimeException e) {
+                image.setImageResource(R.drawable.ic_profile_placeholder);
             }
         }
     }

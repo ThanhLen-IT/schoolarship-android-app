@@ -30,4 +30,17 @@
     <string name="scholarship_deadline_value">Hạn: %1$s</string>
     <string name="local_scholarship_overview">Dữ liệu minh họa để kiểm tra giao diện.\n\nĐơn vị: %1$s\nQuốc gia: %2$s\nBậc học: %3$s\nNgành học: %4$s</string>
     <string name="home_scholarship_search_hint">Tìm học bổng…</string>
+    <string name="profile_edit_short">Sửa</string>
+    <string name="profile_change_photo">Đổi ảnh đại diện</string>
+    <string name="profile_photo_processing">Đang xử lý ảnh đại diện</string>
+    <string name="profile_not_provided">Chưa cập nhật</string>
+    <string name="profile_field_name">Họ và tên</string>
+    <string name="profile_field_university">Trường đại học</string>
+    <string name="profile_field_major">Ngành học</string>
+    <string name="profile_field_bio">Giới thiệu</string>
+    <string name="profile_field_skills">Kỹ năng</string>
+    <string name="profile_skills_help">Phân cách các kỹ năng bằng dấu phẩy.</string>
+    <string name="profile_local_caption">Bản xem thử · Hồ sơ và ảnh lưu trên thiết bị</string>
+    <string name="profile_summary_empty">Thêm trường và ngành học của bạn</string>
+    <string name="profile_save_error">Chưa lưu được hồ sơ. Vui lòng thử lại.</string>
 </resources>
