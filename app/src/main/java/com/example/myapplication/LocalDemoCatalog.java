@@ -8,7 +8,7 @@ import java.util.Locale;
 
 /** Local fixtures for UX review. IDs and scores do not represent backend records. */
 public final class LocalDemoCatalog {
-    public static final String LEVEL_EXCHANGE = "Trao đổi ngắn hạn (Exchange)";
+    public static final String LEVEL_EXCHANGE = "Trao đổi ngắn hạn";
     private LocalDemoCatalog() {}
     public static List<Scholarship> scholarships() {
         List<Scholarship> allScholarships = new ArrayList<>();
