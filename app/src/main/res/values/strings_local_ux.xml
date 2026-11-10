@@ -25,8 +25,8 @@
     <string name="profile_discard">Bỏ thay đổi</string>
     <string name="clear_filters_compact">Xóa lọc</string>
     <string name="all_study_levels">Tất cả bậc học</string>
-    <string name="study_level_exchange">Trao đổi ngắn hạn (Exchange)</string>
-    <string name="study_level_exchange_short">Trao đổi</string>
+    <string name="study_level_exchange">Trao đổi ngắn hạn</string>
+    <string name="study_level_exchange_short">Trao đổi ngắn hạn</string>
     <string name="scholarship_deadline_value">Hạn: %1$s</string>
     <string name="local_scholarship_overview">Dữ liệu minh họa để kiểm tra giao diện.\n\nĐơn vị: %1$s\nQuốc gia: %2$s\nBậc học: %3$s\nNgành học: %4$s</string>
 </resources>
