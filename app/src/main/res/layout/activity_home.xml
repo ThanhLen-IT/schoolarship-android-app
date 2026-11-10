@@ -165,10 +165,15 @@
                 android:textColor="@color/color_text_hint"
                 android:textSize="13sp" />
 
-            <!-- 3. Search Bar -->
+            <!-- 3. Scholarship Search Shortcut -->
             <LinearLayout
+                android:id="@+id/btn_home_search"
                 android:layout_width="match_parent"
-                android:layout_height="46dp"
+                android:layout_height="48dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                android:contentDescription="@string/home_scholarship_search_hint"
                 android:layout_marginTop="12dp"
                 android:background="@drawable/bg_input_field"
                 android:gravity="center_vertical"
@@ -179,15 +184,15 @@
                     android:layout_width="18dp"
                     android:layout_height="18dp"
                     android:src="@drawable/ic_search"
-                    android:contentDescription="@string/search_hint" />
+                    android:importantForAccessibility="no" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
-                    android:hint="@string/home_search_hint"
-                    android:textColorHint="@color/color_text_hint"
-                    android:textColor="@color/color_text_primary"
+                    android:importantForAccessibility="no"
+                    android:text="@string/home_scholarship_search_hint"
+                    android:textColor="@color/color_text_hint"
                     android:textSize="13sp"
                     android:singleLine="true" />
             </LinearLayout>

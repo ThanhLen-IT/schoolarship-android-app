@@ -28,6 +28,9 @@ import java.util.Locale;
 
 public class ScholarshipDiscoveryActivity extends AppCompatActivity {
 
+    public static final String EXTRA_FOCUS_SEARCH = "extra_focus_search";
+    private boolean focusSearchOnWindow;
+
     private List<Scholarship> allScholarships;
     private List<Scholarship> filteredScholarships;
     private ScholarshipResultAdapter adapter;
@@ -52,12 +55,14 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
 
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_scholarship_discovery);
+        focusSearchOnWindow = savedInstanceState == null
+                && getIntent().getBooleanExtra(EXTRA_FOCUS_SEARCH, false);
 
         View rootView = findViewById(R.id.main);
         if (rootView != null) {
             ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
                 Insets systemBars = insets.getInsets(
-                        WindowInsetsCompat.Type.systemBars()
+                        WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime()
                 );
 
                 v.setPadding(
@@ -161,6 +166,20 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
 
         if (tvSort != null) {
             tvSort.setOnClickListener(v -> showSortDialog());
+        }
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus && focusSearchOnWindow) {
+            focusSearchOnWindow = false;
+            EditText search = findViewById(R.id.et_scholarship_search);
+            search.post(() -> {
+                search.requestFocus();
+                androidx.core.view.WindowCompat.getInsetsController(getWindow(), search)
+                        .show(WindowInsetsCompat.Type.ime());
+            });
         }
     }
 

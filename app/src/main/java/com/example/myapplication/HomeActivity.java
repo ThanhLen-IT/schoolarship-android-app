@@ -58,6 +58,12 @@ public class HomeActivity extends AppCompatActivity {
             });
         }
 
+        findViewById(R.id.btn_home_search).setOnClickListener(v -> {
+            Intent intent = new Intent(this, ScholarshipDiscoveryActivity.class);
+            intent.putExtra(ScholarshipDiscoveryActivity.EXTRA_FOCUS_SEARCH, true);
+            startActivity(intent);
+        });
+
         // Setup Banner Carousel (3 banners: slide_1, nen1, nen2)
         setupBannerCarousel();
 

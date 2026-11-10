@@ -29,4 +29,5 @@
     <string name="study_level_exchange_short">Trao đổi ngắn hạn</string>
     <string name="scholarship_deadline_value">Hạn: %1$s</string>
     <string name="local_scholarship_overview">Dữ liệu minh họa để kiểm tra giao diện.\n\nĐơn vị: %1$s\nQuốc gia: %2$s\nBậc học: %3$s\nNgành học: %4$s</string>
+    <string name="home_scholarship_search_hint">Tìm học bổng…</string>
 </resources>
