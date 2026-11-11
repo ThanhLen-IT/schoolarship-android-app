@@ -22,6 +22,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class MentorRankingActivity extends AppCompatActivity {
 
     public static final String EXTRA_SCHOLARSHIP_NAME = "extra_scholarship_name";
@@ -36,7 +40,6 @@ public class MentorRankingActivity extends AppCompatActivity {
     private EditText etFilterScholarship, etFilterMentor;
 
     private String currentMentorQuery = "";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,6 +153,35 @@ public class MentorRankingActivity extends AppCompatActivity {
         etFilterScholarship.setText(title);
         allMentors = LocalDemoCatalog.mentors(selectedScholarshipId);
         applyFilters();
+
+        if (!selectedScholarshipId.isEmpty()) {
+            try {
+                int scholarshipNumId = Integer.parseInt(selectedScholarshipId);
+                fetchMentorRankingFromApi(scholarshipNumId);
+            } catch (NumberFormatException ignored) {}
+        }
+    }
+
+    private void fetchMentorRankingFromApi(int scholarshipId) {
+        ApiClient.getApiService().getMentorRanking(scholarshipId, 1, 20)
+                .enqueue(new Callback<ApiResponse<List<MentorRankingItem>>>() {
+                    @Override
+                    public void onResponse(Call<ApiResponse<List<MentorRankingItem>>> call, Response<ApiResponse<List<MentorRankingItem>>> response) {
+                        if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                            List<MentorRankingItem> apiList = response.body().getData();
+                            if (apiList != null && !apiList.isEmpty()) {
+                                allMentors.clear();
+                                allMentors.addAll(apiList);
+                                applyFilters();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ApiResponse<List<MentorRankingItem>>> call, Throwable t) {
+                        // Fallback to local catalog
+                    }
+                });
     }
 
     private void setupFilterListeners() {
