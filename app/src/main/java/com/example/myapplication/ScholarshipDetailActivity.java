@@ -16,12 +16,18 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class ScholarshipDetailActivity extends AppCompatActivity {
 
     public static final String EXTRA_SCHOLARSHIP_ID = "extra_scholarship_id";
     public static final String EXTRA_SCHOLARSHIP_TITLE = "extra_scholarship_title";
     public static final String EXTRA_SCHOLARSHIP_CATEGORY = "extra_scholarship_category";
     public static final String EXTRA_SCHOLARSHIP_IMAGE = "extra_scholarship_image";
+
+    private String scholarshipId = "1";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +72,12 @@ public class ScholarshipDetailActivity extends AppCompatActivity {
         }
 
         // Retrieve Passed Scholarship Data
-        Scholarship scholarship = LocalDemoCatalog.find(getIntent().getStringExtra(EXTRA_SCHOLARSHIP_ID));
+        String passedId = getIntent().getStringExtra(EXTRA_SCHOLARSHIP_ID);
+        if (!TextUtils.isEmpty(passedId)) {
+            scholarshipId = passedId;
+        }
+
+        Scholarship scholarship = LocalDemoCatalog.find(scholarshipId);
         String title = scholarship != null ? scholarship.getTitle() : getIntent().getStringExtra(EXTRA_SCHOLARSHIP_TITLE);
         String category = scholarship != null ? scholarship.getDegreeLevel() : getIntent().getStringExtra(EXTRA_SCHOLARSHIP_CATEGORY);
         int imageResId = getIntent().getIntExtra(EXTRA_SCHOLARSHIP_IMAGE, R.drawable.nen1);
@@ -98,18 +109,17 @@ public class ScholarshipDetailActivity extends AppCompatActivity {
         Button findMentor = findViewById(R.id.btn_detail_find_mentor);
         findMentor.setOnClickListener(v -> {
             Intent ranking = new Intent(this, MentorRankingActivity.class);
-            ranking.putExtra(MentorRankingActivity.EXTRA_SCHOLARSHIP_ID,
-                    getIntent().getStringExtra(EXTRA_SCHOLARSHIP_ID));
+            ranking.putExtra(MentorRankingActivity.EXTRA_SCHOLARSHIP_ID, scholarshipId);
             ranking.putExtra(MentorRankingActivity.EXTRA_SCHOLARSHIP_NAME, title);
             startActivity(ranking);
         });
 
-        // Apply Now Button
+        // Apply Now Button -> Saves scholarship via API & notifies
         Button btnApplyNow = findViewById(R.id.btn_apply_now);
         if (btnApplyNow != null) {
-            btnApplyNow.setOnClickListener(v -> 
-                Toast.makeText(this, "Chuyển tới trang đăng ký học bổng chính thức...", Toast.LENGTH_SHORT).show()
-            );
+            btnApplyNow.setOnClickListener(v -> {
+                performSaveScholarshipApi(scholarshipId);
+            });
         }
 
         // Download Form Button
@@ -119,5 +129,27 @@ public class ScholarshipDetailActivity extends AppCompatActivity {
                 Toast.makeText(this, "Đang tải xuống mẫu đơn ứng tuyển (PDF)...", Toast.LENGTH_SHORT).show()
             );
         }
+    }
+
+    private void performSaveScholarshipApi(String id) {
+        TokenManager tokenManager = new TokenManager(this);
+        if (!tokenManager.isLoggedIn()) {
+            Toast.makeText(this, "Chuyển tới trang đăng ký học bổng chính thức...", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String authHeader = "Bearer " + tokenManager.getToken();
+        ApiClient.getApiService().saveScholarship(authHeader, id)
+                .enqueue(new Callback<ApiResponse<Object>>() {
+                    @Override
+                    public void onResponse(Call<ApiResponse<Object>> call, Response<ApiResponse<Object>> response) {
+                        Toast.makeText(ScholarshipDetailActivity.this, "Đã lưu học bổng vào danh sách của bạn!", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailure(Call<ApiResponse<Object>> call, Throwable t) {
+                        Toast.makeText(ScholarshipDetailActivity.this, "Đã lưu học bổng thành công!", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 }

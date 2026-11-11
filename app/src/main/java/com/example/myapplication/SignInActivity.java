@@ -2,8 +2,10 @@ package com.example.myapplication;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -12,6 +14,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class SignInActivity extends AppCompatActivity {
 
@@ -40,21 +46,15 @@ public class SignInActivity extends AppCompatActivity {
             });
         }
 
-        ((TextView) findViewById(R.id.tv_sign_in_subtitle)).setText(R.string.local_auth_notice);
+        TextView tvSubtitle = findViewById(R.id.tv_sign_in_subtitle);
+        if (tvSubtitle != null) {
+            tvSubtitle.setText(R.string.sign_in_subtitle);
+        }
 
-        // Log In button -> navigate to HomeActivity
+        // Log In button -> API Integration
         Button btnLogin = findViewById(R.id.btn_login);
         if (btnLogin != null) {
-            btnLogin.setOnClickListener(v -> {
-                android.widget.EditText email = findViewById(R.id.et_email);
-                android.widget.EditText password = findViewById(R.id.et_password);
-                if (!FormValidation.email(email) || !FormValidation.password(password)) return;
-                Toast.makeText(this, R.string.local_demo_notice, Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(SignInActivity.this, HomeActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-                finish();
-            });
+            btnLogin.setOnClickListener(v -> performApiLogin());
         }
 
         TextView tvForgotPassword = findViewById(R.id.tv_forgot_password);
@@ -82,5 +82,57 @@ public class SignInActivity extends AppCompatActivity {
                 startActivity(intent);
             });
         }
+    }
+
+    private void performApiLogin() {
+        EditText etEmail = findViewById(R.id.et_email);
+        EditText etPassword = findViewById(R.id.et_password);
+
+        if (!FormValidation.email(etEmail) || !FormValidation.password(etPassword)) {
+            return;
+        }
+
+        String email = etEmail.getText().toString().trim();
+        String password = etPassword.getText().toString().trim();
+
+        Toast.makeText(this, "Đang kết nối API đăng nhập...", Toast.LENGTH_SHORT).show();
+
+        LoginRequest loginRequest = new LoginRequest(email, password);
+
+        ApiClient.getApiService().login(loginRequest).enqueue(new Callback<ApiResponse<AuthData>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<AuthData>> call, Response<ApiResponse<AuthData>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    AuthData data = response.body().getData();
+
+                    if (data != null) {
+                        TokenManager tokenManager = new TokenManager(SignInActivity.this);
+                        tokenManager.saveToken(data.getToken());
+
+                        if (data.getUser() != null) {
+                            tokenManager.saveUser(data.getUser().getEmail(), data.getUser().getFullName());
+                        }
+                    }
+
+                    Toast.makeText(SignInActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
+
+                    Intent intent = new Intent(SignInActivity.this, HomeActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    String errorMsg = "Email hoặc mật khẩu không chính xác";
+                    if (response.body() != null && !TextUtils.isEmpty(response.body().getMessage())) {
+                        errorMsg = response.body().getMessage();
+                    }
+                    Toast.makeText(SignInActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<AuthData>> call, Throwable t) {
+                Toast.makeText(SignInActivity.this, "Lỗi kết nối máy chủ: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
