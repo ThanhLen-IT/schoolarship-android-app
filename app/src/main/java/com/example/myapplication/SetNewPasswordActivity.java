@@ -35,7 +35,7 @@ public class SetNewPasswordActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.tv_set_password_subtitle))
                 .setText(
                         "Dán token hoặc liên kết đặt lại mật khẩu trong email. Liên kết có hiệu lực"
-                            + " 15 phút.");
+                                + " 15 phút.");
         if (getIntent().getData() != null)
             tokenInput.setText(getIntent().getData().getQueryParameter("token"));
         Button submit = findViewById(R.id.btn_update_password);
@@ -73,7 +73,7 @@ public class SetNewPasswordActivity extends AppCompatActivity {
                             this,
                             ApiClient.getApiService().resetPassword(body),
                             result -> {
-                                new TokenManager(this).clear();
+                                SessionStore.clear(this);
                                 tokenInput.setText("");
                                 password.setText("");
                                 confirm.setText("");

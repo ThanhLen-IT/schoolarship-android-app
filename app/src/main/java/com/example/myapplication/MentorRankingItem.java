@@ -6,6 +6,13 @@ import java.io.Serializable;
 import java.util.Locale;
 
 public class MentorRankingItem implements Serializable {
+    @com.google.gson.annotations.SerializedName("mentor_id")
+    private String mentorId;
+
+    public String getMentorId() {
+        return mentorId;
+    }
+
     private Integer rank;
 
     @SerializedName("full_name")

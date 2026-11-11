@@ -185,4 +185,78 @@ public class ApiContractTest {
                                 "test@example.com", "Password123", "Student", null, "", ""));
         assertFalse(json.contains("username"));
     }
+
+    @Test
+    public void closeAccountUsesDeleteWithPasswordBody() throws Exception {
+        try (MockWebServer server = new MockWebServer()) {
+            server.enqueue(new MockResponse().setBody("{\"success\":true}"));
+            api(server)
+                    .closeAccount(
+                            "Bearer test-token",
+                            java.util.Collections.singletonMap("current_password", " Password123 "))
+                    .execute();
+            RecordedRequest request = server.takeRequest();
+            assertEquals("DELETE", request.getMethod());
+            assertEquals("/api/users/me", request.getPath());
+            assertEquals(
+                    " Password123 ",
+                    gson.fromJson(request.getBody().readUtf8(), com.google.gson.JsonObject.class)
+                            .get("current_password")
+                            .getAsString());
+        }
+    }
+
+    @Test
+    public void messagesUseCursorAndNumericIdsDecodeSafely() throws Exception {
+        try (MockWebServer server = new MockWebServer()) {
+            server.enqueue(
+                    new MockResponse()
+                            .setBody(
+                                    "{\"success\":true,\"has_more\":true,\"data\":[{\"id\":74,\"sender_id\":23,\"message\":\"Hello\"}]}"));
+            ApiResponse<List<MobileData.Message>> result =
+                    api(server).messages("Bearer test-token", "5", null, "73", 50).execute().body();
+            assertTrue(result.hasMore());
+            assertEquals("74", result.getData().get(0).id);
+            assertEquals("23", result.getData().get(0).sender_id);
+            RecordedRequest request = server.takeRequest();
+            assertEquals("73", request.getRequestUrl().queryParameter("after_id"));
+            assertNull(request.getRequestUrl().queryParameter("before_id"));
+        }
+    }
+
+    @Test
+    public void cvSubmissionHasTheServerMultipartPartNames() throws Exception {
+        try (MockWebServer server = new MockWebServer()) {
+            server.enqueue(new MockResponse().setBody("{\"success\":true,\"data\":{\"id\":1}}"));
+            okhttp3.RequestBody mentor =
+                    okhttp3.RequestBody.create(okhttp3.MediaType.parse("text/plain"), "2");
+            okhttp3.MultipartBody.Part cv =
+                    okhttp3.MultipartBody.Part.createFormData(
+                            "cv",
+                            "cv.pdf",
+                            okhttp3.RequestBody.create(
+                                    okhttp3.MediaType.parse("application/pdf"), "%PDF-1.4"));
+            api(server).apply("Bearer test-token", mentor, mentor, mentor, cv).execute();
+            RecordedRequest request = server.takeRequest();
+            assertEquals("/api/mentoring/applications/with-cv", request.getPath());
+            String body = request.getBody().readUtf8();
+            assertTrue(body.contains("name=\"mentor_id\""));
+            assertTrue(body.contains("name=\"scholarship_id\""));
+            assertTrue(body.contains("name=\"cv\""));
+        }
+    }
+
+    @Test
+    public void filtersDecodeServerValuesWithoutInventedOptions() throws Exception {
+        try (MockWebServer server = new MockWebServer()) {
+            server.enqueue(
+                    new MockResponse()
+                            .setBody(
+                                    "{\"success\":true,\"data\":{\"countries\":[\"Japan\"],\"types\":[\"full\"],\"majors\":[],\"study_levels\":[\"master\"]}}"));
+            MobileData.Filters result = api(server).filters().execute().body().getData();
+            assertEquals("full", result.types.get(0));
+            assertTrue(result.majors.isEmpty());
+            assertEquals("Japan", result.countries.get(0));
+        }
+    }
 }

@@ -254,5 +254,6 @@
             android:paddingBottom="24dp"
             tools:listitem="@layout/item_scholarship_result_card" />
 
+        <Button android:id="@+id/btn_more_scholarships" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Tải thêm học bổng" android:visibility="gone" />
     </LinearLayout>
 </ScrollView>

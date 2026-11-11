@@ -175,7 +175,7 @@ public class CreatePostActivity extends AppCompatActivity {
         url.setText(imageUrl);
         new AlertDialog.Builder(this)
                 .setTitle("URL ảnh công khai")
-                .setMessage("Backend chưa hỗ trợ tải ảnh từ điện thoại.")
+                .setMessage("Dán đường dẫn ảnh công khai để đính kèm vào bài viết.")
                 .setView(url)
                 .setNegativeButton("Hủy", null)
                 .setPositiveButton(

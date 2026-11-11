@@ -23,7 +23,9 @@ final class ProfileStore {
                 .putString("bio", text(profile.getBio()))
                 .putString(
                         "skills",
-                        profile.getSkills() == null ? "" : String.join(", ", profile.getSkills()))
+                        profile.getSkills() == null
+                                ? ""
+                                : TextJoiner.join(", ", profile.getSkills()))
                 .putString("avatar", text(profile.getAvatarUrl()))
                 .apply();
     }

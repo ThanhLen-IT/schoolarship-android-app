@@ -8,7 +8,10 @@ android {
         version = release(37)
     }
 
+    buildFeatures { buildConfig = true }
+
     defaultConfig {
+        buildConfigField("String", "API_BASE_URL", "\"https://scholarship-uit.duckdns.org/\"")
         applicationId = "com.example.myapplication"
         minSdk = 24
         targetSdk = 37
@@ -19,6 +22,9 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "API_BASE_URL", "\"${providers.gradleProperty("apiBaseUrl").getOrElse("https://scholarship-uit.duckdns.org/")}\"")
+        }
         release {
             optimization {
                 enable = true

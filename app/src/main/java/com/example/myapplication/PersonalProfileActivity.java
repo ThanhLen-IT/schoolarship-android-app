@@ -12,6 +12,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PersonalProfileActivity extends AppCompatActivity {
+    private final androidx.activity.result.ActivityResultLauncher<String> choosePhoto =
+            registerForActivityResult(
+                    new androidx.activity.result.contract.ActivityResultContracts.GetContent(),
+                    uri -> {
+                        if (uri != null) uploadPhoto(uri);
+                    });
     private EditText[] fields;
     private android.text.method.KeyListener[] listeners;
     private String avatar = "";
@@ -109,34 +115,33 @@ public class PersonalProfileActivity extends AppCompatActivity {
     }
 
     private void editAvatar() {
-        EditText input = new EditText(this);
-        input.setInputType(
-                android.text.InputType.TYPE_CLASS_TEXT
-                        | android.text.InputType.TYPE_TEXT_VARIATION_URI);
-        input.setHint("https://…");
-        input.setText(avatar);
         new AlertDialog.Builder(this)
-                .setTitle("URL ảnh đại diện")
-                .setMessage("Backend hiện hỗ trợ URL ảnh công khai. Để trống để xóa ảnh.")
-                .setView(input)
+                .setTitle("Cập nhật ảnh đại diện")
+                .setMessage("Ảnh được cập nhật ngay sau khi tải lên thành công.")
                 .setNegativeButton("Hủy", null)
-                .setPositiveButton(
-                        "Dùng ảnh",
-                        (dialog, which) -> {
-                            String value = input.getText().toString().trim();
-                            android.net.Uri uri = android.net.Uri.parse(value);
-                            if (!value.isEmpty()
-                                    && (!("http".equalsIgnoreCase(uri.getScheme())
-                                                    || "https".equalsIgnoreCase(uri.getScheme()))
-                                            || uri.getHost() == null)) {
-                                ApiUi.error(
-                                        this, "URL ảnh phải bắt đầu bằng http:// hoặc https://");
-                                return;
-                            }
-                            avatar = value;
-                            RemoteImage.show(findViewById(R.id.iv_edit_avatar), avatar);
-                        })
+                .setPositiveButton("Chọn ảnh", (d, w) -> choosePhoto.launch("image/*"))
                 .show();
+    }
+
+    private void uploadPhoto(android.net.Uri uri) {
+        saving = true;
+        setEditing(true);
+        MobileFiles.avatar(
+                this,
+                uri,
+                url -> {
+                    saving = false;
+                    avatar = url;
+                    ProfileStore.prefs(this).edit().putString("avatar", url).apply();
+                    RemoteImage.show(findViewById(R.id.iv_edit_avatar), url);
+                    setEditing(true);
+                    ApiUi.error(this, "Đã cập nhật ảnh đại diện.");
+                },
+                message -> {
+                    saving = false;
+                    setEditing(true);
+                    ApiUi.error(this, message);
+                });
     }
 
     private void setEditing(boolean value) {
@@ -149,7 +154,7 @@ public class PersonalProfileActivity extends AppCompatActivity {
         findViewById(R.id.btn_profile_edit).setVisibility(value ? View.GONE : View.VISIBLE);
         findViewById(R.id.btn_profile_edit).setEnabled(!loading);
         findViewById(R.id.btn_pick_avatar).setVisibility(value ? View.VISIBLE : View.GONE);
-        ((TextView) findViewById(R.id.btn_pick_avatar)).setText("Nhập URL ảnh");
+        ((TextView) findViewById(R.id.btn_pick_avatar)).setText("Đổi ảnh đại diện");
         findViewById(R.id.btn_profile_save).setEnabled(!saving);
         findViewById(R.id.btn_profile_cancel).setEnabled(!saving);
         findViewById(R.id.btn_pick_avatar).setEnabled(!saving);

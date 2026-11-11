@@ -162,7 +162,8 @@
                 android:textStyle="bold"
                 android:autofillHints="" />
 
-<TextView android:id="@+id/tv_ranking_demo" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp" android:text="Ranking theo dữ liệu máy chủ · Giữ tên học bổng để tải thêm" android:textColor="@color/color_text_hint" />
+<TextView android:id="@+id/tv_ranking_demo" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp" android:text="Chọn học bổng, sau đó chạm vào Mentor để xem hồ sơ." android:textColor="@color/color_text_hint" />
+<Button android:id="@+id/btn_more_ranking" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Tải thêm Mentor" android:visibility="gone" />
 <TextView android:id="@+id/tv_ranking_empty" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp" android:text="@string/ranking_choose_first" android:textColor="@color/color_text_hint" />
             <!-- Filters Section -->
             <LinearLayout

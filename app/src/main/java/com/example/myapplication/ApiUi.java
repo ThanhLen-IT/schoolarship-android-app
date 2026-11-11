@@ -52,18 +52,36 @@ final class ApiUi {
                             success.accept(body);
                             return;
                         }
-                        if (response.code() == 401 && c.request().header("Authorization") != null) {
-                            new TokenManager(activity).clear();
+                        ApiResponse<?> error = body;
+                        if (error == null && response.errorBody() != null) {
+                            try {
+                                error =
+                                        new com.google.gson.Gson()
+                                                .fromJson(
+                                                        response.errorBody().string(),
+                                                        ApiResponse.class);
+                            } catch (Exception ignored) {
+                            }
+                        }
+                        if (sentToken != null
+                                && (response.code() == 401
+                                        || (response.code() == 403
+                                                && error != null
+                                                && "ACCOUNT_INACTIVE".equals(error.getCode())))) {
+                            SessionStore.clear(activity);
                             activity.startActivity(
                                     new Intent(activity, SignInActivity.class)
                                             .addFlags(
                                                     Intent.FLAG_ACTIVITY_NEW_TASK
                                                             | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+                            return;
                         }
                         failure.accept(
-                                body != null && body.getMessage() != null
-                                        ? body.getMessage()
-                                        : errorMessage(response));
+                                error != null && error.getMessage() != null
+                                        ? error.getMessage()
+                                        : "Yêu cầu thất bại (HTTP "
+                                                + response.code()
+                                                + "). Vui lòng thử lại.");
                     }
 
                     @Override

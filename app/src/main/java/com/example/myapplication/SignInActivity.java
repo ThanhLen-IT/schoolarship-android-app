@@ -45,6 +45,8 @@ public class SignInActivity extends AppCompatActivity {
             tvSubtitle.setText(R.string.sign_in_subtitle);
         }
 
+        findViewById(R.id.btn_google_sign_in).setVisibility(View.GONE);
+        findViewById(R.id.btn_facebook_sign_in).setVisibility(View.GONE);
         // Log In button -> API Integration
         Button btnLogin = findViewById(R.id.btn_login);
         if (btnLogin != null) {

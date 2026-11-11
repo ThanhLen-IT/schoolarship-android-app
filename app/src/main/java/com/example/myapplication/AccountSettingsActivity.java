@@ -59,7 +59,7 @@ public class AccountSettingsActivity extends AppCompatActivity {
                             Toast.makeText(
                                             this,
                                             "Chế độ Mentor được cấp sau khi hồ sơ xét duyệt được"
-                                                + " chấp thuận.",
+                                                    + " chấp thuận.",
                                             Toast.LENGTH_SHORT)
                                     .show());
         }
@@ -68,7 +68,20 @@ public class AccountSettingsActivity extends AppCompatActivity {
         View rowDisplayMode = findViewById(R.id.row_dark_light_mode);
         if (rowDisplayMode != null) {
             rowDisplayMode.setOnClickListener(
-                    v -> Toast.makeText(this, "Chế độ tối/sáng", Toast.LENGTH_SHORT).show());
+                    v ->
+                            new AlertDialog.Builder(this)
+                                    .setTitle("Giao diện")
+                                    .setItems(
+                                            new String[] {"Theo thiết bị", "Sáng", "Tối"},
+                                            (d, w) -> {
+                                                int[] modes = {-1, 1, 2};
+                                                getSharedPreferences("appearance", 0)
+                                                        .edit()
+                                                        .putInt("mode", modes[w])
+                                                        .apply();
+                                                MobileApp.applyTheme(this);
+                                            })
+                                    .show());
         }
 
         // Section 3: Tài khoản
@@ -102,8 +115,7 @@ public class AccountSettingsActivity extends AppCompatActivity {
         builder.setPositiveButton(
                 R.string.menu_logout,
                 (dialog, which) -> {
-                    ProfileStore.prefs(this).edit().clear().apply();
-                    new TokenManager(this).clear();
+                    SessionStore.clear(this);
                     Toast.makeText(this, "Đã đăng xuất", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(AccountSettingsActivity.this, SignInActivity.class);
                     intent.setFlags(
@@ -117,12 +129,39 @@ public class AccountSettingsActivity extends AppCompatActivity {
     private void showDeleteAccountConfirmationDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.delete_account_dialog_title);
-        builder.setMessage(R.string.delete_account_dialog_msg);
+        builder.setMessage(
+                "Đóng tài khoản và xóa thông tin hồ sơ, bài viết, tin nhắn của bạn. Lịch sử"
+                    + " mentoring/giao dịch liên quan được giữ với tài khoản ẩn danh. Bạn sẽ không"
+                    + " thể đăng nhập lại.");
         builder.setNegativeButton(R.string.cancel_button, (dialog, which) -> dialog.dismiss());
         builder.setPositiveButton(
                 R.string.menu_delete_account,
                 (dialog, which) -> {
-                    ApiUi.error(this, "Máy chủ chưa hỗ trợ xóa tài khoản trong ứng dụng.");
+                    MobileForms.input(
+                            this,
+                            "Xác nhận đóng tài khoản",
+                            "Mật khẩu hiện tại",
+                            true,
+                            password ->
+                                    ApiUi.request(
+                                            this,
+                                            ApiClient.getApiService()
+                                                    .closeAccount(
+                                                            ApiUi.bearer(this),
+                                                            MobileForms.body(
+                                                                    "current_password", password)),
+                                            result -> {
+                                                SessionStore.clear(this);
+                                                startActivity(
+                                                        new Intent(this, SignInActivity.class)
+                                                                .addFlags(
+                                                                        Intent
+                                                                                        .FLAG_ACTIVITY_NEW_TASK
+                                                                                | Intent
+                                                                                        .FLAG_ACTIVITY_CLEAR_TASK));
+                                                finish();
+                                            },
+                                            message -> ApiUi.error(this, message)));
                 });
         builder.show();
     }

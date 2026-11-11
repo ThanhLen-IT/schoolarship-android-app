@@ -63,7 +63,7 @@ public class Scholarship implements Serializable {
         if (studyLevels == null || studyLevels.isEmpty()) return "Chưa rõ bậc học";
         java.util.ArrayList<String> labels = new java.util.ArrayList<>();
         for (String level : studyLevels) labels.add(levelLabel(level));
-        return String.join(", ", labels);
+        return TextJoiner.join(", ", labels);
     }
 
     static String levelLabel(String value) {
@@ -87,7 +87,7 @@ public class Scholarship implements Serializable {
     }
 
     public String getFieldOfStudy() {
-        return majors == null ? "" : String.join(", ", majors);
+        return majors == null ? "" : TextJoiner.join(", ", majors);
     }
 
     public String getFundingType() {

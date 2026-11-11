@@ -40,7 +40,7 @@
     <string name="profile_field_bio">Giới thiệu</string>
     <string name="profile_field_skills">Kỹ năng</string>
     <string name="profile_skills_help">Phân cách các kỹ năng bằng dấu phẩy.</string>
-    <string name="profile_local_caption">Hồ sơ đồng bộ với tài khoản · Ảnh đại diện dùng URL công khai</string>
+    <string name="profile_local_caption">Hồ sơ đồng bộ với tài khoản · Chọn ảnh đại diện từ thiết bị</string>
     <string name="profile_summary_empty">Thêm trường và ngành học của bạn</string>
     <string name="profile_save_error">Chưa lưu được hồ sơ. Vui lòng thử lại.</string>
 </resources>

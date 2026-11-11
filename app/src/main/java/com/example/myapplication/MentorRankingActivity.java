@@ -111,11 +111,29 @@ public class MentorRankingActivity extends AppCompatActivity {
         RecyclerView recyclerView = findViewById(R.id.recycler_mentor_ranking);
         if (recyclerView != null) {
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
-            adapter = new MentorRankingAdapter(filteredMentors);
+            adapter =
+                    new MentorRankingAdapter(
+                            filteredMentors,
+                            item ->
+                                    startActivity(
+                                            new Intent(this, MentorDetailActivity.class)
+                                                    .putExtra("mentor_id", item.getMentorId())
+                                                    .putExtra(
+                                                            "scholarship_id",
+                                                            selectedScholarshipId)));
             recyclerView.setAdapter(adapter);
         }
 
         // Filter TextWatchers
+        findViewById(R.id.btn_more_ranking)
+                .setOnClickListener(
+                        v -> {
+                            if (!loadingRanking
+                                    && !selectedScholarshipId.isEmpty()
+                                    && rankingPage < rankingPages)
+                                fetchMentorRankingFromApi(
+                                        Integer.parseInt(selectedScholarshipId), rankingPage + 1);
+                        });
         setupFilterListeners();
         if (selectedScholarshipId.isEmpty()) updateScholarship();
         else {
@@ -282,6 +300,9 @@ public class MentorRankingActivity extends AppCompatActivity {
     }
 
     private void applyFilters() {
+        findViewById(R.id.btn_more_ranking)
+                .setVisibility(
+                        !loadingRanking && rankingPage < rankingPages ? View.VISIBLE : View.GONE);
         filteredMentors.clear();
 
         for (MentorRankingItem item : allMentors) {

@@ -38,6 +38,7 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
     private final Runnable searchTask = () -> fetchScholarshipsFromApi();
     private int currentPage = 0, totalPages = 0, serverTotal = 0;
     private boolean loading;
+    private MobileData.Filters filterOptions;
     private List<Scholarship> allScholarships;
     private List<Scholarship> filteredScholarships;
     private ScholarshipResultAdapter adapter;
@@ -50,7 +51,7 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
     private Date startDate = null;
     private Date endDate = null;
     private String searchQuery = "";
-    private String currentSort = "Phù hợp nhất";
+    private String currentSort = "Mới nhất";
 
     private TextView tvSelectedCountry,
             tvResultCount,
@@ -136,6 +137,12 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
                 v -> {
                     if (!loading && currentPage < totalPages) fetchPage(currentPage + 1);
                 });
+        loadFilterOptions();
+        findViewById(R.id.btn_more_scholarships)
+                .setOnClickListener(
+                        v -> {
+                            if (!loading && currentPage < totalPages) fetchPage(currentPage + 1);
+                        });
         restoreFilters(savedInstanceState, etSearch);
         applyFiltersAndSort();
         fetchScholarshipsFromApi();
@@ -149,7 +156,7 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
                             selectedFunding = "All funding";
                             startDate = null;
                             endDate = null;
-                            currentSort = "Phù hợp nhất";
+                            currentSort = "Mới nhất";
                             searchQuery = "";
                             etSearch.setText("");
                             tvSelectedCountry.setText(selectedCountry);
@@ -158,7 +165,7 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
                             btnFilterFunding.setText(R.string.filter_funding);
                             btnFilterDeadline.setText(R.string.filter_deadline);
                             tvSort.setText(
-                                    "Phù hợp nhất".equals(currentSort)
+                                    "Mới nhất".equals(currentSort)
                                             ? getString(R.string.sort_label)
                                             : currentSort);
                             applyFiltersAndSort();
@@ -225,6 +232,7 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
 
     private void fetchPage(int page) {
         loading = true;
+        findViewById(R.id.btn_more_scholarships).setVisibility(View.GONE);
         tvResultCount.setText("Đang tải học bổng…");
         findViewById(R.id.tv_search_empty).setVisibility(View.GONE);
         String level = "All levels".equals(selectedLevel) ? null : selectedLevel;
@@ -325,7 +333,7 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
         if (!"All fields".equals(selectedField)) btnFilterField.setText(selectedField);
         if (!"All funding".equals(selectedFunding)) btnFilterFunding.setText(selectedFunding);
         tvSort.setText(
-                "Phù hợp nhất".equals(currentSort) ? getString(R.string.sort_label) : currentSort);
+                "Mới nhất".equals(currentSort) ? getString(R.string.sort_label) : currentSort);
         if (startDate != null && endDate != null)
             btnFilterDeadline.setText(
                     dateFormat.format(startDate) + " – " + dateFormat.format(endDate));
@@ -339,6 +347,8 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
     }
 
     private void updateResultCount() {
+        findViewById(R.id.btn_more_scholarships)
+                .setVisibility(!loading && currentPage < totalPages ? View.VISIBLE : View.GONE);
         tvResultCount.setText(
                 serverTotal
                         + " học bổng · Đã tải "
@@ -356,30 +366,69 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
                         || !"All funding".equals(selectedFunding)
                         || startDate != null
                         || endDate != null
-                        || !"Phù hợp nhất".equals(currentSort);
+                        || !"Mới nhất".equals(currentSort);
         findViewById(R.id.btn_clear_filters).setVisibility(active ? View.VISIBLE : View.GONE);
         TextView empty = findViewById(R.id.tv_search_empty);
         empty.setText("Không tìm thấy học bổng phù hợp. Chạm để tải lại.");
         empty.setVisibility(!loading && filteredScholarships.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
+    private void loadFilterOptions() {
+        ApiUi.request(
+                this,
+                ApiClient.getApiService().filters(),
+                r -> {
+                    filterOptions = r.getData();
+                },
+                message -> ApiUi.error(this, message));
+    }
+
+    private void selectOption(
+            String title,
+            java.util.List<String> options,
+            String all,
+            java.util.function.Consumer<String> select) {
+        if (filterOptions == null) {
+            new AlertDialog.Builder(this)
+                    .setMessage("Chưa tải được bộ lọc.")
+                    .setPositiveButton("Tải lại", (d, w) -> loadFilterOptions())
+                    .setNegativeButton("Đóng", null)
+                    .show();
+            return;
+        }
+        java.util.List<String> values = new java.util.ArrayList<>();
+        values.add(all);
+        if (options != null)
+            for (String option : options)
+                if (!title.equals("Bậc học") || !"all".equals(option)) values.add(option);
+        String[] labels = new String[values.size()];
+        for (int i = 0; i < labels.length; i++)
+            labels[i] =
+                    i == 0
+                            ? "Tất cả"
+                            : title.equals("Bậc học")
+                                    ? Scholarship.levelLabel(values.get(i))
+                                    : values.get(i);
+        new AlertDialog.Builder(this)
+                .setTitle(title)
+                .setItems(
+                        labels,
+                        (d, w) -> {
+                            select.accept(values.get(w));
+                            fetchScholarshipsFromApi();
+                        })
+                .show();
+    }
+
     private void showCountryDialog() {
-        String[] countries = {
-            "Tất cả quốc gia", "Đông Nam Á", "Trung Quốc", "Hàn Quốc", "Nhật Bản", "Đài Loan"
-        };
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Chọn quốc gia");
-        builder.setItems(
-                countries,
-                (dialog, which) -> {
-                    selectedCountry = countries[which];
-                    if (tvSelectedCountry != null) {
-                        tvSelectedCountry.setText(selectedCountry);
-                    }
-                    applyFiltersAndSort();
-                    fetchScholarshipsFromApi();
+        selectOption(
+                "Quốc gia",
+                filterOptions == null ? null : filterOptions.countries,
+                "Tất cả quốc gia",
+                value -> {
+                    selectedCountry = value;
+                    tvSelectedCountry.setText(value);
                 });
-        builder.show();
     }
 
     private void updateLevelLabel() {
@@ -392,61 +441,40 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
     }
 
     private void showLevelDialog() {
-        String[] levels = {"All levels", "bachelor", "master", "doctoral", "other", "unknown"};
-        String[] labels = {
-            getString(R.string.all_study_levels), "Cử nhân", "Thạc sĩ", "Tiến sĩ", "Khác", "Chưa rõ"
-        };
-        int checked = java.util.Arrays.asList(levels).indexOf(selectedLevel);
-        new AlertDialog.Builder(this)
-                .setTitle("Bậc học")
-                .setSingleChoiceItems(
-                        labels,
-                        checked,
-                        (dialog, which) -> {
-                            selectedLevel = levels[which];
-                            updateLevelLabel();
-                            applyFiltersAndSort();
-                            fetchScholarshipsFromApi();
-                            dialog.dismiss();
-                        })
-                .setNegativeButton(R.string.cancel_button, null)
-                .show();
+        selectOption(
+                "Bậc học",
+                filterOptions == null ? null : filterOptions.study_levels,
+                "All levels",
+                value -> {
+                    selectedLevel = value;
+                    updateLevelLabel();
+                });
     }
 
     private void showFieldDialog() {
-        String[] fields = {
-            "All fields", "Công nghệ thông tin", "Kinh doanh", "Khoa học xã hội", "Khoa học", "Y tế"
-        };
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Ngành học");
-        builder.setItems(
-                fields,
-                (dialog, which) -> {
-                    selectedField = fields[which];
-                    if (btnFilterField != null) {
-                        btnFilterField.setText(selectedField);
-                    }
-                    applyFiltersAndSort();
-                    fetchScholarshipsFromApi();
+        selectOption(
+                "Ngành học",
+                filterOptions == null ? null : filterOptions.majors,
+                "All fields",
+                value -> {
+                    selectedField = value;
+                    btnFilterField.setText(
+                            "All fields".equals(value) ? getString(R.string.filter_field) : value);
                 });
-        builder.show();
     }
 
     private void showFundingDialog() {
-        String[] fundings = {"All funding", "Toàn phần", "Bán phần", "Học phí", "Sinh hoạt phí"};
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Tài trợ");
-        builder.setItems(
-                fundings,
-                (dialog, which) -> {
-                    selectedFunding = fundings[which];
-                    if (btnFilterFunding != null) {
-                        btnFilterFunding.setText(selectedFunding);
-                    }
-                    applyFiltersAndSort();
-                    fetchScholarshipsFromApi();
+        selectOption(
+                "Tài trợ",
+                filterOptions == null ? null : filterOptions.types,
+                "All funding",
+                value -> {
+                    selectedFunding = value;
+                    btnFilterFunding.setText(
+                            "All funding".equals(value)
+                                    ? getString(R.string.filter_funding)
+                                    : value);
                 });
-        builder.show();
     }
 
     private void showDeadlineDialog() {
@@ -503,7 +531,7 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
     }
 
     private void showSortDialog() {
-        String[] sorts = {"Phù hợp nhất", "Hạn nộp gần nhất", "Mới cập nhật", "Tên A–Z"};
+        String[] sorts = {"Mới nhất", "Hạn nộp gần nhất", "Tên A–Z"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Sắp xếp");
         builder.setItems(
@@ -512,7 +540,7 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
                     currentSort = sorts[which];
                     if (tvSort != null) {
                         tvSort.setText(
-                                "Phù hợp nhất".equals(currentSort)
+                                "Mới nhất".equals(currentSort)
                                         ? getString(R.string.sort_label)
                                         : currentSort);
                     }

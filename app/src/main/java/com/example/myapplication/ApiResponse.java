@@ -15,6 +15,18 @@ public class ApiResponse<T> {
         return likeCount;
     }
 
+    private boolean has_more;
+
+    public boolean hasMore() {
+        return has_more;
+    }
+
+    private String code;
+
+    public String getCode() {
+        return code;
+    }
+
     private boolean success;
     private String message;
     private T data;

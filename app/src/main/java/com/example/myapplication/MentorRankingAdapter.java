@@ -13,6 +13,14 @@ import java.util.List;
 public class MentorRankingAdapter extends RecyclerView.Adapter<MentorRankingAdapter.ViewHolder> {
 
     private final List<MentorRankingItem> items;
+    private java.util.function.Consumer<MentorRankingItem> selected;
+
+    public MentorRankingAdapter(
+            List<MentorRankingItem> items,
+            java.util.function.Consumer<MentorRankingItem> selected) {
+        this(items);
+        this.selected = selected;
+    }
 
     public MentorRankingAdapter(List<MentorRankingItem> items) {
         this.items = items;
@@ -30,6 +38,10 @@ public class MentorRankingAdapter extends RecyclerView.Adapter<MentorRankingAdap
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         MentorRankingItem item = items.get(position);
+        holder.itemView.setOnClickListener(
+                v -> {
+                    if (selected != null) selected.accept(item);
+                });
 
         holder.tvRank.setText(item.getRank() == 0 ? "—" : String.valueOf(item.getRank()));
         holder.tvMentorName.setText(item.getMentorName());

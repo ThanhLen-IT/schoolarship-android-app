@@ -7,7 +7,6 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -208,8 +207,7 @@ public class CommunityActivity extends AppCompatActivity {
         }
 
         if (navCommunity != null) {
-            navCommunity.setOnClickListener(
-                    v -> Toast.makeText(this, "Already on Community", Toast.LENGTH_SHORT).show());
+            navCommunity.setOnClickListener(v -> getWindow().getDecorView().requestFocus());
         }
 
         if (navMessages != null) {

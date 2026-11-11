@@ -270,8 +270,7 @@ public class HomeActivity extends AppCompatActivity {
         View navProfile = findViewById(R.id.nav_profile);
 
         if (navHome != null)
-            navHome.setOnClickListener(
-                    v -> Toast.makeText(this, "Already on Home", Toast.LENGTH_SHORT).show());
+            navHome.setOnClickListener(v -> getWindow().getDecorView().requestFocus());
         if (navRanking != null) {
             navRanking.setOnClickListener(
                     v -> {

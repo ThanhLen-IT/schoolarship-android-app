@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -215,8 +214,7 @@ public class ProfileActivity extends AppCompatActivity {
         }
 
         if (navProfile != null) {
-            navProfile.setOnClickListener(
-                    v -> Toast.makeText(this, "Already on Profile", Toast.LENGTH_SHORT).show());
+            navProfile.setOnClickListener(v -> getWindow().getDecorView().requestFocus());
         }
     }
 }
