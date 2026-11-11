@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
@@ -25,6 +26,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ScholarshipDiscoveryActivity extends AppCompatActivity {
 
@@ -106,6 +111,8 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
 
         restoreFilters(savedInstanceState, etSearch);
         applyFiltersAndSort();
+        fetchScholarshipsFromApi();
+
         findViewById(R.id.btn_clear_filters).setOnClickListener(v -> {
             selectedCountry = "Tất cả quốc gia";
             selectedLevel = "All levels";
@@ -123,6 +130,7 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
             btnFilterDeadline.setText(R.string.filter_deadline);
             tvSort.setText("Phù hợp nhất".equals(currentSort) ? getString(R.string.sort_label) : currentSort);
             applyFiltersAndSort();
+            fetchScholarshipsFromApi();
         });
 
         // Search listener
@@ -135,6 +143,7 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
                     searchQuery = s.toString().trim();
                     applyFiltersAndSort();
+                    fetchScholarshipsFromApi();
                 }
 
                 @Override
@@ -167,6 +176,35 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
         if (tvSort != null) {
             tvSort.setOnClickListener(v -> showSortDialog());
         }
+    }
+
+    private void fetchScholarshipsFromApi() {
+        String levelParam = "All levels".equalsIgnoreCase(selectedLevel) ? null : selectedLevel;
+        String countryParam = "Tất cả quốc gia".equalsIgnoreCase(selectedCountry) ? null : selectedCountry;
+        String searchParam = TextUtils.isEmpty(searchQuery) ? null : searchQuery;
+
+        ApiClient.getApiService().getScholarships(searchParam, countryParam, levelParam, 1, 20, "deadline_asc")
+                .enqueue(new Callback<ApiResponse<List<Scholarship>>>() {
+                    @Override
+                    public void onResponse(Call<ApiResponse<List<Scholarship>>> call, Response<ApiResponse<List<Scholarship>>> response) {
+                        if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                            List<Scholarship> apiData = response.body().getData();
+                            if (apiData != null && !apiData.isEmpty()) {
+                                filteredScholarships.clear();
+                                filteredScholarships.addAll(apiData);
+                                if (adapter != null) {
+                                    adapter.notifyDataSetChanged();
+                                }
+                                updateResultCount();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ApiResponse<List<Scholarship>>> call, Throwable t) {
+                        // Fallback to local catalog
+                    }
+                });
     }
 
     @Override
@@ -317,6 +355,7 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
                 tvSelectedCountry.setText(selectedCountry);
             }
             applyFiltersAndSort();
+            fetchScholarshipsFromApi();
         });
         builder.show();
     }
@@ -331,9 +370,8 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
     }
 
     private void showLevelDialog() {
-        String[] levels = {"All levels", "Đại học", "Thạc sĩ", "Tiến sĩ", LocalDemoCatalog.LEVEL_EXCHANGE};
-        String[] labels = {getString(R.string.all_study_levels), "Đại học", "Thạc sĩ", "Tiến sĩ",
-                getString(R.string.study_level_exchange)};
+        String[] levels = {"All levels", "Đại học", "Thạc sĩ", "Tiến sĩ"};
+        String[] labels = {getString(R.string.all_study_levels), "Đại học", "Thạc sĩ", "Tiến sĩ"};
         int checked = java.util.Arrays.asList(levels).indexOf(selectedLevel);
         new AlertDialog.Builder(this)
                 .setTitle("Bậc học")
@@ -341,6 +379,7 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
                     selectedLevel = levels[which];
                     updateLevelLabel();
                     applyFiltersAndSort();
+                    fetchScholarshipsFromApi();
                     dialog.dismiss();
                 })
                 .setNegativeButton(R.string.cancel_button, null)
@@ -357,6 +396,7 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
                 btnFilterField.setText(selectedField);
             }
             applyFiltersAndSort();
+            fetchScholarshipsFromApi();
         });
         builder.show();
     }
@@ -371,6 +411,7 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
                 btnFilterFunding.setText(selectedFunding);
             }
             applyFiltersAndSort();
+            fetchScholarshipsFromApi();
         });
         builder.show();
     }
@@ -392,6 +433,7 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
                 endDate = chosenEnd.getTime();
                 btnFilterDeadline.setText(dateFormat.format(startDate) + " – " + dateFormat.format(endDate));
                 applyFiltersAndSort();
+                fetchScholarshipsFromApi();
             }, last.get(Calendar.YEAR), last.get(Calendar.MONTH), last.get(Calendar.DAY_OF_MONTH));
             to.setTitle("Hạn nộp đến ngày (bao gồm ngày chọn)");
             to.getDatePicker().setMinDate(first.getTimeInMillis());
@@ -403,6 +445,7 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
             endDate = null;
             btnFilterDeadline.setText(R.string.filter_deadline);
             applyFiltersAndSort();
+            fetchScholarshipsFromApi();
         });
         from.show();
     }
@@ -417,6 +460,7 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
                 tvSort.setText("Phù hợp nhất".equals(currentSort) ? getString(R.string.sort_label) : currentSort);
             }
             applyFiltersAndSort();
+            fetchScholarshipsFromApi();
         });
         builder.show();
     }
