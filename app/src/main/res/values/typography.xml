@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="TextAppearance.App" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+    <style name="TextAppearance.App.Headline" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:fontFamily">@font/suez_one</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+    <style name="TextAppearance.App.TitleLarge" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+    <style name="TextAppearance.App.Title" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+    <style name="TextAppearance.App.TitleSmall" parent="TextAppearance.Material3.TitleSmall">
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+    <style name="TextAppearance.App.Body" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+    <style name="TextAppearance.App.BodySmall" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+    <style name="TextAppearance.App.Button" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:fontFamily">@font/tilt_warp</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+    <style name="TextAppearance.App.Label" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+    <style name="TextAppearance.App.Chip" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+    <style name="TextAppearance.App.CTA" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:fontFamily">@font/tilt_warp</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+    <style name="TextAppearance.App.BottomNav" parent="TextAppearance.Material3.LabelSmall"/>
+    <style name="TextAppearance.App.Brand" parent="TextAppearance.Material3.TitleLarge"/>
+    <style name="TextAppearance.App.Link" parent="TextAppearance.Material3.BodyMedium"/>
+    <style name="TextAppearance.App.Caption" parent="TextAppearance.Material3.BodySmall"/>
+</resources>

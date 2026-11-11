@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Spacing (thang 4dp) -->
+    <dimen name="space_2xs">2dp</dimen>
+    <dimen name="space_xs">4dp</dimen>
+    <dimen name="space_sm">8dp</dimen>
+    <dimen name="space_md">12dp</dimen>
+    <dimen name="space_lg">16dp</dimen>
+    <dimen name="space_xl">24dp</dimen>
+    <dimen name="space_2xl">32dp</dimen>
+    <dimen name="space_3xl">48dp</dimen>
+
+    <!-- Layout -->
+    <dimen name="screen_margin">16dp</dimen>
+    <dimen name="card_padding">12dp</dimen>
+    <dimen name="section_gap">20dp</dimen>
+
+    <!-- Corner radius -->
+    <dimen name="radius_xs">4dp</dimen>
+    <dimen name="radius_sm">8dp</dimen>
+    <dimen name="radius_md">12dp</dimen>
+    <dimen name="radius_lg">16dp</dimen>
+    <dimen name="radius_xl">24dp</dimen>
+    <dimen name="radius_pill">999dp</dimen>
+
+    <!-- Component sizes -->
+    <dimen name="button_height">48dp</dimen>
+    <dimen name="input_height">48dp</dimen>
+    <dimen name="search_height">44dp</dimen>
+    <dimen name="chip_height">24dp</dimen>
+    <dimen name="bottom_nav_height">64dp</dimen>
+    <dimen name="progress_height">8dp</dimen>
+    <dimen name="stroke_width">1dp</dimen>
+    <dimen name="elevation_card">2dp</dimen>
+
+    <!-- Icon / avatar -->
+    <dimen name="icon_sm">16dp</dimen>
+    <dimen name="icon_md">20dp</dimen>
+    <dimen name="icon_lg">24dp</dimen>
+    <dimen name="logo_header">32dp</dimen>
+    <dimen name="logo_splash">96dp</dimen>
+    <dimen name="avatar_md">40dp</dimen>
+    <dimen name="avatar_lg">56dp</dimen>
+
+    <!-- Heatmap streak -->
+    <dimen name="heatmap_cell">12dp</dimen>
+    <dimen name="heatmap_gap">3dp</dimen>
+
+    <!-- Border bo sung -->
+    <dimen name="stroke_width_thick">2dp</dimen>
+
+    <!-- Elevation: card (elevation_card ben tren) / bottom nav / bottom sheet / dialog -->
+    <dimen name="elevation_none">0dp</dimen>
+    <dimen name="elevation_bottom_nav">4dp</dimen>
+    <dimen name="elevation_bottom_sheet">8dp</dimen>
+    <dimen name="elevation_dialog">12dp</dimen>
+
+    <!-- Opacity (float) -->
+    <item name="alpha_disabled_content" format="float" type="dimen">0.38</item>
+    <item name="alpha_disabled_container" format="float" type="dimen">0.12</item>
+    <item name="alpha_pressed" format="float" type="dimen">0.12</item>
+    <item name="alpha_hover" format="float" type="dimen">0.08</item>
+    <item name="alpha_scrim" format="float" type="dimen">0.32</item>
+    <item name="alpha_overlay_image" format="float" type="dimen">0.40</item>
+</resources>
