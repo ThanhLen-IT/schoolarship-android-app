@@ -3,13 +3,11 @@ package com.example.myapplication;
 import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
@@ -20,6 +18,8 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import retrofit2.Call;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -27,15 +27,17 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
 public class ScholarshipDiscoveryActivity extends AppCompatActivity {
 
     public static final String EXTRA_FOCUS_SEARCH = "extra_focus_search";
     private boolean focusSearchOnWindow;
 
+    private Call<ApiResponse<List<Scholarship>>> activeCall;
+    private final android.os.Handler searchHandler =
+            new android.os.Handler(android.os.Looper.getMainLooper());
+    private final Runnable searchTask = () -> fetchScholarshipsFromApi();
+    private int currentPage = 0, totalPages = 0, serverTotal = 0;
+    private boolean loading;
     private List<Scholarship> allScholarships;
     private List<Scholarship> filteredScholarships;
     private ScholarshipResultAdapter adapter;
@@ -50,9 +52,16 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
     private String searchQuery = "";
     private String currentSort = "Phù hợp nhất";
 
-    private TextView tvSelectedCountry, tvResultCount, btnFilterLevel, btnFilterField, btnFilterFunding, btnFilterDeadline, tvSort;
+    private TextView tvSelectedCountry,
+            tvResultCount,
+            btnFilterLevel,
+            btnFilterField,
+            btnFilterFunding,
+            btnFilterDeadline,
+            tvSort;
 
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+    private final SimpleDateFormat dateFormat =
+            new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,25 +69,28 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
 
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_scholarship_discovery);
-        focusSearchOnWindow = savedInstanceState == null
-                && getIntent().getBooleanExtra(EXTRA_FOCUS_SEARCH, false);
+        focusSearchOnWindow =
+                savedInstanceState == null
+                        && getIntent().getBooleanExtra(EXTRA_FOCUS_SEARCH, false);
 
         View rootView = findViewById(R.id.main);
         if (rootView != null) {
-            ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
-                Insets systemBars = insets.getInsets(
-                        WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime()
-                );
+            ViewCompat.setOnApplyWindowInsetsListener(
+                    rootView,
+                    (v, insets) -> {
+                        Insets systemBars =
+                                insets.getInsets(
+                                        WindowInsetsCompat.Type.systemBars()
+                                                | WindowInsetsCompat.Type.ime());
 
-                v.setPadding(
-                        systemBars.left,
-                        systemBars.top,
-                        systemBars.right,
-                        systemBars.bottom
-                );
+                        v.setPadding(
+                                systemBars.left,
+                                systemBars.top,
+                                systemBars.right,
+                                systemBars.bottom);
 
-                return insets;
-            });
+                        return insets;
+                    });
         }
 
         // Back button
@@ -100,7 +112,7 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
         RecyclerView recyclerView = findViewById(R.id.recycler_scholarship_results);
 
         // Load sample dataset
-        allScholarships = LocalDemoCatalog.scholarships();
+        allScholarships = new ArrayList<>();
 
         filteredScholarships = new ArrayList<>(allScholarships);
         if (recyclerView != null) {
@@ -109,46 +121,69 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
             recyclerView.setAdapter(adapter);
         }
 
+        recyclerView.addOnScrollListener(
+                new RecyclerView.OnScrollListener() {
+                    @Override
+                    public void onScrolled(RecyclerView view, int dx, int dy) {
+                        if (dy > 0
+                                && !view.canScrollVertically(1)
+                                && !loading
+                                && currentPage < totalPages) fetchPage(currentPage + 1);
+                    }
+                });
+        findViewById(R.id.tv_search_empty).setOnClickListener(v -> fetchScholarshipsFromApi());
+        tvResultCount.setOnClickListener(
+                v -> {
+                    if (!loading && currentPage < totalPages) fetchPage(currentPage + 1);
+                });
         restoreFilters(savedInstanceState, etSearch);
         applyFiltersAndSort();
         fetchScholarshipsFromApi();
 
-        findViewById(R.id.btn_clear_filters).setOnClickListener(v -> {
-            selectedCountry = "Tất cả quốc gia";
-            selectedLevel = "All levels";
-            selectedField = "All fields";
-            selectedFunding = "All funding";
-            startDate = null;
-            endDate = null;
-            currentSort = "Phù hợp nhất";
-            searchQuery = "";
-            etSearch.setText("");
-            tvSelectedCountry.setText(selectedCountry);
-            updateLevelLabel();
-            btnFilterField.setText(R.string.filter_field);
-            btnFilterFunding.setText(R.string.filter_funding);
-            btnFilterDeadline.setText(R.string.filter_deadline);
-            tvSort.setText("Phù hợp nhất".equals(currentSort) ? getString(R.string.sort_label) : currentSort);
-            applyFiltersAndSort();
-            fetchScholarshipsFromApi();
-        });
+        findViewById(R.id.btn_clear_filters)
+                .setOnClickListener(
+                        v -> {
+                            selectedCountry = "Tất cả quốc gia";
+                            selectedLevel = "All levels";
+                            selectedField = "All fields";
+                            selectedFunding = "All funding";
+                            startDate = null;
+                            endDate = null;
+                            currentSort = "Phù hợp nhất";
+                            searchQuery = "";
+                            etSearch.setText("");
+                            tvSelectedCountry.setText(selectedCountry);
+                            updateLevelLabel();
+                            btnFilterField.setText(R.string.filter_field);
+                            btnFilterFunding.setText(R.string.filter_funding);
+                            btnFilterDeadline.setText(R.string.filter_deadline);
+                            tvSort.setText(
+                                    "Phù hợp nhất".equals(currentSort)
+                                            ? getString(R.string.sort_label)
+                                            : currentSort);
+                            applyFiltersAndSort();
+                            fetchScholarshipsFromApi();
+                        });
 
         // Search listener
         if (etSearch != null) {
-            etSearch.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            etSearch.addTextChangedListener(
+                    new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(
+                                CharSequence s, int start, int count, int after) {}
 
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    searchQuery = s.toString().trim();
-                    applyFiltersAndSort();
-                    fetchScholarshipsFromApi();
-                }
+                        @Override
+                        public void onTextChanged(
+                                CharSequence s, int start, int before, int count) {
+                            searchQuery = s.toString().trim();
+                            searchHandler.removeCallbacks(searchTask);
+                            searchHandler.postDelayed(searchTask, 350);
+                        }
 
-                @Override
-                public void afterTextChanged(Editable s) {}
-            });
+                        @Override
+                        public void afterTextChanged(Editable s) {}
+                    });
         }
 
         // Setup Filter Click Listeners
@@ -179,32 +214,71 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
     }
 
     private void fetchScholarshipsFromApi() {
-        String levelParam = "All levels".equalsIgnoreCase(selectedLevel) ? null : selectedLevel;
-        String countryParam = "Tất cả quốc gia".equalsIgnoreCase(selectedCountry) ? null : selectedCountry;
-        String searchParam = TextUtils.isEmpty(searchQuery) ? null : searchQuery;
+        searchHandler.removeCallbacks(searchTask);
+        if (activeCall != null) activeCall.cancel();
+        currentPage = totalPages = serverTotal = 0;
+        allScholarships.clear();
+        filteredScholarships.clear();
+        if (adapter != null) adapter.notifyDataSetChanged();
+        fetchPage(1);
+    }
 
-        ApiClient.getApiService().getScholarships(searchParam, countryParam, levelParam, 1, 20, "deadline_asc")
-                .enqueue(new Callback<ApiResponse<List<Scholarship>>>() {
-                    @Override
-                    public void onResponse(Call<ApiResponse<List<Scholarship>>> call, Response<ApiResponse<List<Scholarship>>> response) {
-                        if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
-                            List<Scholarship> apiData = response.body().getData();
-                            if (apiData != null && !apiData.isEmpty()) {
-                                filteredScholarships.clear();
-                                filteredScholarships.addAll(apiData);
-                                if (adapter != null) {
-                                    adapter.notifyDataSetChanged();
-                                }
-                                updateResultCount();
-                            }
-                        }
-                    }
+    private void fetchPage(int page) {
+        loading = true;
+        tvResultCount.setText("Đang tải học bổng…");
+        findViewById(R.id.tv_search_empty).setVisibility(View.GONE);
+        String level = "All levels".equals(selectedLevel) ? null : selectedLevel;
+        String country = "Tất cả quốc gia".equals(selectedCountry) ? null : selectedCountry;
+        String sort = "created_at_desc";
+        if ("Hạn nộp gần nhất".equals(currentSort)) sort = "deadline_asc";
+        if ("Tên A–Z".equals(currentSort)) sort = "title_asc";
+        SimpleDateFormat apiDate = new SimpleDateFormat("yyyy-MM-dd", Locale.ROOT);
+        activeCall =
+                ApiUi.request(
+                        this,
+                        ApiClient.getApiService()
+                                .getScholarships(
+                                        searchQuery.isEmpty() ? null : searchQuery,
+                                        country,
+                                        level,
+                                        page,
+                                        20,
+                                        sort,
+                                        "All funding".equals(selectedFunding)
+                                                ? null
+                                                : selectedFunding,
+                                        "All fields".equals(selectedField) ? null : selectedField,
+                                        startDate == null ? null : apiDate.format(startDate),
+                                        endDate == null ? null : apiDate.format(endDate)),
+                        result -> {
+                            loading = false;
+                            currentPage = page;
+                            totalPages =
+                                    result.getTotalPages() == null ? page : result.getTotalPages();
+                            serverTotal = result.getTotal() == null ? 0 : result.getTotal();
+                            if (result.getData() != null) allScholarships.addAll(result.getData());
+                            applyFiltersAndSort();
+                        },
+                        message -> {
+                            loading = false;
+                            tvResultCount.setText("Không thể tải. Chạm để thử lại.");
+                            tvResultCount.setOnClickListener(
+                                    v -> {
+                                        if (!loading) fetchPage(page);
+                                    });
+                            TextView empty = findViewById(R.id.tv_search_empty);
+                            empty.setText(message + "\nChạm để thử lại.");
+                            empty.setVisibility(
+                                    allScholarships.isEmpty() ? View.VISIBLE : View.GONE);
+                            ApiUi.error(this, message);
+                        });
+    }
 
-                    @Override
-                    public void onFailure(Call<ApiResponse<List<Scholarship>>> call, Throwable t) {
-                        // Fallback to local catalog
-                    }
-                });
+    @Override
+    protected void onDestroy() {
+        searchHandler.removeCallbacksAndMessages(null);
+        if (activeCall != null) activeCall.cancel();
+        super.onDestroy();
     }
 
     @Override
@@ -213,11 +287,12 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
         if (hasFocus && focusSearchOnWindow) {
             focusSearchOnWindow = false;
             EditText search = findViewById(R.id.et_scholarship_search);
-            search.post(() -> {
-                search.requestFocus();
-                androidx.core.view.WindowCompat.getInsetsController(getWindow(), search)
-                        .show(WindowInsetsCompat.Type.ime());
-            });
+            search.post(
+                    () -> {
+                        search.requestFocus();
+                        androidx.core.view.WindowCompat.getInsetsController(getWindow(), search)
+                                .show(WindowInsetsCompat.Type.ime());
+                    });
         }
     }
 
@@ -249,155 +324,111 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
         updateLevelLabel();
         if (!"All fields".equals(selectedField)) btnFilterField.setText(selectedField);
         if (!"All funding".equals(selectedFunding)) btnFilterFunding.setText(selectedFunding);
-        tvSort.setText("Phù hợp nhất".equals(currentSort) ? getString(R.string.sort_label) : currentSort);
+        tvSort.setText(
+                "Phù hợp nhất".equals(currentSort) ? getString(R.string.sort_label) : currentSort);
         if (startDate != null && endDate != null)
-            btnFilterDeadline.setText(dateFormat.format(startDate) + " – " + dateFormat.format(endDate));
+            btnFilterDeadline.setText(
+                    dateFormat.format(startDate) + " – " + dateFormat.format(endDate));
     }
 
     private void applyFiltersAndSort() {
         filteredScholarships.clear();
-
-        for (Scholarship s : allScholarships) {
-            // Search query filter
-            if (!TextUtils.isEmpty(searchQuery)) {
-                boolean matchesTitle = s.getTitle().toLowerCase(Locale.ROOT).contains(searchQuery.toLowerCase(Locale.ROOT));
-                boolean matchesOrg = s.getOrganization().toLowerCase(Locale.ROOT).contains(searchQuery.toLowerCase(Locale.ROOT));
-                boolean matchesField = s.getFieldOfStudy().toLowerCase(Locale.ROOT).contains(searchQuery.toLowerCase(Locale.ROOT));
-                if (!matchesTitle && !matchesOrg && !matchesField) {
-                    continue;
-                }
-            }
-
-            // Country filter
-            if (!"Tất cả quốc gia".equalsIgnoreCase(selectedCountry) && !"All countries".equalsIgnoreCase(selectedCountry) && !s.getCountry().equalsIgnoreCase(selectedCountry)) {
-                continue;
-            }
-
-            // Degree level filter
-            if (!"All levels".equals(selectedLevel) && !s.getDegreeLevel().equalsIgnoreCase(selectedLevel)) {
-                continue;
-            }
-
-            // Field of study filter
-            if (!"All fields".equals(selectedField) && !s.getFieldOfStudy().equalsIgnoreCase(selectedField)) {
-                continue;
-            }
-
-            // Funding filter
-            if (!"All funding".equals(selectedFunding) && !s.getFundingType().equalsIgnoreCase(selectedFunding)) {
-                continue;
-            }
-
-            // Unknown deadlines cannot satisfy a requested date interval.
-            if ((startDate != null || endDate != null) && s.getDeadlineDate() == null) continue;
-            // Deadline date range filter
-            if (startDate != null && s.getDeadlineDate() != null && s.getDeadlineDate().before(startDate)) {
-                continue;
-            }
-            if (endDate != null && s.getDeadlineDate() != null && s.getDeadlineDate().after(endDate)) {
-                continue;
-            }
-
-            filteredScholarships.add(s);
-        }
-
-        // Apply Sorting
-        switch (currentSort) {
-            case "Hạn nộp gần nhất":
-                filteredScholarships.sort((a, b) -> {
-                    if (a.getDeadlineDate() == null) return b.getDeadlineDate() == null ? 0 : 1;
-                    if (b.getDeadlineDate() == null) return -1;
-                    return a.getDeadlineDate().compareTo(b.getDeadlineDate());
-                });
-                break;
-            case "Mới cập nhật":
-                filteredScholarships.sort((a, b) -> {
-                    if (a.getUpdatedAt() == null) return b.getUpdatedAt() == null ? 0 : 1;
-                    if (b.getUpdatedAt() == null) return -1;
-                    return b.getUpdatedAt().compareTo(a.getUpdatedAt());
-                });
-                break;
-            case "Tài trợ cao nhất":
-                filteredScholarships.sort((a, b) -> Double.compare(b.getFundingScore(), a.getFundingScore()));
-                break;
-            case "Tên A–Z":
-                filteredScholarships.sort((a, b) -> a.getTitle().compareToIgnoreCase(b.getTitle()));
-                break;
-            case "Phù hợp nhất":
-            default:
-                // default order
-                break;
-        }
-
-        if (adapter != null) {
-            adapter.notifyDataSetChanged();
-        }
+        filteredScholarships.addAll(allScholarships);
+        if (adapter != null) adapter.notifyDataSetChanged();
         updateResultCount();
     }
 
     private void updateResultCount() {
-        tvResultCount.setText(getString(R.string.local_result_count, filteredScholarships.size()));
-        boolean active = !searchQuery.isEmpty() || !"Tất cả quốc gia".equals(selectedCountry)
-                || !"All levels".equals(selectedLevel) || !"All fields".equals(selectedField)
-                || !"All funding".equals(selectedFunding) || startDate != null || endDate != null
-                || !"Phù hợp nhất".equals(currentSort);
+        tvResultCount.setText(
+                serverTotal
+                        + " học bổng · Đã tải "
+                        + filteredScholarships.size()
+                        + (currentPage < totalPages ? " · Chạm để tải thêm" : ""));
+        tvResultCount.setOnClickListener(
+                v -> {
+                    if (!loading && currentPage < totalPages) fetchPage(currentPage + 1);
+                });
+        boolean active =
+                !searchQuery.isEmpty()
+                        || !"Tất cả quốc gia".equals(selectedCountry)
+                        || !"All levels".equals(selectedLevel)
+                        || !"All fields".equals(selectedField)
+                        || !"All funding".equals(selectedFunding)
+                        || startDate != null
+                        || endDate != null
+                        || !"Phù hợp nhất".equals(currentSort);
         findViewById(R.id.btn_clear_filters).setVisibility(active ? View.VISIBLE : View.GONE);
-        findViewById(R.id.tv_search_empty).setVisibility(filteredScholarships.isEmpty() ? View.VISIBLE : View.GONE);
+        TextView empty = findViewById(R.id.tv_search_empty);
+        empty.setText("Không tìm thấy học bổng phù hợp. Chạm để tải lại.");
+        empty.setVisibility(!loading && filteredScholarships.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
     private void showCountryDialog() {
-        String[] countries = {"Tất cả quốc gia", "Đông Nam Á", "Trung Quốc", "Hàn Quốc", "Nhật Bản", "Đài Loan"};
+        String[] countries = {
+            "Tất cả quốc gia", "Đông Nam Á", "Trung Quốc", "Hàn Quốc", "Nhật Bản", "Đài Loan"
+        };
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Chọn quốc gia");
-        builder.setItems(countries, (dialog, which) -> {
-            selectedCountry = countries[which];
-            if (tvSelectedCountry != null) {
-                tvSelectedCountry.setText(selectedCountry);
-            }
-            applyFiltersAndSort();
-            fetchScholarshipsFromApi();
-        });
+        builder.setItems(
+                countries,
+                (dialog, which) -> {
+                    selectedCountry = countries[which];
+                    if (tvSelectedCountry != null) {
+                        tvSelectedCountry.setText(selectedCountry);
+                    }
+                    applyFiltersAndSort();
+                    fetchScholarshipsFromApi();
+                });
         builder.show();
     }
 
     private void updateLevelLabel() {
         if ("All levels".equals(selectedLevel)) btnFilterLevel.setText(R.string.filter_level);
-        else if (LocalDemoCatalog.LEVEL_EXCHANGE.equals(selectedLevel))
-            btnFilterLevel.setText(R.string.study_level_exchange_short);
-        else btnFilterLevel.setText(selectedLevel);
-        btnFilterLevel.setContentDescription("All levels".equals(selectedLevel)
-                ? getString(R.string.filter_level) : selectedLevel);
+        else btnFilterLevel.setText(Scholarship.levelLabel(selectedLevel));
+        btnFilterLevel.setContentDescription(
+                "All levels".equals(selectedLevel)
+                        ? getString(R.string.filter_level)
+                        : selectedLevel);
     }
 
     private void showLevelDialog() {
-        String[] levels = {"All levels", "Đại học", "Thạc sĩ", "Tiến sĩ"};
-        String[] labels = {getString(R.string.all_study_levels), "Đại học", "Thạc sĩ", "Tiến sĩ"};
+        String[] levels = {"All levels", "bachelor", "master", "doctoral", "other", "unknown"};
+        String[] labels = {
+            getString(R.string.all_study_levels), "Cử nhân", "Thạc sĩ", "Tiến sĩ", "Khác", "Chưa rõ"
+        };
         int checked = java.util.Arrays.asList(levels).indexOf(selectedLevel);
         new AlertDialog.Builder(this)
                 .setTitle("Bậc học")
-                .setSingleChoiceItems(labels, checked, (dialog, which) -> {
-                    selectedLevel = levels[which];
-                    updateLevelLabel();
-                    applyFiltersAndSort();
-                    fetchScholarshipsFromApi();
-                    dialog.dismiss();
-                })
+                .setSingleChoiceItems(
+                        labels,
+                        checked,
+                        (dialog, which) -> {
+                            selectedLevel = levels[which];
+                            updateLevelLabel();
+                            applyFiltersAndSort();
+                            fetchScholarshipsFromApi();
+                            dialog.dismiss();
+                        })
                 .setNegativeButton(R.string.cancel_button, null)
                 .show();
     }
 
     private void showFieldDialog() {
-        String[] fields = {"All fields", "Công nghệ thông tin", "Kinh doanh", "Khoa học xã hội", "Khoa học", "Y tế"};
+        String[] fields = {
+            "All fields", "Công nghệ thông tin", "Kinh doanh", "Khoa học xã hội", "Khoa học", "Y tế"
+        };
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Ngành học");
-        builder.setItems(fields, (dialog, which) -> {
-            selectedField = fields[which];
-            if (btnFilterField != null) {
-                btnFilterField.setText(selectedField);
-            }
-            applyFiltersAndSort();
-            fetchScholarshipsFromApi();
-        });
+        builder.setItems(
+                fields,
+                (dialog, which) -> {
+                    selectedField = fields[which];
+                    if (btnFilterField != null) {
+                        btnFilterField.setText(selectedField);
+                    }
+                    applyFiltersAndSort();
+                    fetchScholarshipsFromApi();
+                });
         builder.show();
     }
 
@@ -405,63 +436,89 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
         String[] fundings = {"All funding", "Toàn phần", "Bán phần", "Học phí", "Sinh hoạt phí"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Tài trợ");
-        builder.setItems(fundings, (dialog, which) -> {
-            selectedFunding = fundings[which];
-            if (btnFilterFunding != null) {
-                btnFilterFunding.setText(selectedFunding);
-            }
-            applyFiltersAndSort();
-            fetchScholarshipsFromApi();
-        });
+        builder.setItems(
+                fundings,
+                (dialog, which) -> {
+                    selectedFunding = fundings[which];
+                    if (btnFilterFunding != null) {
+                        btnFilterFunding.setText(selectedFunding);
+                    }
+                    applyFiltersAndSort();
+                    fetchScholarshipsFromApi();
+                });
         builder.show();
     }
 
     private void showDeadlineDialog() {
         Calendar initial = Calendar.getInstance();
         if (startDate != null) initial.setTime(startDate);
-        DatePickerDialog from = new DatePickerDialog(this, (view, year, month, day) -> {
-            Calendar first = Calendar.getInstance();
-            first.clear();
-            first.set(year, month, day);
-            Calendar last = (Calendar) first.clone();
-            if (endDate != null && !endDate.before(first.getTime())) last.setTime(endDate);
-            DatePickerDialog to = new DatePickerDialog(this, (endView, endYear, endMonth, endDay) -> {
-                Calendar chosenEnd = Calendar.getInstance();
-                chosenEnd.clear();
-                chosenEnd.set(endYear, endMonth, endDay);
-                startDate = first.getTime();
-                endDate = chosenEnd.getTime();
-                btnFilterDeadline.setText(dateFormat.format(startDate) + " – " + dateFormat.format(endDate));
-                applyFiltersAndSort();
-                fetchScholarshipsFromApi();
-            }, last.get(Calendar.YEAR), last.get(Calendar.MONTH), last.get(Calendar.DAY_OF_MONTH));
-            to.setTitle("Hạn nộp đến ngày (bao gồm ngày chọn)");
-            to.getDatePicker().setMinDate(first.getTimeInMillis());
-            to.show();
-        }, initial.get(Calendar.YEAR), initial.get(Calendar.MONTH), initial.get(Calendar.DAY_OF_MONTH));
+        DatePickerDialog from =
+                new DatePickerDialog(
+                        this,
+                        (view, year, month, day) -> {
+                            Calendar first = Calendar.getInstance();
+                            first.clear();
+                            first.set(year, month, day);
+                            Calendar last = (Calendar) first.clone();
+                            if (endDate != null && !endDate.before(first.getTime()))
+                                last.setTime(endDate);
+                            DatePickerDialog to =
+                                    new DatePickerDialog(
+                                            this,
+                                            (endView, endYear, endMonth, endDay) -> {
+                                                Calendar chosenEnd = Calendar.getInstance();
+                                                chosenEnd.clear();
+                                                chosenEnd.set(endYear, endMonth, endDay);
+                                                startDate = first.getTime();
+                                                endDate = chosenEnd.getTime();
+                                                btnFilterDeadline.setText(
+                                                        dateFormat.format(startDate)
+                                                                + " – "
+                                                                + dateFormat.format(endDate));
+                                                applyFiltersAndSort();
+                                                fetchScholarshipsFromApi();
+                                            },
+                                            last.get(Calendar.YEAR),
+                                            last.get(Calendar.MONTH),
+                                            last.get(Calendar.DAY_OF_MONTH));
+                            to.setTitle("Hạn nộp đến ngày (bao gồm ngày chọn)");
+                            to.getDatePicker().setMinDate(first.getTimeInMillis());
+                            to.show();
+                        },
+                        initial.get(Calendar.YEAR),
+                        initial.get(Calendar.MONTH),
+                        initial.get(Calendar.DAY_OF_MONTH));
         from.setTitle("Hạn nộp từ ngày");
-        from.setButton(DatePickerDialog.BUTTON_NEUTRAL, "Xóa hạn nộp", (dialog, which) -> {
-            startDate = null;
-            endDate = null;
-            btnFilterDeadline.setText(R.string.filter_deadline);
-            applyFiltersAndSort();
-            fetchScholarshipsFromApi();
-        });
+        from.setButton(
+                DatePickerDialog.BUTTON_NEUTRAL,
+                "Xóa hạn nộp",
+                (dialog, which) -> {
+                    startDate = null;
+                    endDate = null;
+                    btnFilterDeadline.setText(R.string.filter_deadline);
+                    applyFiltersAndSort();
+                    fetchScholarshipsFromApi();
+                });
         from.show();
     }
 
     private void showSortDialog() {
-        String[] sorts = {"Phù hợp nhất", "Hạn nộp gần nhất", "Mới cập nhật", "Tài trợ cao nhất", "Tên A–Z"};
+        String[] sorts = {"Phù hợp nhất", "Hạn nộp gần nhất", "Mới cập nhật", "Tên A–Z"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Sắp xếp");
-        builder.setItems(sorts, (dialog, which) -> {
-            currentSort = sorts[which];
-            if (tvSort != null) {
-                tvSort.setText("Phù hợp nhất".equals(currentSort) ? getString(R.string.sort_label) : currentSort);
-            }
-            applyFiltersAndSort();
-            fetchScholarshipsFromApi();
-        });
+        builder.setItems(
+                sorts,
+                (dialog, which) -> {
+                    currentSort = sorts[which];
+                    if (tvSort != null) {
+                        tvSort.setText(
+                                "Phù hợp nhất".equals(currentSort)
+                                        ? getString(R.string.sort_label)
+                                        : currentSort);
+                    }
+                    applyFiltersAndSort();
+                    fetchScholarshipsFromApi();
+                });
         builder.show();
     }
 }

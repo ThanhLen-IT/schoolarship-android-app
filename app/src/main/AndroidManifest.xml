@@ -48,8 +48,15 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".SetNewPasswordActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="scholarship" android:host="reset-password" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".PasswordChangeSuccessActivity"
             android:exported="false"

@@ -21,7 +21,9 @@ public class MentorRankingAdapter extends RecyclerView.Adapter<MentorRankingAdap
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_mentor_ranking_row, parent, false);
+        View view =
+                LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.item_mentor_ranking_row, parent, false);
         return new ViewHolder(view);
     }
 
@@ -29,7 +31,7 @@ public class MentorRankingAdapter extends RecyclerView.Adapter<MentorRankingAdap
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         MentorRankingItem item = items.get(position);
 
-        holder.tvRank.setText(String.valueOf(item.getRank()));
+        holder.tvRank.setText(item.getRank() == 0 ? "—" : String.valueOf(item.getRank()));
         holder.tvMentorName.setText(item.getMentorName());
         holder.tvTotal.setText(item.getTotal());
         holder.tvSuccessRate.setText(item.getSuccessRate());
@@ -44,7 +46,13 @@ public class MentorRankingAdapter extends RecyclerView.Adapter<MentorRankingAdap
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvRank, tvMentorName, tvTotal, tvSuccessRate, tvAvgRating, tvCompletionRate, tvResponseRate;
+        TextView tvRank,
+                tvMentorName,
+                tvTotal,
+                tvSuccessRate,
+                tvAvgRating,
+                tvCompletionRate,
+                tvResponseRate;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);

@@ -1,218 +1,219 @@
 package com.example.myapplication;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.method.KeyListener;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
-import androidx.activity.EdgeToEdge;
-import androidx.activity.OnBackPressedCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class PersonalProfileActivity extends AppCompatActivity {
-    private final String[] keys = {"name", "university", "major", "bio", "skills"};
-    private final ExecutorService photoWorker = Executors.newSingleThreadExecutor();
     private EditText[] fields;
-    private KeyListener[] fieldKeyListeners;
+    private android.text.method.KeyListener[] listeners;
     private String avatar = "";
-    private boolean editing;
-    private boolean importingAvatar;
-    private int importVersion;
-    private final ActivityResultLauncher<String[]> pickAvatar = registerForActivityResult(
-            new ActivityResultContracts.OpenDocument(), uri -> {
-                if (uri != null && editing) importAvatar(uri);
-            });
+    private boolean editing, loading, saving;
 
-    @Override protected void onCreate(Bundle state) {
+    @Override
+    protected void onCreate(Bundle state) {
         super.onCreate(state);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_personal_profile);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (view, insets) -> {
-            Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime());
-            view.setPadding(bars.left, bars.top, bars.right, bars.bottom);
-            return insets;
-        });
-        fields = new EditText[]{findViewById(R.id.et_profile_name), findViewById(R.id.et_profile_university),
-                findViewById(R.id.et_profile_major), findViewById(R.id.et_profile_bio), findViewById(R.id.et_profile_skills)};
-        fieldKeyListeners = new KeyListener[fields.length];
-        for (int i = 0; i < fields.length; i++) fieldKeyListeners[i] = fields[i].getKeyListener();
-        loadSaved();
-        if (state != null) avatar = state.getString("draft_avatar", avatar);
-        LocalProfileStore.showAvatar(findViewById(R.id.iv_edit_avatar), avatar);
-        setEditing(state != null && state.getBoolean("editing"));
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(
+                findViewById(R.id.main),
+                (view, insets) -> {
+                    androidx.core.graphics.Insets bars =
+                            insets.getInsets(
+                                    androidx.core.view.WindowInsetsCompat.Type.systemBars()
+                                            | androidx.core.view.WindowInsetsCompat.Type.ime());
+                    view.setPadding(bars.left, bars.top, bars.right, bars.bottom);
+                    return insets;
+                });
+        fields =
+                new EditText[] {
+                    findViewById(R.id.et_profile_name),
+                    findViewById(R.id.et_profile_university),
+                    findViewById(R.id.et_profile_major),
+                    findViewById(R.id.et_profile_bio),
+                    findViewById(R.id.et_profile_skills)
+                };
+        listeners = new android.text.method.KeyListener[fields.length];
+        for (int i = 0; i < fields.length; i++) listeners[i] = fields[i].getKeyListener();
         findViewById(R.id.btn_profile_edit).setOnClickListener(v -> setEditing(true));
-        findViewById(R.id.btn_profile_cancel).setOnClickListener(v -> discardOrFinish(false));
-        findViewById(R.id.btn_profile_back).setOnClickListener(v -> discardOrFinish(true));
-        findViewById(R.id.btn_pick_avatar).setOnClickListener(v -> pickAvatar.launch(new String[]{"image/*"}));
-        findViewById(R.id.iv_edit_avatar).setOnClickListener(v -> {
-            if (importingAvatar) return;
-            if (!editing) setEditing(true);
-            pickAvatar.launch(new String[]{"image/*"});
-        });
-        findViewById(R.id.btn_profile_save).setOnClickListener(v -> saveProfile());
-        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-            @Override public void handleOnBackPressed() { discardOrFinish(true); }
-        });
-    }
-
-    private void importAvatar(android.net.Uri uri) {
-        int version = ++importVersion;
-        importingAvatar = true;
-        updatePhotoControls();
-        photoWorker.execute(() -> {
-            String imported = null;
-            try {
-                imported = LocalAvatarStorage.importPhoto(getApplicationContext(), uri);
-            } catch (java.io.IOException | RuntimeException ignored) { /* Report failure on the UI thread. */ }
-            final String result = imported;
-            runOnUiThread(() -> {
-                if (isDestroyed() || isFinishing() || version != importVersion || !editing) {
-                    if (result != null) LocalAvatarStorage.deleteCopy(getApplicationContext(), result);
-                    return;
-                }
-                importingAvatar = false;
-                updatePhotoControls();
-                if (result == null) {
-                    Toast.makeText(this, R.string.profile_avatar_error, Toast.LENGTH_LONG).show();
-                    return;
-                }
-                deleteUnsavedAvatar();
-                avatar = result;
-                LocalProfileStore.showAvatar(findViewById(R.id.iv_edit_avatar), avatar);
-            });
-        });
-    }
-
-    private void saveProfile() {
-        if (importingAvatar || !editing || !FormValidation.required(fields[0])) return;
-        SharedPreferences prefs = LocalProfileStore.prefs(this);
-        String oldAvatar = prefs.getString("avatar", "");
-        SharedPreferences.Editor writer = prefs.edit();
-        for (int i = 0; i < keys.length; i++) writer.putString(keys[i], fields[i].getText().toString().trim());
-        // Report success only after both profile fields and the image reference are persisted.
-        if (!writer.putString("avatar", avatar).commit()) {
-            Toast.makeText(this, R.string.profile_save_error, Toast.LENGTH_LONG).show();
-            return;
-        }
-        if (!oldAvatar.equals(avatar)) LocalAvatarStorage.deleteCopy(this, oldAvatar);
-        loadSaved();
+        findViewById(R.id.btn_profile_cancel).setOnClickListener(v -> discard(false));
+        findViewById(R.id.btn_profile_back).setOnClickListener(v -> discard(true));
+        findViewById(R.id.btn_profile_save).setOnClickListener(v -> save());
+        findViewById(R.id.btn_pick_avatar).setOnClickListener(v -> editAvatar());
+        findViewById(R.id.iv_edit_avatar)
+                .setOnClickListener(
+                        v -> {
+                            if (editing && !saving) editAvatar();
+                        });
+        getOnBackPressedDispatcher()
+                .addCallback(
+                        this,
+                        new androidx.activity.OnBackPressedCallback(true) {
+                            @Override
+                            public void handleOnBackPressed() {
+                                discard(true);
+                            }
+                        });
+        showCached();
         setEditing(false);
-        Toast.makeText(this, R.string.profile_saved, Toast.LENGTH_SHORT).show();
-    }
-
-    private void loadSaved() {
-        SharedPreferences prefs = LocalProfileStore.prefs(this);
-        for (int i = 0; i < keys.length; i++) {
-            fields[i].setText(prefs.getString(keys[i], i == 0 ? LocalProfileStore.name(this) : ""));
-            fields[i].setError(null);
+        if (ApiUi.requireLogin(this)) {
+            if (state != null && state.getBoolean("draft_editing")) {
+                String[] draft = state.getStringArray("draft_fields");
+                if (draft != null && draft.length == fields.length)
+                    for (int i = 0; i < fields.length; i++) fields[i].setText(draft[i]);
+                avatar = state.getString("draft_avatar", avatar);
+                RemoteImage.show(findViewById(R.id.iv_edit_avatar), avatar);
+                setEditing(true);
+            } else load();
         }
-        avatar = prefs.getString("avatar", "");
-        LocalProfileStore.showAvatar(findViewById(R.id.iv_edit_avatar), avatar);
-        updateSummary();
     }
 
-    private void updateSummary() {
-        ((TextView) findViewById(R.id.tv_profile_summary_name)).setText(fields[0].getText().toString().trim());
-        String school = fields[1].getText().toString().trim();
-        String major = fields[2].getText().toString().trim();
-        String summary = school.isEmpty() ? major : major.isEmpty() ? school : school + " · " + major;
-        ((TextView) findViewById(R.id.tv_profile_summary_subtitle)).setText(
-                summary.isEmpty() ? getString(R.string.profile_summary_empty) : summary);
+    private void showCached() {
+        String[] keys = {"name", "university", "major", "bio", "skills"};
+        for (int i = 0; i < keys.length; i++)
+            fields[i].setText(ProfileStore.prefs(this).getString(keys[i], ""));
+        avatar = ProfileStore.prefs(this).getString("avatar", "");
+        RemoteImage.show(findViewById(R.id.iv_edit_avatar), avatar);
+        ((TextView) findViewById(R.id.tv_profile_summary_name)).setText(fields[0].getText());
+        ((TextView) findViewById(R.id.tv_profile_summary_subtitle))
+                .setText(fields[1].getText() + " · " + fields[2].getText());
+    }
+
+    private void load() {
+        loading = true;
+        setEditing(false);
+        ApiUi.request(
+                this,
+                ApiClient.getApiService().getCurrentUser(ApiUi.bearer(this)),
+                result -> {
+                    loading = false;
+                    if (result.getData() == null) {
+                        ApiUi.error(this, "Không có dữ liệu hồ sơ.");
+                        return;
+                    }
+                    ProfileStore.save(this, result.getData());
+                    showCached();
+                    setEditing(false);
+                },
+                message -> {
+                    loading = false;
+                    setEditing(false);
+                    ApiUi.error(this, message);
+                });
+    }
+
+    private void editAvatar() {
+        EditText input = new EditText(this);
+        input.setInputType(
+                android.text.InputType.TYPE_CLASS_TEXT
+                        | android.text.InputType.TYPE_TEXT_VARIATION_URI);
+        input.setHint("https://…");
+        input.setText(avatar);
+        new AlertDialog.Builder(this)
+                .setTitle("URL ảnh đại diện")
+                .setMessage("Backend hiện hỗ trợ URL ảnh công khai. Để trống để xóa ảnh.")
+                .setView(input)
+                .setNegativeButton("Hủy", null)
+                .setPositiveButton(
+                        "Dùng ảnh",
+                        (dialog, which) -> {
+                            String value = input.getText().toString().trim();
+                            android.net.Uri uri = android.net.Uri.parse(value);
+                            if (!value.isEmpty()
+                                    && (!("http".equalsIgnoreCase(uri.getScheme())
+                                                    || "https".equalsIgnoreCase(uri.getScheme()))
+                                            || uri.getHost() == null)) {
+                                ApiUi.error(
+                                        this, "URL ảnh phải bắt đầu bằng http:// hoặc https://");
+                                return;
+                            }
+                            avatar = value;
+                            RemoteImage.show(findViewById(R.id.iv_edit_avatar), avatar);
+                        })
+                .show();
     }
 
     private void setEditing(boolean value) {
         editing = value;
-        int padding = (int) (12 * getResources().getDisplayMetrics().density);
         for (int i = 0; i < fields.length; i++) {
-            fields[i].setKeyListener(value ? fieldKeyListeners[i] : null);
-            fields[i].setFocusable(value);
-            fields[i].setFocusableInTouchMode(value);
-            fields[i].setCursorVisible(value);
-            fields[i].setBackgroundResource(value ? R.drawable.bg_input_field : 0);
-            fields[i].setPadding(value ? padding : 0, value ? padding : 0, value ? padding : 0, value ? padding : 0);
+            fields[i].setKeyListener(value && !saving ? listeners[i] : null);
+            fields[i].setFocusableInTouchMode(value && !saving);
         }
-        fields[3].setMinLines(value ? 3 : 1);
         findViewById(R.id.layout_profile_actions).setVisibility(value ? View.VISIBLE : View.GONE);
-        findViewById(R.id.btn_pick_avatar).setVisibility(value ? View.VISIBLE : View.GONE);
-        findViewById(R.id.tv_profile_skills_help).setVisibility(value ? View.VISIBLE : View.GONE);
         findViewById(R.id.btn_profile_edit).setVisibility(value ? View.GONE : View.VISIBLE);
-        updatePhotoControls();
-        if (!value) {
-            findViewById(R.id.main).requestFocus();
-            androidx.core.view.WindowCompat.getInsetsController(getWindow(), findViewById(R.id.main))
-                    .hide(WindowInsetsCompat.Type.ime());
-        }
+        findViewById(R.id.btn_profile_edit).setEnabled(!loading);
+        findViewById(R.id.btn_pick_avatar).setVisibility(value ? View.VISIBLE : View.GONE);
+        ((TextView) findViewById(R.id.btn_pick_avatar)).setText("Nhập URL ảnh");
+        findViewById(R.id.btn_profile_save).setEnabled(!saving);
+        findViewById(R.id.btn_profile_cancel).setEnabled(!saving);
+        findViewById(R.id.btn_pick_avatar).setEnabled(!saving);
     }
 
-    private void updatePhotoControls() {
-        findViewById(R.id.progress_avatar).setVisibility(importingAvatar ? View.VISIBLE : View.GONE);
-        findViewById(R.id.btn_pick_avatar).setEnabled(!importingAvatar);
-        findViewById(R.id.btn_profile_save).setEnabled(!importingAvatar);
+    private void save() {
+        if (saving || !editing || !FormValidation.required(fields[0])) return;
+        Map<String, Object> body = new HashMap<>();
+        String[] keys = {"full_name", "university", "major", "bio"};
+        for (int i = 0; i < keys.length; i++)
+            body.put(keys[i], fields[i].getText().toString().trim());
+        java.util.List<String> skills = new java.util.ArrayList<>();
+        for (String skill : fields[4].getText().toString().split(","))
+            if (!skill.trim().isEmpty()) skills.add(skill.trim());
+        body.put("skills", skills);
+        body.put("avatar_url", avatar);
+        saving = true;
+        setEditing(true);
+        ApiUi.request(
+                this,
+                ApiClient.getApiService().updateProfile(ApiUi.bearer(this), body),
+                result -> {
+                    saving = false;
+                    if (result.getData() == null) {
+                        setEditing(true);
+                        ApiUi.error(this, "Phản hồi hồ sơ không hợp lệ.");
+                        return;
+                    }
+                    ProfileStore.save(this, result.getData());
+                    showCached();
+                    setEditing(false);
+                    ApiUi.error(this, "Đã cập nhật hồ sơ trên máy chủ.");
+                },
+                message -> {
+                    saving = false;
+                    setEditing(true);
+                    ApiUi.error(this, message);
+                });
     }
 
-    private void deleteUnsavedAvatar() {
-        if (!avatar.equals(LocalProfileStore.prefs(this).getString("avatar", "")))
-            LocalAvatarStorage.deleteCopy(this, avatar);
+    private void discard(boolean finish) {
+        if (saving) return;
+        if (editing)
+            new AlertDialog.Builder(this)
+                    .setMessage("Bỏ các thay đổi chưa lưu?")
+                    .setNegativeButton("Tiếp tục sửa", null)
+                    .setPositiveButton(
+                            "Bỏ thay đổi",
+                            (d, w) -> {
+                                showCached();
+                                setEditing(false);
+                                if (finish) finish();
+                            })
+                    .show();
+        else if (finish) finish();
     }
 
-    private void discardDraft() {
-        importVersion++;
-        importingAvatar = false;
-        deleteUnsavedAvatar();
-        loadSaved();
-        setEditing(false);
-    }
-
-    private boolean hasChanges() {
-        if (importingAvatar) return true;
-        SharedPreferences prefs = LocalProfileStore.prefs(this);
-        if (!avatar.equals(prefs.getString("avatar", ""))) return true;
-        for (int i = 0; i < keys.length; i++) {
-            if (!fields[i].getText().toString().trim().equals(prefs.getString(keys[i],
-                    i == 0 ? LocalProfileStore.name(this) : ""))) return true;
-        }
-        return false;
-    }
-
-    private void discardOrFinish(boolean leave) {
-        if (editing && hasChanges()) {
-            new AlertDialog.Builder(this).setTitle(R.string.profile_discard_title)
-                    .setMessage(R.string.profile_discard_message)
-                    .setNegativeButton(R.string.profile_keep_editing, null)
-                    .setPositiveButton(R.string.profile_discard, (dialog, which) -> {
-                        discardDraft();
-                        if (leave) finish();
-                    }).show();
-        } else {
-            discardDraft();
-            if (leave) finish();
-        }
-    }
-
-    @Override protected void onSaveInstanceState(Bundle state) {
+    @Override
+    protected void onSaveInstanceState(Bundle state) {
+        state.putBoolean("draft_editing", editing && !saving);
+        String[] values = new String[fields.length];
+        for (int i = 0; i < fields.length; i++) values[i] = fields[i].getText().toString();
+        state.putStringArray("draft_fields", values);
         state.putString("draft_avatar", avatar);
-        state.putBoolean("editing", editing);
         super.onSaveInstanceState(state);
-    }
-
-    @Override protected void onRestoreInstanceState(Bundle state) {
-        super.onRestoreInstanceState(state);
-        updateSummary();
-    }
-
-    @Override protected void onDestroy() {
-        importVersion++;
-        photoWorker.shutdown();
-        super.onDestroy();
     }
 }

@@ -26,20 +26,19 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
         View rootView = findViewById(R.id.main);
         if (rootView != null) {
-            ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
-                Insets systemBars = insets.getInsets(
-                        WindowInsetsCompat.Type.systemBars()
-                );
+            ViewCompat.setOnApplyWindowInsetsListener(
+                    rootView,
+                    (v, insets) -> {
+                        Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
 
-                v.setPadding(
-                        systemBars.left,
-                        systemBars.top,
-                        systemBars.right,
-                        systemBars.bottom
-                );
+                        v.setPadding(
+                                systemBars.left,
+                                systemBars.top,
+                                systemBars.right,
+                                systemBars.bottom);
 
-                return insets;
-            });
+                        return insets;
+                    });
         }
 
         // Back button navigation
@@ -53,21 +52,39 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         TextInputEditText etResetEmail = findViewById(R.id.et_reset_email);
 
         if (btnResetPassword != null && etResetEmail != null) {
-            btnResetPassword.setOnClickListener(v -> {
-                String email = etResetEmail.getText() != null ? etResetEmail.getText().toString().trim() : "";
-                if (TextUtils.isEmpty(email)) {
-                    etResetEmail.setError(getString(R.string.email_required_message));
-                    etResetEmail.requestFocus();
-                } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                    etResetEmail.setError(getString(R.string.invalid_email_message));
-                    etResetEmail.requestFocus();
-                } else {
-                    etResetEmail.setError(null);
-                    Intent intent = new Intent(ForgotPasswordActivity.this, VerifyCodeActivity.class);
-                    intent.putExtra("email", email);
-                    startActivity(intent);
-                }
-            });
+            btnResetPassword.setOnClickListener(
+                    v -> {
+                        String email =
+                                etResetEmail.getText() != null
+                                        ? etResetEmail.getText().toString().trim()
+                                        : "";
+                        if (TextUtils.isEmpty(email)) {
+                            etResetEmail.setError(getString(R.string.email_required_message));
+                            etResetEmail.requestFocus();
+                        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                            etResetEmail.setError(getString(R.string.invalid_email_message));
+                            etResetEmail.requestFocus();
+                        } else {
+                            etResetEmail.setError(null);
+                            btnResetPassword.setEnabled(false);
+                            java.util.Map<String, String> body = new java.util.HashMap<>();
+                            body.put("email", email);
+                            ApiUi.request(
+                                    this,
+                                    ApiClient.getApiService().forgotPassword(body),
+                                    result -> {
+                                        btnResetPassword.setEnabled(true);
+                                        ApiUi.error(this, result.getMessage());
+                                        startActivity(
+                                                new Intent(this, SetNewPasswordActivity.class)
+                                                        .putExtra("email", email));
+                                    },
+                                    message -> {
+                                        btnResetPassword.setEnabled(true);
+                                        ApiUi.error(this, message);
+                                    });
+                        }
+                    });
         }
     }
 }

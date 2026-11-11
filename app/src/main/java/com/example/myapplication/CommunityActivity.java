@@ -23,6 +23,13 @@ import java.util.List;
 public class CommunityActivity extends AppCompatActivity {
 
     private List<CommunityPost> allPosts;
+    private String serverQuery = "";
+    private int page = 0, pages = 0;
+    private boolean loading;
+    private retrofit2.Call<ApiResponse<List<CommunityPost>>> feedCall;
+    private final android.os.Handler handler =
+            new android.os.Handler(android.os.Looper.getMainLooper());
+    private final Runnable searchTask = () -> loadPosts(1);
     private List<CommunityPost> filteredPosts;
     private CommunityPostAdapter adapter;
 
@@ -35,97 +42,124 @@ public class CommunityActivity extends AppCompatActivity {
 
         View rootView = findViewById(R.id.main);
         if (rootView != null) {
-            ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
-                Insets systemBars = insets.getInsets(
-                        WindowInsetsCompat.Type.systemBars()
-                );
+            ViewCompat.setOnApplyWindowInsetsListener(
+                    rootView,
+                    (v, insets) -> {
+                        Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
 
-                v.setPadding(
-                        systemBars.left,
-                        systemBars.top,
-                        systemBars.right,
-                        systemBars.bottom
-                );
+                        v.setPadding(
+                                systemBars.left,
+                                systemBars.top,
+                                systemBars.right,
+                                systemBars.bottom);
 
-                return insets;
-            });
+                        return insets;
+                    });
         }
 
         // Top Action: Write post
         View btnWritePost = findViewById(R.id.btn_write_post);
         if (btnWritePost != null) {
-            btnWritePost.setOnClickListener(v -> {
-                Intent intent = new Intent(CommunityActivity.this, CreatePostActivity.class);
-                startActivity(intent);
-            });
+            btnWritePost.setOnClickListener(
+                    v -> {
+                        Intent intent =
+                                new Intent(CommunityActivity.this, CreatePostActivity.class);
+                        startActivity(intent);
+                    });
         }
 
         // Search Bar
         EditText etSearch = findViewById(R.id.et_community_search);
 
         // Load Sample Posts
-        loadSamplePosts();
+        allPosts = new ArrayList<>();
 
         filteredPosts = new ArrayList<>(allPosts);
         RecyclerView recyclerView = findViewById(R.id.recycler_community_feed);
         if (recyclerView != null) {
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
-            adapter = new CommunityPostAdapter(filteredPosts);
+            adapter = new CommunityPostAdapter(filteredPosts, () -> loadPosts(1));
             recyclerView.setAdapter(adapter);
         }
 
+        recyclerView.addOnScrollListener(
+                new RecyclerView.OnScrollListener() {
+                    @Override
+                    public void onScrolled(RecyclerView view, int dx, int dy) {
+                        if (dy > 0 && !view.canScrollVertically(1) && !loading && page < pages)
+                            loadPosts(page + 1);
+                    }
+                });
+        findViewById(R.id.nav_community)
+                .setOnLongClickListener(
+                        v -> {
+                            loadPosts(1);
+                            return true;
+                        });
         // Search Listener
         if (etSearch != null) {
-            etSearch.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            etSearch.addTextChangedListener(
+                    new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(
+                                CharSequence s, int start, int count, int after) {}
 
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    filterPosts(s.toString().trim());
-                }
+                        @Override
+                        public void onTextChanged(
+                                CharSequence s, int start, int before, int count) {
+                            serverQuery = s.toString().trim();
+                            if (feedCall != null) feedCall.cancel();
+                            handler.removeCallbacks(searchTask);
+                            handler.postDelayed(searchTask, 350);
+                        }
 
-                @Override
-                public void afterTextChanged(Editable s) {}
-            });
+                        @Override
+                        public void afterTextChanged(Editable s) {}
+                    });
         }
 
         // Setup Bottom Navigation
         setupBottomNavigation();
     }
 
-    private void loadSamplePosts() {
-        allPosts = new ArrayList<>();
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadPosts(1);
+    }
 
-        allPosts.add(new CommunityPost(
-                "1",
-                "Minh An",
-                R.drawable.avata_nam,
-                "2 giờ trước",
-                true,
-                getString(R.string.sample_post_content_a),
-                R.drawable.nen1,
-                188,
-                342,
-                718,
-                false,
-                false
-        ));
+    private void loadPosts(int requested) {
+        if (feedCall != null) feedCall.cancel();
+        loading = true;
+        feedCall =
+                ApiUi.request(
+                        this,
+                        ApiClient.getApiService()
+                                .getPosts(
+                                        serverQuery.isEmpty() ? null : serverQuery, requested, 20),
+                        result -> {
+                            loading = false;
+                            page = requested;
+                            pages =
+                                    result.getTotalPages() == null
+                                            ? requested
+                                            : result.getTotalPages();
+                            if (requested == 1) allPosts.clear();
+                            if (result.getData() != null) allPosts.addAll(result.getData());
+                            filterPosts("");
+                            if (allPosts.isEmpty()) ApiUi.error(this, "Chưa có bài viết phù hợp.");
+                        },
+                        message -> {
+                            loading = false;
+                            ApiUi.error(this, message + " Giữ tab Cộng đồng để thử lại.");
+                        });
+    }
 
-        allPosts.add(new CommunityPost(
-                "2",
-                "Hà Linh",
-                R.drawable.avata_nu,
-                "5 giờ trước",
-                true,
-                getString(R.string.sample_post_content_b),
-                R.drawable.nen2,
-                245,
-                180,
-                512,
-                true,
-                true
-        ));
+    @Override
+    protected void onDestroy() {
+        handler.removeCallbacksAndMessages(null);
+        if (feedCall != null) feedCall.cancel();
+        super.onDestroy();
     }
 
     private void filterPosts(String query) {
@@ -134,8 +168,8 @@ public class CommunityActivity extends AppCompatActivity {
             filteredPosts.addAll(allPosts);
         } else {
             for (CommunityPost post : allPosts) {
-                if (post.getContent().toLowerCase().contains(query.toLowerCase()) ||
-                    post.getAuthorName().toLowerCase().contains(query.toLowerCase())) {
+                if (post.getContent().toLowerCase().contains(query.toLowerCase())
+                        || post.getAuthorName().toLowerCase().contains(query.toLowerCase())) {
                     filteredPosts.add(post);
                 }
             }
@@ -153,40 +187,47 @@ public class CommunityActivity extends AppCompatActivity {
         View navProfile = findViewById(R.id.nav_profile);
 
         if (navHome != null) {
-            navHome.setOnClickListener(v -> {
-                Intent intent = new Intent(CommunityActivity.this, HomeActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(intent);
-                finish();
-            });
+            navHome.setOnClickListener(
+                    v -> {
+                        Intent intent = new Intent(CommunityActivity.this, HomeActivity.class);
+                        intent.setFlags(
+                                Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                        startActivity(intent);
+                        finish();
+                    });
         }
 
         if (navRanking != null) {
-            navRanking.setOnClickListener(v -> {
-                Intent intent = new Intent(CommunityActivity.this, MentorRankingActivity.class);
-                startActivity(intent);
-                finish();
-            });
+            navRanking.setOnClickListener(
+                    v -> {
+                        Intent intent =
+                                new Intent(CommunityActivity.this, MentorRankingActivity.class);
+                        startActivity(intent);
+                        finish();
+                    });
         }
 
         if (navCommunity != null) {
-            navCommunity.setOnClickListener(v -> Toast.makeText(this, "Already on Community", Toast.LENGTH_SHORT).show());
+            navCommunity.setOnClickListener(
+                    v -> Toast.makeText(this, "Already on Community", Toast.LENGTH_SHORT).show());
         }
 
         if (navMessages != null) {
-            navMessages.setOnClickListener(v -> {
-                Intent intent = new Intent(CommunityActivity.this, MessagesActivity.class);
-                startActivity(intent);
-                finish();
-            });
+            navMessages.setOnClickListener(
+                    v -> {
+                        Intent intent = new Intent(CommunityActivity.this, MessagesActivity.class);
+                        startActivity(intent);
+                        finish();
+                    });
         }
 
         if (navProfile != null) {
-            navProfile.setOnClickListener(v -> {
-                Intent intent = new Intent(CommunityActivity.this, ProfileActivity.class);
-                startActivity(intent);
-                finish();
-            });
+            navProfile.setOnClickListener(
+                    v -> {
+                        Intent intent = new Intent(CommunityActivity.this, ProfileActivity.class);
+                        startActivity(intent);
+                        finish();
+                    });
         }
     }
 }

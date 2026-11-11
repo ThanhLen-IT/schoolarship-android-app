@@ -248,6 +248,15 @@
 
             <!-- Main Post Text Input -->
             <EditText
+                    android:id="@+id/et_post_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:hint="Tiêu đề bài viết"
+                    android:inputType="textCapSentences"
+                    android:maxLength="255" />
+
+                <EditText
                 android:id="@+id/et_post_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

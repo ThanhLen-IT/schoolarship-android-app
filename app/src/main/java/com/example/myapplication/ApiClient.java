@@ -9,10 +9,18 @@ public class ApiClient {
 
     public static Retrofit getClient() {
         if (retrofit == null) {
-            retrofit = new Retrofit.Builder()
-                    .baseUrl(BASE_URL)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
+            retrofit =
+                    new Retrofit.Builder()
+                            .baseUrl(BASE_URL)
+                            .client(
+                                    new okhttp3.OkHttpClient.Builder()
+                                            .connectTimeout(
+                                                    15, java.util.concurrent.TimeUnit.SECONDS)
+                                            .readTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+                                            .callTimeout(45, java.util.concurrent.TimeUnit.SECONDS)
+                                            .build())
+                            .addConverterFactory(GsonConverterFactory.create())
+                            .build();
         }
         return retrofit;
     }

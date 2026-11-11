@@ -3,7 +3,6 @@ package com.example.myapplication;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,20 +30,19 @@ public class ProfileActivity extends AppCompatActivity {
 
         View rootView = findViewById(R.id.main);
         if (rootView != null) {
-            ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
-                Insets systemBars = insets.getInsets(
-                        WindowInsetsCompat.Type.systemBars()
-                );
+            ViewCompat.setOnApplyWindowInsetsListener(
+                    rootView,
+                    (v, insets) -> {
+                        Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
 
-                v.setPadding(
-                        systemBars.left,
-                        systemBars.top,
-                        systemBars.right,
-                        systemBars.bottom
-                );
+                        v.setPadding(
+                                systemBars.left,
+                                systemBars.top,
+                                systemBars.right,
+                                systemBars.bottom);
 
-                return insets;
-            });
+                        return insets;
+                    });
         }
 
         // Initialize Views
@@ -59,68 +57,71 @@ public class ProfileActivity extends AppCompatActivity {
 
         View btnNotifications = findViewById(R.id.btn_profile_notifications);
         if (btnNotifications != null) {
-            btnNotifications.setOnClickListener(v -> {
-                Intent intent = new Intent(ProfileActivity.this, NotificationsActivity.class);
-                startActivity(intent);
-            });
+            btnNotifications.setOnClickListener(
+                    v -> {
+                        Intent intent =
+                                new Intent(ProfileActivity.this, NotificationsActivity.class);
+                        startActivity(intent);
+                    });
         }
 
         // Update UI according to user mode
         updateProfileModeUI();
 
-        // Mode Toggle Button (Demo Mentee vs Verified Mentor)
-        Button btnToggleMode = findViewById(R.id.btn_toggle_user_mode);
-        if (btnToggleMode != null) {
-            btnToggleMode.setOnClickListener(v -> {
-                isVerifiedMentor = !isVerifiedMentor;
-                updateProfileModeUI();
-                Toast.makeText(this, isVerifiedMentor ? "Đã chuyển sang: Verified Mentor Mode" : "Đã chuyển sang: Mentee Mode", Toast.LENGTH_SHORT).show();
-            });
-        }
+        findViewById(R.id.btn_toggle_user_mode).setVisibility(View.GONE);
 
         // Menu click listeners
         View menuRoleAction = findViewById(R.id.menu_role_action);
         if (menuRoleAction != null) {
-            menuRoleAction.setOnClickListener(v -> {
-                if (isVerifiedMentor) {
-                    Toast.makeText(this, "Quản lý Mentee", Toast.LENGTH_SHORT).show();
-                } else {
-                    Intent intent = new Intent(ProfileActivity.this, BecomeMentorActivity.class);
-                    startActivity(intent);
-                }
-            });
+            menuRoleAction.setOnClickListener(
+                    v -> {
+                        if (isVerifiedMentor) {
+                            startActivity(new Intent(this, MyApplicationsActivity.class));
+                        } else {
+                            Intent intent =
+                                    new Intent(ProfileActivity.this, BecomeMentorActivity.class);
+                            startActivity(intent);
+                        }
+                    });
         }
 
         View menuMyApps = findViewById(R.id.menu_my_applications);
         if (menuMyApps != null) {
-            menuMyApps.setOnClickListener(v -> {
-                Intent intent = new Intent(ProfileActivity.this, MyApplicationsActivity.class);
-                startActivity(intent);
-            });
+            menuMyApps.setOnClickListener(
+                    v -> {
+                        Intent intent =
+                                new Intent(ProfileActivity.this, MyApplicationsActivity.class);
+                        startActivity(intent);
+                    });
         }
 
         View menuSaved = findViewById(R.id.menu_saved_items);
         if (menuSaved != null) {
-            menuSaved.setOnClickListener(v -> {
-                Intent intent = new Intent(ProfileActivity.this, SavedScholarshipsActivity.class);
-                startActivity(intent);
-            });
+            menuSaved.setOnClickListener(
+                    v -> {
+                        Intent intent =
+                                new Intent(ProfileActivity.this, SavedScholarshipsActivity.class);
+                        startActivity(intent);
+                    });
         }
 
         View menuAccount = findViewById(R.id.menu_account_settings);
         if (menuAccount != null) {
-            menuAccount.setOnClickListener(v -> {
-                Intent intent = new Intent(ProfileActivity.this, AccountSettingsActivity.class);
-                startActivity(intent);
-            });
+            menuAccount.setOnClickListener(
+                    v -> {
+                        Intent intent =
+                                new Intent(ProfileActivity.this, AccountSettingsActivity.class);
+                        startActivity(intent);
+                    });
         }
 
         View menuHelp = findViewById(R.id.menu_help_center);
         if (menuHelp != null) {
-            menuHelp.setOnClickListener(v -> {
-                Intent intent = new Intent(ProfileActivity.this, HelpCenterActivity.class);
-                startActivity(intent);
-            });
+            menuHelp.setOnClickListener(
+                    v -> {
+                        Intent intent = new Intent(ProfileActivity.this, HelpCenterActivity.class);
+                        startActivity(intent);
+                    });
         }
 
         // Setup Bottom Navigation
@@ -130,18 +131,35 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        tvProfileName.setText(LocalProfileStore.name(this));
-        LocalProfileStore.showAvatar(findViewById(R.id.iv_profile_avatar),
-                LocalProfileStore.prefs(this).getString("avatar", ""));
-        tvProfileName.setOnClickListener(v -> startActivity(new Intent(this, PersonalProfileActivity.class)));
-        findViewById(R.id.iv_profile_avatar).setOnClickListener(v ->
-                startActivity(new Intent(this, PersonalProfileActivity.class)));
+        if (!ApiUi.requireLogin(this)) return;
+        ApiUi.request(
+                this,
+                ApiClient.getApiService().getCurrentUser(ApiUi.bearer(this)),
+                result -> {
+                    if (result.getData() == null) return;
+                    ProfileStore.save(this, result.getData());
+                    tvProfileName.setText(ProfileStore.name(this));
+                    RemoteImage.show(
+                            findViewById(R.id.iv_profile_avatar), result.getData().getAvatarUrl());
+                    isVerifiedMentor = result.getData().isVerifiedMentor();
+                    updateProfileModeUI();
+                },
+                message -> ApiUi.error(this, message));
+        tvProfileName.setText(ProfileStore.name(this));
+        RemoteImage.show(
+                findViewById(R.id.iv_profile_avatar),
+                ProfileStore.prefs(this).getString("avatar", ""));
+        tvProfileName.setOnClickListener(
+                v -> startActivity(new Intent(this, PersonalProfileActivity.class)));
+        findViewById(R.id.iv_profile_avatar)
+                .setOnClickListener(
+                        v -> startActivity(new Intent(this, PersonalProfileActivity.class)));
     }
 
     private void updateProfileModeUI() {
         if (isVerifiedMentor) {
             if (layoutMentorBadge != null) layoutMentorBadge.setVisibility(View.VISIBLE);
-            if (cardMentorRanking != null) cardMentorRanking.setVisibility(View.VISIBLE);
+            if (cardMentorRanking != null) cardMentorRanking.setVisibility(View.GONE);
             if (tvMenuRoleLabel != null) tvMenuRoleLabel.setText(R.string.menu_manage_mentee);
         } else {
             if (layoutMentorBadge != null) layoutMentorBadge.setVisibility(View.GONE);
@@ -158,40 +176,47 @@ public class ProfileActivity extends AppCompatActivity {
         View navProfile = findViewById(R.id.nav_profile);
 
         if (navHome != null) {
-            navHome.setOnClickListener(v -> {
-                Intent intent = new Intent(ProfileActivity.this, HomeActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(intent);
-                finish();
-            });
+            navHome.setOnClickListener(
+                    v -> {
+                        Intent intent = new Intent(ProfileActivity.this, HomeActivity.class);
+                        intent.setFlags(
+                                Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                        startActivity(intent);
+                        finish();
+                    });
         }
 
         if (navRanking != null) {
-            navRanking.setOnClickListener(v -> {
-                Intent intent = new Intent(ProfileActivity.this, MentorRankingActivity.class);
-                startActivity(intent);
-                finish();
-            });
+            navRanking.setOnClickListener(
+                    v -> {
+                        Intent intent =
+                                new Intent(ProfileActivity.this, MentorRankingActivity.class);
+                        startActivity(intent);
+                        finish();
+                    });
         }
 
         if (navCommunity != null) {
-            navCommunity.setOnClickListener(v -> {
-                Intent intent = new Intent(ProfileActivity.this, CommunityActivity.class);
-                startActivity(intent);
-                finish();
-            });
+            navCommunity.setOnClickListener(
+                    v -> {
+                        Intent intent = new Intent(ProfileActivity.this, CommunityActivity.class);
+                        startActivity(intent);
+                        finish();
+                    });
         }
 
         if (navMessages != null) {
-            navMessages.setOnClickListener(v -> {
-                Intent intent = new Intent(ProfileActivity.this, MessagesActivity.class);
-                startActivity(intent);
-                finish();
-            });
+            navMessages.setOnClickListener(
+                    v -> {
+                        Intent intent = new Intent(ProfileActivity.this, MessagesActivity.class);
+                        startActivity(intent);
+                        finish();
+                    });
         }
 
         if (navProfile != null) {
-            navProfile.setOnClickListener(v -> Toast.makeText(this, "Already on Profile", Toast.LENGTH_SHORT).show());
+            navProfile.setOnClickListener(
+                    v -> Toast.makeText(this, "Already on Profile", Toast.LENGTH_SHORT).show());
         }
     }
 }

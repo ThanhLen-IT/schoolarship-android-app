@@ -2,115 +2,71 @@ package com.example.myapplication;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ImageButton;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 public class VerificationStatusActivity extends AppCompatActivity {
-
     public static final String EXTRA_NEW_SUBMISSION = "extra_new_submission";
 
-    private List<VerificationStatusRecord> recordList;
-
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        EdgeToEdge.enable(this);
+    protected void onCreate(Bundle state) {
+        super.onCreate(state);
         setContentView(R.layout.activity_verification_status);
-
-        View rootView = findViewById(R.id.main);
-        if (rootView != null) {
-            ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
-                Insets systemBars = insets.getInsets(
-                        WindowInsetsCompat.Type.systemBars()
-                );
-
-                v.setPadding(
-                        systemBars.left,
-                        systemBars.top,
-                        systemBars.right,
-                        systemBars.bottom
-                );
-
-                return insets;
-            });
-        }
-
-        // Back button
-        ImageButton btnBack = findViewById(R.id.btn_back_verification_status);
-        if (btnBack != null) {
-            btnBack.setOnClickListener(v -> finish());
-        }
-
-        // Load reference verification records
-        loadVerificationRecords();
-
-        // Check if a new submission was passed
-        ScholarshipVerifyItem newSubmission = (ScholarshipVerifyItem) getIntent().getSerializableExtra(EXTRA_NEW_SUBMISSION);
-        if (newSubmission != null) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.US);
-            String todayStr = "Submitted on " + dateFormat.format(new Date());
-            recordList.add(0, new VerificationStatusRecord(
-                    newSubmission.getId(),
-                    newSubmission.getTitle(),
-                    newSubmission.getInstitution(),
-                    "Pending Review",
-                    todayStr
-            ));
-        }
-
-        View layoutEmptyState = findViewById(R.id.layout_empty_state);
-        RecyclerView recyclerView = findViewById(R.id.recycler_verification_status);
-
-        if (recordList.isEmpty()) {
-            if (layoutEmptyState != null) layoutEmptyState.setVisibility(View.VISIBLE);
-            if (recyclerView != null) recyclerView.setVisibility(View.GONE);
-        } else {
-            if (layoutEmptyState != null) layoutEmptyState.setVisibility(View.GONE);
-            if (recyclerView != null) {
-                recyclerView.setVisibility(View.VISIBLE);
-                recyclerView.setLayoutManager(new LinearLayoutManager(this));
-                VerificationStatusAdapter adapter = new VerificationStatusAdapter(recordList);
-                recyclerView.setAdapter(adapter);
-            }
-        }
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(
+                findViewById(R.id.main),
+                (view, insets) -> {
+                    androidx.core.graphics.Insets bars =
+                            insets.getInsets(
+                                    androidx.core.view.WindowInsetsCompat.Type.systemBars()
+                                            | androidx.core.view.WindowInsetsCompat.Type.ime());
+                    view.setPadding(bars.left, bars.top, bars.right, bars.bottom);
+                    return insets;
+                });
+        findViewById(R.id.btn_back_verification_status).setOnClickListener(v -> finish());
+        findViewById(R.id.layout_empty_state).setOnClickListener(v -> load());
+        if (ApiUi.requireLogin(this)) load();
     }
 
-    private void loadVerificationRecords() {
-        recordList = new ArrayList<>();
-        recordList.add(new VerificationStatusRecord(
-                "1",
-                "UIT Excellence 2025",
-                "University of Technology",
-                "Approved",
-                "Verified on Jan 12, 2025"
-        ));
-        recordList.add(new VerificationStatusRecord(
-                "2",
-                "ABC Foundation Grant",
-                "International Business Academy",
-                "Pending Review",
-                "Submitted on Feb 08, 2025"
-        ));
-        recordList.add(new VerificationStatusRecord(
-                "3",
-                "Community Tech Fund",
-                "City Innovation Institute",
-                "Failed / Rejected",
-                "Needs updated proof"
-        ));
+    private void load() {
+        ApiUi.request(
+                this,
+                ApiClient.getApiService()
+                        .verificationStatus(
+                                ApiUi.bearer(this), getIntent().getStringExtra("scholarship_id")),
+                result -> {
+                    VerificationData data = result.getData();
+                    List<VerificationStatusRecord> rows = new ArrayList<>();
+                    if (data != null) {
+                        String status =
+                                "pending".equals(data.status)
+                                        ? "Pending Review"
+                                        : "approved".equals(data.status)
+                                                ? "Approved"
+                                                : "Failed / Rejected";
+                        rows.add(
+                                new VerificationStatusRecord(
+                                        data.id,
+                                        data.scholarship_title == null
+                                                ? "Hồ sơ Mentor"
+                                                : data.scholarship_title,
+                                        "",
+                                        status,
+                                        data.rejection_reason == null
+                                                ? data.created_at
+                                                : data.rejection_reason));
+                    }
+                    RecyclerView list = findViewById(R.id.recycler_verification_status);
+                    list.setLayoutManager(new LinearLayoutManager(this));
+                    list.setAdapter(new VerificationStatusAdapter(rows));
+                    list.setVisibility(rows.isEmpty() ? View.GONE : View.VISIBLE);
+                    findViewById(R.id.layout_empty_state)
+                            .setVisibility(rows.isEmpty() ? View.VISIBLE : View.GONE);
+                },
+                message -> ApiUi.error(this, message));
     }
 }

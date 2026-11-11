@@ -9,7 +9,6 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,7 +24,7 @@ import java.util.List;
 
 public class MyApplicationsActivity extends AppCompatActivity {
 
-    private List<MyApplicationItem> allApplications;
+    private List<MyApplicationItem> allApplications = new ArrayList<>();
     private List<MyApplicationItem> filteredApplications;
     private MyApplicationAdapter adapter;
 
@@ -43,20 +42,19 @@ public class MyApplicationsActivity extends AppCompatActivity {
 
         View rootView = findViewById(R.id.main);
         if (rootView != null) {
-            ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
-                Insets systemBars = insets.getInsets(
-                        WindowInsetsCompat.Type.systemBars()
-                );
+            ViewCompat.setOnApplyWindowInsetsListener(
+                    rootView,
+                    (v, insets) -> {
+                        Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
 
-                v.setPadding(
-                        systemBars.left,
-                        systemBars.top,
-                        systemBars.right,
-                        systemBars.bottom
-                );
+                        v.setPadding(
+                                systemBars.left,
+                                systemBars.top,
+                                systemBars.right,
+                                systemBars.bottom);
 
-                return insets;
-            });
+                        return insets;
+                    });
         }
 
         // Back button
@@ -75,12 +73,14 @@ public class MyApplicationsActivity extends AppCompatActivity {
         filterRejected = findViewById(R.id.filter_rejected);
 
         if (filterAll != null) filterAll.setOnClickListener(v -> selectFilter("All", filterAll));
-        if (filterPending != null) filterPending.setOnClickListener(v -> selectFilter("Đang chờ phản hồi", filterPending));
-        if (filterAccepted != null) filterAccepted.setOnClickListener(v -> selectFilter("Đã được nhận", filterAccepted));
-        if (filterRejected != null) filterRejected.setOnClickListener(v -> selectFilter("Chưa phù hợp", filterRejected));
+        if (filterPending != null)
+            filterPending.setOnClickListener(v -> selectFilter("Đang chờ phản hồi", filterPending));
+        if (filterAccepted != null)
+            filterAccepted.setOnClickListener(v -> selectFilter("Đã được nhận", filterAccepted));
+        if (filterRejected != null)
+            filterRejected.setOnClickListener(v -> selectFilter("Chưa phù hợp", filterRejected));
 
         // Load Applications
-        loadApplications();
 
         filteredApplications = new ArrayList<>(allApplications);
         RecyclerView recyclerView = findViewById(R.id.recycler_my_applications);
@@ -92,54 +92,64 @@ public class MyApplicationsActivity extends AppCompatActivity {
 
         // Search TextWatcher
         if (etSearch != null) {
-            etSearch.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            etSearch.addTextChangedListener(
+                    new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(
+                                CharSequence s, int start, int count, int after) {}
 
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    currentSearchQuery = s.toString().trim();
-                    applySearchAndFilter();
-                }
+                        @Override
+                        public void onTextChanged(
+                                CharSequence s, int start, int before, int count) {
+                            currentSearchQuery = s.toString().trim();
+                            applySearchAndFilter();
+                        }
 
-                @Override
-                public void afterTextChanged(Editable s) {}
-            });
+                        @Override
+                        public void afterTextChanged(Editable s) {}
+                    });
         }
 
+        if (ApiUi.requireLogin(this)) loadApplications();
+        findViewById(R.id.nav_profile)
+                .setOnLongClickListener(
+                        v -> {
+                            loadApplications();
+                            return true;
+                        });
         // Setup Bottom Navigation
         setupBottomNavigation();
     }
 
     private void loadApplications() {
-        allApplications = new ArrayList<>();
-        allApplications.add(new MyApplicationItem(
-                "1",
-                "Nguyễn Minh Anh",
-                "Embedded Systems & IoT",
-                "10/10/2026",
-                "Đang chờ phản hồi",
-                "Tiêu biểu lĩnh vực phát triển dự án AIoT",
-                R.drawable.avata_nam
-        ));
-        allApplications.add(new MyApplicationItem(
-                "2",
-                "Trần Hoàng Nam",
-                "AIoT & Smart Agriculture",
-                "06/10/2026",
-                "Đã được nhận",
-                "Định hướng ứng dụng AIoT trong nông nghiệp thông minh",
-                R.drawable.avata_nu
-        ));
-        allApplications.add(new MyApplicationItem(
-                "3",
-                "Lê Thu Hà",
-                "Product Management & Technology",
-                "02/10/2026",
-                "Chưa phù hợp",
-                "Phát triển kỹ năng quản lý dự án công nghệ",
-                R.drawable.avata_nam
-        ));
+        ApiUi.request(
+                this,
+                ApiClient.getApiService().myApplications(ApiUi.bearer(this)),
+                result -> {
+                    allApplications.clear();
+                    if (result.getData() != null)
+                        for (ApplicationData row : result.getData()) {
+                            String status =
+                                    "accepted".equals(row.status)
+                                            ? "Đã được nhận"
+                                            : "pending".equals(row.status)
+                                                    ? "Đang chờ phản hồi"
+                                                    : "rejected".equals(row.status)
+                                                            ? "Chưa phù hợp"
+                                                            : row.status;
+                            allApplications.add(
+                                    new MyApplicationItem(
+                                            row.id,
+                                            row.mentor_name,
+                                            row.scholarship_title,
+                                            row.created_at,
+                                            status,
+                                            row.goal,
+                                            R.drawable.ic_profile_placeholder));
+                        }
+                    applySearchAndFilter();
+                },
+                message -> ApiUi.error(this, message));
     }
 
     private void selectFilter(String status, TextView selectedTab) {
@@ -173,16 +183,26 @@ public class MyApplicationsActivity extends AppCompatActivity {
         for (MyApplicationItem item : allApplications) {
             // Search query filter
             if (!TextUtils.isEmpty(currentSearchQuery)) {
-                boolean matchesName = item.getMentorName().toLowerCase().contains(currentSearchQuery.toLowerCase());
-                boolean matchesOrg = item.getOrganization().toLowerCase().contains(currentSearchQuery.toLowerCase());
-                boolean matchesObj = item.getObjective().toLowerCase().contains(currentSearchQuery.toLowerCase());
+                boolean matchesName =
+                        item.getMentorName()
+                                .toLowerCase()
+                                .contains(currentSearchQuery.toLowerCase());
+                boolean matchesOrg =
+                        item.getOrganization()
+                                .toLowerCase()
+                                .contains(currentSearchQuery.toLowerCase());
+                boolean matchesObj =
+                        item.getObjective()
+                                .toLowerCase()
+                                .contains(currentSearchQuery.toLowerCase());
                 if (!matchesName && !matchesOrg && !matchesObj) {
                     continue;
                 }
             }
 
             // Status filter
-            if (!"All".equalsIgnoreCase(currentStatusFilter) && !item.getStatus().equalsIgnoreCase(currentStatusFilter)) {
+            if (!"All".equalsIgnoreCase(currentStatusFilter)
+                    && !item.getStatus().equalsIgnoreCase(currentStatusFilter)) {
                 continue;
             }
 
@@ -202,44 +222,55 @@ public class MyApplicationsActivity extends AppCompatActivity {
         View navProfile = findViewById(R.id.nav_profile);
 
         if (navHome != null) {
-            navHome.setOnClickListener(v -> {
-                Intent intent = new Intent(MyApplicationsActivity.this, HomeActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(intent);
-                finish();
-            });
+            navHome.setOnClickListener(
+                    v -> {
+                        Intent intent = new Intent(MyApplicationsActivity.this, HomeActivity.class);
+                        intent.setFlags(
+                                Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                        startActivity(intent);
+                        finish();
+                    });
         }
 
         if (navRanking != null) {
-            navRanking.setOnClickListener(v -> {
-                Intent intent = new Intent(MyApplicationsActivity.this, MentorRankingActivity.class);
-                startActivity(intent);
-                finish();
-            });
+            navRanking.setOnClickListener(
+                    v -> {
+                        Intent intent =
+                                new Intent(
+                                        MyApplicationsActivity.this, MentorRankingActivity.class);
+                        startActivity(intent);
+                        finish();
+                    });
         }
 
         if (navCommunity != null) {
-            navCommunity.setOnClickListener(v -> {
-                Intent intent = new Intent(MyApplicationsActivity.this, CommunityActivity.class);
-                startActivity(intent);
-                finish();
-            });
+            navCommunity.setOnClickListener(
+                    v -> {
+                        Intent intent =
+                                new Intent(MyApplicationsActivity.this, CommunityActivity.class);
+                        startActivity(intent);
+                        finish();
+                    });
         }
 
         if (navMessages != null) {
-            navMessages.setOnClickListener(v -> {
-                Intent intent = new Intent(MyApplicationsActivity.this, MessagesActivity.class);
-                startActivity(intent);
-                finish();
-            });
+            navMessages.setOnClickListener(
+                    v -> {
+                        Intent intent =
+                                new Intent(MyApplicationsActivity.this, MessagesActivity.class);
+                        startActivity(intent);
+                        finish();
+                    });
         }
 
         if (navProfile != null) {
-            navProfile.setOnClickListener(v -> {
-                Intent intent = new Intent(MyApplicationsActivity.this, ProfileActivity.class);
-                startActivity(intent);
-                finish();
-            });
+            navProfile.setOnClickListener(
+                    v -> {
+                        Intent intent =
+                                new Intent(MyApplicationsActivity.this, ProfileActivity.class);
+                        startActivity(intent);
+                        finish();
+                    });
         }
     }
 }

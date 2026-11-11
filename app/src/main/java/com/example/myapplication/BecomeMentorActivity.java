@@ -23,7 +23,9 @@ import java.util.List;
 
 public class BecomeMentorActivity extends AppCompatActivity {
 
-    private List<ScholarshipVerifyItem> allScholarships;
+    private List<ScholarshipVerifyItem> allScholarships = new ArrayList<>();
+    private int page = 0, pages = 1;
+    private boolean loading;
     private List<ScholarshipVerifyItem> filteredScholarships;
     private ScholarshipVerifyAdapter adapter;
 
@@ -41,20 +43,19 @@ public class BecomeMentorActivity extends AppCompatActivity {
 
         View rootView = findViewById(R.id.main);
         if (rootView != null) {
-            ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
-                Insets systemBars = insets.getInsets(
-                        WindowInsetsCompat.Type.systemBars()
-                );
+            ViewCompat.setOnApplyWindowInsetsListener(
+                    rootView,
+                    (v, insets) -> {
+                        Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
 
-                v.setPadding(
-                        systemBars.left,
-                        systemBars.top,
-                        systemBars.right,
-                        systemBars.bottom
-                );
+                        v.setPadding(
+                                systemBars.left,
+                                systemBars.top,
+                                systemBars.right,
+                                systemBars.bottom);
 
-                return insets;
-            });
+                        return insets;
+                    });
         }
 
         // Back button
@@ -68,7 +69,6 @@ public class BecomeMentorActivity extends AppCompatActivity {
         btnVerificationStatus = findViewById(R.id.btn_verification_status);
 
         // Load 3 reference scholarships
-        loadReferenceScholarships();
 
         filteredScholarships = new ArrayList<>(allScholarships);
         RecyclerView recyclerView = findViewById(R.id.recycler_scholarship_verify);
@@ -78,21 +78,40 @@ public class BecomeMentorActivity extends AppCompatActivity {
             recyclerView.setAdapter(adapter);
         }
 
+        if (ApiUi.requireLogin(this)) loadReferenceScholarships();
+        recyclerView.addOnScrollListener(
+                new RecyclerView.OnScrollListener() {
+                    @Override
+                    public void onScrolled(RecyclerView view, int dx, int dy) {
+                        if (dy > 0 && !view.canScrollVertically(1) && !loading && page < pages)
+                            loadReferenceScholarships();
+                    }
+                });
+        btnVerificationStatus.setOnLongClickListener(
+                v -> {
+                    startActivity(
+                            new android.content.Intent(this, VerificationStatusActivity.class));
+                    return true;
+                });
+
         // Search Listener
         if (etSearch != null) {
-            etSearch.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            etSearch.addTextChangedListener(
+                    new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(
+                                CharSequence s, int start, int count, int after) {}
 
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    currentSearchQuery = s.toString().trim();
-                    applyFilterAndSearch();
-                }
+                        @Override
+                        public void onTextChanged(
+                                CharSequence s, int start, int before, int count) {
+                            currentSearchQuery = s.toString().trim();
+                            applyFilterAndSearch();
+                        }
 
-                @Override
-                public void afterTextChanged(Editable s) {}
-            });
+                        @Override
+                        public void afterTextChanged(Editable s) {}
+                    });
         }
 
         // Verification Status Filter Button
@@ -102,43 +121,56 @@ public class BecomeMentorActivity extends AppCompatActivity {
     }
 
     private void loadReferenceScholarships() {
-        allScholarships = new ArrayList<>();
-        allScholarships.add(new ScholarshipVerifyItem(
-                "1",
-                "Global STEM Scholarship 2026",
-                "University of Technology",
-                "Not verified"
-        ));
-        allScholarships.add(new ScholarshipVerifyItem(
-                "2",
-                "Future Leaders Grant 2026",
-                "International Business Academy",
-                "Not verified"
-        ));
-        allScholarships.add(new ScholarshipVerifyItem(
-                "3",
-                "Excellence Award for Women in Tech 2026",
-                "City Innovation Institute",
-                "Not verified"
-        ));
+        if (loading) return;
+        loading = true;
+        ApiUi.request(
+                this,
+                ApiClient.getApiService()
+                        .getScholarships(
+                                null,
+                                null,
+                                null,
+                                page + 1,
+                                20,
+                                "title_asc",
+                                null,
+                                null,
+                                null,
+                                null),
+                result -> {
+                    loading = false;
+                    page++;
+                    pages = result.getTotalPages() == null ? page : result.getTotalPages();
+                    if (result.getData() != null)
+                        for (Scholarship item : result.getData())
+                            allScholarships.add(
+                                    new ScholarshipVerifyItem(
+                                            item.getId(),
+                                            item.getTitle(),
+                                            item.getOrganization(),
+                                            "Chọn để nộp hồ sơ"));
+                    applyFilterAndSearch();
+                    if (allScholarships.isEmpty())
+                        ApiUi.error(this, "Chưa có học bổng công khai để nộp hồ sơ.");
+                },
+                message -> {
+                    loading = false;
+                    ApiUi.error(this, message);
+                });
     }
 
     private void showStatusFilterDialog() {
-        String[] statuses = {"All", "Not verified", "Pending verification", "Verified"};
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Verification Status");
-        builder.setItems(statuses, (dialog, which) -> {
-            selectedStatusFilter = statuses[which];
-            if (btnVerificationStatus != null) {
-                btnVerificationStatus.setText(
-                        "All".equalsIgnoreCase(selectedStatusFilter)
-                                ? getString(R.string.verification_status_filter)
-                                : "Status: " + selectedStatusFilter
-                );
-            }
-            applyFilterAndSearch();
-        });
-        builder.show();
+        new AlertDialog.Builder(this)
+                .setItems(
+                        new String[] {"Xem trạng thái hồ sơ gần nhất", "Tải thêm / thử lại"},
+                        (d, w) -> {
+                            if (w == 0)
+                                startActivity(
+                                        new android.content.Intent(
+                                                this, VerificationStatusActivity.class));
+                            else loadReferenceScholarships();
+                        })
+                .show();
     }
 
     private void applyFilterAndSearch() {
@@ -147,15 +179,20 @@ public class BecomeMentorActivity extends AppCompatActivity {
         for (ScholarshipVerifyItem item : allScholarships) {
             // Search query filter
             if (!TextUtils.isEmpty(currentSearchQuery)) {
-                boolean matchesTitle = item.getTitle().toLowerCase().contains(currentSearchQuery.toLowerCase());
-                boolean matchesInst = item.getInstitution().toLowerCase().contains(currentSearchQuery.toLowerCase());
+                boolean matchesTitle =
+                        item.getTitle().toLowerCase().contains(currentSearchQuery.toLowerCase());
+                boolean matchesInst =
+                        item.getInstitution()
+                                .toLowerCase()
+                                .contains(currentSearchQuery.toLowerCase());
                 if (!matchesTitle && !matchesInst) {
                     continue;
                 }
             }
 
             // Status filter
-            if (!"All".equalsIgnoreCase(selectedStatusFilter) && !item.getVerificationStatus().equalsIgnoreCase(selectedStatusFilter)) {
+            if (!"All".equalsIgnoreCase(selectedStatusFilter)
+                    && !item.getVerificationStatus().equalsIgnoreCase(selectedStatusFilter)) {
                 continue;
             }
 
