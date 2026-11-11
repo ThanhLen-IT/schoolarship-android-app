@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_surface"
+    tools:context=".CreatePostActivity">
+
+    <!-- Top App Bar -->
+    <RelativeLayout
+        android:id="@+id/layout_top_bar"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_alignParentTop="true"
+        android:background="@color/color_surface"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp">
+
+        <ImageButton
+            android:id="@+id/btn_back_create_post"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_centerVertical="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="6dp"
+            android:src="@drawable/ic_arrow_back"
+            android:contentDescription="@string/back_button_desc" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="@string/create_post_title"
+            android:textColor="@color/color_text_primary"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_alignParentBottom="true"
+            android:background="@color/color_border" />
+    </RelativeLayout>
+
+    <!-- Fixed Bottom Action Bar -->
+    <LinearLayout
+        android:id="@+id/layout_bottom_action_bar"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/color_surface"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
+
+        <ImageButton
+            android:id="@+id/btn_add_post_image"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="6dp"
+            android:src="@drawable/ic_action_camera"
+            android:contentDescription="@string/app_logo_desc" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/btn_publish_post"
+            android:layout_width="86dp"
+            android:layout_height="36dp"
+            android:background="@drawable/bg_welcome_button_primary"
+            android:elevation="0dp"
+            android:stateListAnimator="@null"
+            android:text="@string/publish_button"
+            android:textColor="@android:color/white"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            app:backgroundTint="@null" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_above="@id/layout_bottom_action_bar"
+        android:background="@color/color_border" />
+
+    <!-- Scrollable Content Area -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/layout_top_bar"
+        android:layout_above="@id/layout_bottom_action_bar"
+        android:fillViewport="true"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="12dp"
+            android:paddingBottom="16dp">
+
+            <!-- Author Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <ImageView
+                    android:id="@+id/iv_user_avatar"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/avata_nam"
+                    android:contentDescription="@string/app_logo_desc" />
+
+                <TextView
+                    android:id="@+id/tv_author_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="Daphne"
+                    android:textColor="@color/color_text_primary"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Utility Chips Row -->
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:scrollbars="none"
+                android:clipToPadding="false">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <!-- Audience Chip -->
+                    <LinearLayout
+                        android:id="@+id/chip_audience"
+                        android:layout_width="wrap_content"
+                        android:layout_height="30dp"
+                        android:background="@drawable/bg_input_field"
+                        android:gravity="center_vertical"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <ImageView
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
+                            android:src="@drawable/ic_globe"
+                            android:contentDescription="@string/chip_audience" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:text="@string/chip_audience"
+                            android:textColor="@color/color_text_primary"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+
+                        <ImageView
+                            android:layout_width="12dp"
+                            android:layout_height="12dp"
+                            android:layout_marginStart="4dp"
+                            android:src="@drawable/ic_chevron_right"
+                            android:rotation="90"
+                            android:contentDescription="@string/chip_audience" />
+                    </LinearLayout>
+
+                    <!-- Location Chip -->
+                    <LinearLayout
+                        android:id="@+id/chip_location"
+                        android:layout_width="wrap_content"
+                        android:layout_height="30dp"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_input_field"
+                        android:gravity="center_vertical"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <ImageView
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
+                            android:src="@drawable/ic_action_filter"
+                            android:contentDescription="@string/chip_location" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:text="@string/chip_location"
+                            android:textColor="@color/color_text_primary"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- Mood / Activity Chip -->
+                    <LinearLayout
+                        android:id="@+id/chip_mood"
+                        android:layout_width="wrap_content"
+                        android:layout_height="30dp"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_input_field"
+                        android:gravity="center_vertical"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <ImageView
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
+                            android:src="@drawable/ic_star"
+                            android:contentDescription="@string/chip_mood" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:text="@string/chip_mood"
+                            android:textColor="@color/color_text_primary"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                </LinearLayout>
+            </HorizontalScrollView>
+
+            <!-- Main Post Text Input -->
+            <EditText
+                android:id="@+id/et_post_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="180dp"
+                android:layout_marginTop="12dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:background="@null"
+                android:gravity="top|start"
+                android:hint="@string/post_hint"
+                android:inputType="textMultiLine"
+                android:autofillHints=""
+                android:textColor="@color/color_text_primary"
+                android:textColorHint="@color/color_text_hint"
+                android:textSize="15sp"
+                android:lineSpacingExtra="3dp" />
+
+            <!-- Selected Media Preview -->
+            <ImageView
+                android:id="@+id/iv_selected_media_preview"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="12dp"
+                android:scaleType="centerCrop"
+                android:visibility="gone"
+                android:contentDescription="@string/app_logo_desc" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>

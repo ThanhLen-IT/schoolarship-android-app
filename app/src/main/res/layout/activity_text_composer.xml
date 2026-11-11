@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/color_surface"
+    tools:context=".TextComposerActivity">
+
+    <!-- Top Toolbar -->
+    <RelativeLayout
+        android:id="@+id/layout_composer_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:background="@color/color_surface"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
+
+        <TextView
+            android:id="@+id/tv_composer_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="@string/composer_title"
+            android:textColor="@color/color_text_primary"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/btn_composer_done"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:padding="8dp"
+            android:text="@string/composer_done"
+            android:textColor="@color/color_primary"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackgroundBorderless" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_alignParentBottom="true"
+            android:background="@color/color_border" />
+    </RelativeLayout>
+
+    <!-- Multiline Text Input Area -->
+    <EditText
+        android:id="@+id/et_composer_text"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="16dp"
+        android:background="@null"
+        android:gravity="top|start"
+        android:hint="@string/post_hint"
+        android:inputType="textMultiLine"
+        android:autofillHints=""
+        android:textColor="@color/color_text_primary"
+        android:textColorHint="@color/color_text_hint"
+        android:textSize="15sp"
+        android:lineSpacingExtra="3dp" />
+
+</LinearLayout>

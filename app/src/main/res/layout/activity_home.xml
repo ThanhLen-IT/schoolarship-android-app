@@ -1,0 +1,544 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_surface"
+    tools:context=".HomeActivity">
+
+    <!-- Fixed Bottom Navigation Bar -->
+    <LinearLayout
+        android:id="@+id/layout_bottom_nav"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/color_primary"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:elevation="8dp">
+
+        <LinearLayout
+            android:id="@+id/nav_home"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_nav_home"
+                android:contentDescription="@string/nav_home" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/nav_mentor_ranking"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_nav_metor_ranking"
+                android:contentDescription="@string/nav_mentor_ranking" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/nav_community"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_nav_community"
+                android:contentDescription="@string/nav_community" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/nav_messages"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_nav_message"
+                android:contentDescription="@string/nav_messages" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/nav_profile"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_nav_profile"
+                android:contentDescription="@string/nav_profile" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Scrollable Content -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/layout_bottom_nav"
+        android:fillViewport="true"
+        android:clipToPadding="false"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="24dp">
+
+            <!-- 1. Header -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:src="@drawable/logo"
+                    android:contentDescription="@string/app_logo_desc" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/brand_name"
+                    android:textColor="@color/color_primary"
+                    android:textSize="16sp"
+                    android:fontFamily="@font/suez_one" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <ImageButton
+                    android:id="@+id/btn_notifications"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_bell"
+                    android:padding="8dp"
+                    android:contentDescription="@string/notifications_desc" />
+            </LinearLayout>
+
+            <!-- 2. Greeting -->
+            <TextView
+                android:id="@+id/tv_greeting"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/home_greeting"
+                android:textColor="@color/color_text_hint"
+                android:textSize="13sp" />
+
+            <!-- 3. Search Bar -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_input_field"
+                android:gravity="center_vertical"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_search"
+                    android:contentDescription="@string/search_hint" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:hint="@string/home_search_hint"
+                    android:textColorHint="@color/color_text_hint"
+                    android:textColor="@color/color_text_primary"
+                    android:textSize="13sp"
+                    android:singleLine="true" />
+            </LinearLayout>
+
+            <!-- 4. Promotional Banner Carousel -->
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/view_pager_banners"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:layout_marginTop="16dp" />
+
+            <!-- Pagination Dots -->
+            <LinearLayout
+                android:id="@+id/layout_pagination_dots"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:orientation="horizontal" />
+
+            <!-- 5. Scholarship Section Header -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/scholarship_section_title"
+                    android:textColor="@color/color_text_primary"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:id="@+id/tv_view_all_scholarships"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="4dp"
+                    android:text="@string/view_all"
+                    android:textColor="@color/color_primary"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Scholarship Cards Row (Two Columns) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal"
+                android:baselineAligned="false"
+                android:weightSum="2">
+
+                <!-- Card A -->
+                <LinearLayout
+                    android:id="@+id/card_scholarship_1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    android:background="@drawable/bg_input_field"
+                    android:orientation="vertical"
+                    android:padding="8dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="76dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/nen1"
+                        android:contentDescription="@string/sample_scholarship_title_a" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:background="@drawable/bg_welcome_button_secondary"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:paddingTop="2dp"
+                        android:paddingBottom="2dp"
+                        android:text="@string/sample_scholarship_type_a"
+                        android:textColor="@color/color_primary"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/sample_scholarship_deadline_a"
+                        android:textColor="@color/color_text_hint"
+                        android:textSize="11sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="@string/sample_scholarship_title_a"
+                        android:textColor="@color/color_text_primary"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:singleLine="true" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="@string/sample_scholarship_meta_a"
+                        android:textColor="@color/color_text_hint"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+                <!-- Card B -->
+                <LinearLayout
+                    android:id="@+id/card_scholarship_2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:background="@drawable/bg_input_field"
+                    android:orientation="vertical"
+                    android:padding="8dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="76dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/nen2"
+                        android:contentDescription="@string/sample_scholarship_title_b" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:background="@drawable/bg_welcome_button_secondary"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:paddingTop="2dp"
+                        android:paddingBottom="2dp"
+                        android:text="@string/sample_scholarship_type_b"
+                        android:textColor="@color/color_primary"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/sample_scholarship_deadline_b"
+                        android:textColor="@color/color_text_hint"
+                        android:textSize="11sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="@string/sample_scholarship_title_b"
+                        android:textColor="@color/color_text_primary"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:singleLine="true" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="@string/sample_scholarship_meta_b"
+                        android:textColor="@color/color_text_hint"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- 6. Mentor Section Header -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/mentor_section_title"
+                    android:textColor="@color/color_text_primary"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:id="@+id/tv_view_all_mentors"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="4dp"
+                    android:text="@string/view_all"
+                    android:textColor="@color/color_primary"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Mentor Cards Row (Two Columns) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal"
+                android:baselineAligned="false"
+                android:weightSum="2">
+
+                <!-- Mentor Card A -->
+                <LinearLayout
+                    android:id="@+id/card_mentor_1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    android:background="@drawable/bg_input_field"
+                    android:orientation="vertical"
+                    android:padding="10dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/avata_nam"
+                            android:contentDescription="@string/sample_mentor_name_a" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="8dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/sample_mentor_name_a"
+                                android:textColor="@color/color_text_primary"
+                                android:textSize="12sp"
+                                android:textStyle="bold"
+                                android:singleLine="true" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/sample_mentor_spec_a"
+                                android:textColor="@color/color_text_hint"
+                                android:textSize="10sp"
+                                android:singleLine="true" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/sample_mentor_desc_a"
+                        android:textColor="@color/color_text_primary"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <!-- Mentor Card B -->
+                <LinearLayout
+                    android:id="@+id/card_mentor_2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:background="@drawable/bg_input_field"
+                    android:orientation="vertical"
+                    android:padding="10dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/avata_nu"
+                            android:contentDescription="@string/sample_mentor_name_b" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="8dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/sample_mentor_name_b"
+                                android:textColor="@color/color_text_primary"
+                                android:textSize="12sp"
+                                android:textStyle="bold"
+                                android:singleLine="true" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/sample_mentor_spec_b"
+                                android:textColor="@color/color_text_hint"
+                                android:textSize="10sp"
+                                android:singleLine="true" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/sample_mentor_desc_b"
+                        android:textColor="@color/color_text_primary"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>

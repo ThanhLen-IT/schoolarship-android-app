@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:background="@drawable/bg_input_field"
+    android:padding="12dp"
+    android:layout_marginBottom="8dp">
+
+    <!-- Icon Container -->
+    <LinearLayout
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="12dp"
+        android:background="@drawable/bg_welcome_button_secondary"
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/iv_notif_icon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_star"
+            android:contentDescription="@string/notifications_title" />
+    </LinearLayout>
+
+    <!-- Notification Title & Timestamp -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginEnd="8dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_notif_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lineSpacingExtra="2dp"
+            android:maxLines="3"
+            android:text="Chúc mừng! Bạn vừa đạt Top #99 Học bổng NUS Singapore."
+            android:textColor="@color/color_text_primary"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_notif_timestamp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="5 phút trước"
+            android:textColor="@color/color_text_hint"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <!-- Green Unread Indicator Dot -->
+    <View
+        android:id="@+id/view_unread_dot"
+        android:layout_width="8dp"
+        android:layout_height="8dp"
+        android:background="@drawable/bg_welcome_button_primary"
+        android:visibility="visible" />
+
+</LinearLayout>
