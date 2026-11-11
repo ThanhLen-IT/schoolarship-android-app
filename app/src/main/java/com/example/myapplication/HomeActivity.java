@@ -58,24 +58,22 @@ public class HomeActivity extends AppCompatActivity {
             });
         }
 
+        findViewById(R.id.btn_home_search).setOnClickListener(v -> {
+            Intent intent = new Intent(this, ScholarshipDiscoveryActivity.class);
+            intent.putExtra(ScholarshipDiscoveryActivity.EXTRA_FOCUS_SEARCH, true);
+            startActivity(intent);
+        });
+
         // Setup Banner Carousel (3 banners: slide_1, nen1, nen2)
         setupBannerCarousel();
 
-        // Setup Scholarship Cards click listeners -> open ScholarshipDiscoveryActivity
-        View cardScholarship1 = findViewById(R.id.card_scholarship_1);
-        View cardScholarship2 = findViewById(R.id.card_scholarship_2);
-        if (cardScholarship1 != null) {
-            cardScholarship1.setOnClickListener(v -> {
-                Intent intent = new Intent(HomeActivity.this, ScholarshipDiscoveryActivity.class);
-                startActivity(intent);
-            });
-        }
-        if (cardScholarship2 != null) {
-            cardScholarship2.setOnClickListener(v -> {
-                Intent intent = new Intent(HomeActivity.this, ScholarshipDiscoveryActivity.class);
-                startActivity(intent);
-            });
-        }
+        // Cards open their own scholarship; View All still opens discovery.
+        bindScholarshipCard(R.id.card_scholarship_1, "1", R.drawable.nen1,
+                R.id.home_scholarship_title_a, R.id.home_scholarship_type_a,
+                R.id.home_scholarship_deadline_a, R.id.home_scholarship_meta_a, R.id.home_scholarship_image_a);
+        bindScholarshipCard(R.id.card_scholarship_2, "2", R.drawable.nen2,
+                R.id.home_scholarship_title_b, R.id.home_scholarship_type_b,
+                R.id.home_scholarship_deadline_b, R.id.home_scholarship_meta_b, R.id.home_scholarship_image_b);
 
         // Setup Mentor Cards click listeners
         View cardMentor1 = findViewById(R.id.card_mentor_1);
@@ -106,6 +104,30 @@ public class HomeActivity extends AppCompatActivity {
 
         // Bottom Navigation Tabs
         setupBottomNavigation();
+    }
+
+    private void bindScholarshipCard(int cardId, String scholarshipId, int imageResId,
+                                     int titleId, int typeId, int deadlineId, int metaId, int imageId) {
+        View card = findViewById(cardId);
+        Scholarship scholarship = LocalDemoCatalog.find(scholarshipId);
+        if (card == null) return;
+        if (scholarship == null) {
+            card.setVisibility(View.GONE);
+            return;
+        }
+        ((TextView) findViewById(titleId)).setText(scholarship.getTitle());
+        ((TextView) findViewById(typeId)).setText(scholarship.getFundingType());
+        ((TextView) findViewById(deadlineId)).setText(getString(R.string.scholarship_deadline_value, scholarship.getDeadlineStr()));
+        ((TextView) findViewById(metaId)).setText(scholarship.getCountry() + " · " + scholarship.getDegreeLevel());
+        findViewById(imageId).setContentDescription(scholarship.getTitle());
+        card.setOnClickListener(v -> {
+            Intent intent = new Intent(this, ScholarshipDetailActivity.class);
+            intent.putExtra(ScholarshipDetailActivity.EXTRA_SCHOLARSHIP_ID, scholarship.getId());
+            intent.putExtra(ScholarshipDetailActivity.EXTRA_SCHOLARSHIP_TITLE, scholarship.getTitle());
+            intent.putExtra(ScholarshipDetailActivity.EXTRA_SCHOLARSHIP_CATEGORY, scholarship.getDegreeLevel());
+            intent.putExtra(ScholarshipDetailActivity.EXTRA_SCHOLARSHIP_IMAGE, imageResId);
+            startActivity(intent);
+        });
     }
 
     private void setupBannerCarousel() {

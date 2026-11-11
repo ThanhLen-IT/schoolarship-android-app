@@ -92,6 +92,10 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
+            <Button android:id="@+id/btn_detail_find_mentor"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="12dp" android:text="@string/find_mentor_action" />
+
             <!-- 3. Metadata Chips Row -->
             <LinearLayout
                 android:layout_width="match_parent"

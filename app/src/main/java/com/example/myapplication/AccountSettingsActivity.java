@@ -49,9 +49,7 @@ public class AccountSettingsActivity extends AppCompatActivity {
         // Section 1: Thông tin hồ sơ
         View rowPersonalInfo = findViewById(R.id.row_personal_info);
         if (rowPersonalInfo != null) {
-            rowPersonalInfo.setOnClickListener(v -> 
-                Toast.makeText(this, "Thông tin cá nhân", Toast.LENGTH_SHORT).show()
-            );
+            rowPersonalInfo.setOnClickListener(v -> startActivity(new Intent(this, PersonalProfileActivity.class)));
         }
 
         View rowEnableMentor = findViewById(R.id.row_enable_mentor_mode);
