@@ -144,8 +144,8 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- Editable Scholarship Title Heading -->
-            <EditText
+            <!-- Selected scholarship heading -->
+            <TextView
                 android:id="@+id/tv_scholarship_ranking_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -153,8 +153,8 @@
                 android:layout_marginEnd="16dp"
                 android:layout_marginTop="10dp"
                 android:background="@null"
-                android:hint="Scholarship Name"
-                android:inputType="textMultiLine"
+                android:hint="@string/choose_scholarship"
+                android:minHeight="48dp"
                 android:text="@string/default_scholarship_ranking_name"
                 android:textColor="@color/color_primary"
                 android:textColorHint="@color/color_text_hint"
@@ -162,6 +162,8 @@
                 android:textStyle="bold"
                 android:autofillHints="" />
 
+<TextView android:id="@+id/tv_ranking_demo" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp" android:text="@string/local_demo_notice" android:textColor="@color/color_text_hint" />
+<TextView android:id="@+id/tv_ranking_empty" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp" android:text="@string/ranking_choose_first" android:textColor="@color/color_text_hint" />
             <!-- Filters Section -->
             <LinearLayout
                 android:layout_width="match_parent"

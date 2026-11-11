@@ -127,6 +127,17 @@ public class ProfileActivity extends AppCompatActivity {
         setupBottomNavigation();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        tvProfileName.setText(LocalProfileStore.name(this));
+        LocalProfileStore.showAvatar(findViewById(R.id.iv_profile_avatar),
+                LocalProfileStore.prefs(this).getString("avatar", ""));
+        tvProfileName.setOnClickListener(v -> startActivity(new Intent(this, PersonalProfileActivity.class)));
+        findViewById(R.id.iv_profile_avatar).setOnClickListener(v ->
+                startActivity(new Intent(this, PersonalProfileActivity.class)));
+    }
+
     private void updateProfileModeUI() {
         if (isVerifiedMentor) {
             if (layoutMentorBadge != null) layoutMentorBadge.setVisibility(View.VISIBLE);

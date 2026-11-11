@@ -35,10 +35,15 @@ public class ScholarshipResultAdapter extends RecyclerView.Adapter<ScholarshipRe
         holder.tvDeadline.setText("Hạn: " + scholarship.getDeadlineStr());
 
         holder.btnFollow.setOnClickListener(v -> Toast.makeText(v.getContext(), "Followed " + scholarship.getTitle(), Toast.LENGTH_SHORT).show());
-        holder.tvFindMentor.setOnClickListener(v -> Toast.makeText(v.getContext(), "Find Mentor for " + scholarship.getTitle(), Toast.LENGTH_SHORT).show());
+        holder.tvFindMentor.setOnClickListener(v -> {
+            android.content.Intent intent = new android.content.Intent(v.getContext(), MentorRankingActivity.class);
+            intent.putExtra(MentorRankingActivity.EXTRA_SCHOLARSHIP_ID, scholarship.getId());
+            v.getContext().startActivity(intent);
+        });
 
         holder.itemView.setOnClickListener(v -> {
             android.content.Intent intent = new android.content.Intent(v.getContext(), ScholarshipDetailActivity.class);
+            intent.putExtra(ScholarshipDetailActivity.EXTRA_SCHOLARSHIP_ID, scholarship.getId());
             intent.putExtra(ScholarshipDetailActivity.EXTRA_SCHOLARSHIP_TITLE, scholarship.getTitle());
             intent.putExtra(ScholarshipDetailActivity.EXTRA_SCHOLARSHIP_CATEGORY, scholarship.getFieldOfStudy());
             v.getContext().startActivity(intent);
