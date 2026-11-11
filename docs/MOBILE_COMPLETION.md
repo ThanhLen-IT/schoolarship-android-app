@@ -12,6 +12,11 @@ Implemented:
 - Country, type, major and study-level options come from published server records.
   Search supports server paging and explicit load-more controls. Ranking rows open
   mentor profiles; ranking also has a visible load-more button.
+- Scholarship discovery uses one full-height RecyclerView for the filter header,
+  result cards and loading/empty/load-more footer. A ConcatAdapter joins the three
+  sections; the result list is not nested inside a ScrollView. Header/footer
+  references remain available while their holders are offscreen, so changing
+  filters and receiving API callbacks still update the original controls.
 - Mentor profile → choose PDF from the device → submit an application. Private CVs
   are downloaded with Bearer auth to app cache and opened via FileProvider. The
   server authorizes access; private storage is not exposed publicly.
@@ -71,3 +76,17 @@ Final validation:
   hardware-unaccelerated environment before the deadline. No emulator screen-flow
   or physical-device pass is claimed. Run the final account/device checks after
   deploying the backend; real email delivery was not exercised here.
+
+Scholarship discovery device check after pulling this branch:
+
+1. With six published scholarships, open discovery and swipe upward on the cards
+   until the sixth scholarship is visible. Swipe downward to return to the filter
+   header; the result count should still be six.
+2. Search or change a filter, then check the count and result cards together.
+   Clear filters and check that all six return. Confirm the empty/retry message is
+   reachable when there are no results or a request fails.
+3. With more than twenty results, scroll to the last loaded card and check that
+   the next page loads. The explicit load-more button uses the same paging state.
+4. Rotate the device, return to the top and verify the selected filters/search
+   text are retained. A device/emulator swipe pass is required before claiming
+   this interaction has been verified on Android.

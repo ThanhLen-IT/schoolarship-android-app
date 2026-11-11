@@ -1,6 +1,7 @@
 package com.example.myapplication;
 
 import android.app.DatePickerDialog;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -15,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.ConcatAdapter;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -42,6 +44,7 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
     private List<Scholarship> allScholarships;
     private List<Scholarship> filteredScholarships;
     private ScholarshipResultAdapter adapter;
+    private View headerView, footerView;
 
     // Filter states
     private String selectedCountry = "Tất cả quốc gia";
@@ -70,11 +73,16 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
 
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_scholarship_discovery);
+        RecyclerView recyclerView = findViewById(R.id.recycler_scholarship_results);
+        headerView = getLayoutInflater().inflate(
+                R.layout.view_scholarship_discovery_header, recyclerView, false);
+        footerView = getLayoutInflater().inflate(
+                R.layout.view_scholarship_discovery_footer, recyclerView, false);
         focusSearchOnWindow =
                 savedInstanceState == null
                         && getIntent().getBooleanExtra(EXTRA_FOCUS_SEARCH, false);
 
-        View rootView = findViewById(R.id.main);
+        View rootView = screenView(R.id.main);
         if (rootView != null) {
             ViewCompat.setOnApplyWindowInsetsListener(
                     rootView,
@@ -95,31 +103,47 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
         }
 
         // Back button
-        ImageButton btnBack = findViewById(R.id.btn_back);
+        ImageButton btnBack = screenView(R.id.btn_back);
         if (btnBack != null) {
             btnBack.setOnClickListener(v -> finish());
         }
 
         // Initialize views
-        tvSelectedCountry = findViewById(R.id.tv_selected_country);
-        tvResultCount = findViewById(R.id.tv_result_count);
-        btnFilterLevel = findViewById(R.id.btn_filter_level);
-        btnFilterField = findViewById(R.id.btn_filter_field);
-        btnFilterFunding = findViewById(R.id.btn_filter_funding);
-        btnFilterDeadline = findViewById(R.id.btn_filter_deadline);
-        tvSort = findViewById(R.id.tv_sort);
+        tvSelectedCountry = screenView(R.id.tv_selected_country);
+        tvResultCount = screenView(R.id.tv_result_count);
+        btnFilterLevel = screenView(R.id.btn_filter_level);
+        btnFilterField = screenView(R.id.btn_filter_field);
+        btnFilterFunding = screenView(R.id.btn_filter_funding);
+        btnFilterDeadline = screenView(R.id.btn_filter_deadline);
+        tvSort = screenView(R.id.tv_sort);
 
-        EditText etSearch = findViewById(R.id.et_scholarship_search);
-        RecyclerView recyclerView = findViewById(R.id.recycler_scholarship_results);
+        EditText etSearch = screenView(R.id.et_scholarship_search);
 
-        // Load sample dataset
+        // Results are loaded from the API.
         allScholarships = new ArrayList<>();
 
         filteredScholarships = new ArrayList<>(allScholarships);
         if (recyclerView != null) {
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
             adapter = new ScholarshipResultAdapter(filteredScholarships);
-            recyclerView.setAdapter(adapter);
+            // Controls and cards must have the same scroll owner. An outer
+            // ScrollView can clip the RecyclerView while consuming its gestures.
+            recyclerView.setItemAnimator(null);
+            recyclerView.setAdapter(new ConcatAdapter(
+                    new StaticSectionAdapter(headerView),
+                    adapter,
+                    new StaticSectionAdapter(footerView)));
+            final int inset = Math.round(16 * getResources().getDisplayMetrics().density);
+            recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+                @Override
+                public void getItemOffsets(Rect outRect, View view,
+                        RecyclerView parent, RecyclerView.State state) {
+                    if (parent.getChildViewHolder(view).getBindingAdapter() == adapter) {
+                        outRect.left = inset;
+                        outRect.right = inset;
+                    }
+                }
+            });
         }
 
         recyclerView.addOnScrollListener(
@@ -132,13 +156,13 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
                                 && currentPage < totalPages) fetchPage(currentPage + 1);
                     }
                 });
-        findViewById(R.id.tv_search_empty).setOnClickListener(v -> fetchScholarshipsFromApi());
+        screenView(R.id.tv_search_empty).setOnClickListener(v -> fetchScholarshipsFromApi());
         tvResultCount.setOnClickListener(
                 v -> {
                     if (!loading && currentPage < totalPages) fetchPage(currentPage + 1);
                 });
         loadFilterOptions();
-        findViewById(R.id.btn_more_scholarships)
+        screenView(R.id.btn_more_scholarships)
                 .setOnClickListener(
                         v -> {
                             if (!loading && currentPage < totalPages) fetchPage(currentPage + 1);
@@ -147,7 +171,7 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
         applyFiltersAndSort();
         fetchScholarshipsFromApi();
 
-        findViewById(R.id.btn_clear_filters)
+        screenView(R.id.btn_clear_filters)
                 .setOnClickListener(
                         v -> {
                             selectedCountry = "Tất cả quốc gia";
@@ -194,7 +218,7 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
         }
 
         // Setup Filter Click Listeners
-        View layoutFullFilter = findViewById(R.id.layout_full_filter);
+        View layoutFullFilter = screenView(R.id.layout_full_filter);
         if (layoutFullFilter != null) {
             layoutFullFilter.setOnClickListener(v -> showCountryDialog());
         }
@@ -220,6 +244,15 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
         }
     }
 
+    // The header/footer can be offscreen and detached from the RecyclerView.
+    // Keep their original instances so filters and loading/retry controls stay bound.
+    private <T extends View> T screenView(int id) {
+        T view = findViewById(id);
+        if (view == null && headerView != null) view = headerView.findViewById(id);
+        if (view == null && footerView != null) view = footerView.findViewById(id);
+        return view;
+    }
+
     private void fetchScholarshipsFromApi() {
         searchHandler.removeCallbacks(searchTask);
         if (activeCall != null) activeCall.cancel();
@@ -232,9 +265,9 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
 
     private void fetchPage(int page) {
         loading = true;
-        findViewById(R.id.btn_more_scholarships).setVisibility(View.GONE);
+        screenView(R.id.btn_more_scholarships).setVisibility(View.GONE);
         tvResultCount.setText("Đang tải học bổng…");
-        findViewById(R.id.tv_search_empty).setVisibility(View.GONE);
+        screenView(R.id.tv_search_empty).setVisibility(View.GONE);
         String level = "All levels".equals(selectedLevel) ? null : selectedLevel;
         String country = "Tất cả quốc gia".equals(selectedCountry) ? null : selectedCountry;
         String sort = "created_at_desc";
@@ -274,7 +307,7 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
                                     v -> {
                                         if (!loading) fetchPage(page);
                                     });
-                            TextView empty = findViewById(R.id.tv_search_empty);
+                            TextView empty = screenView(R.id.tv_search_empty);
                             empty.setText(message + "\nChạm để thử lại.");
                             empty.setVisibility(
                                     allScholarships.isEmpty() ? View.VISIBLE : View.GONE);
@@ -294,7 +327,7 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus && focusSearchOnWindow) {
             focusSearchOnWindow = false;
-            EditText search = findViewById(R.id.et_scholarship_search);
+            EditText search = screenView(R.id.et_scholarship_search);
             search.post(
                     () -> {
                         search.requestFocus();
@@ -347,7 +380,7 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
     }
 
     private void updateResultCount() {
-        findViewById(R.id.btn_more_scholarships)
+        screenView(R.id.btn_more_scholarships)
                 .setVisibility(!loading && currentPage < totalPages ? View.VISIBLE : View.GONE);
         tvResultCount.setText(
                 serverTotal
@@ -367,8 +400,8 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
                         || startDate != null
                         || endDate != null
                         || !"Mới nhất".equals(currentSort);
-        findViewById(R.id.btn_clear_filters).setVisibility(active ? View.VISIBLE : View.GONE);
-        TextView empty = findViewById(R.id.tv_search_empty);
+        screenView(R.id.btn_clear_filters).setVisibility(active ? View.VISIBLE : View.GONE);
+        TextView empty = screenView(R.id.tv_search_empty);
         empty.setText("Không tìm thấy học bổng phù hợp. Chạm để tải lại.");
         empty.setVisibility(!loading && filteredScholarships.isEmpty() ? View.VISIBLE : View.GONE);
     }
