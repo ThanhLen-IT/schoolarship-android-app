@@ -68,7 +68,7 @@ public class BecomeMentorActivity extends AppCompatActivity {
         EditText etSearch = findViewById(R.id.et_scholarship_search);
         btnVerificationStatus = findViewById(R.id.btn_verification_status);
 
-        // Load 3 reference scholarships
+        // Load published scholarships from the API.
 
         filteredScholarships = new ArrayList<>(allScholarships);
         RecyclerView recyclerView = findViewById(R.id.recycler_scholarship_verify);
@@ -148,7 +148,7 @@ public class BecomeMentorActivity extends AppCompatActivity {
                                             item.getId(),
                                             item.getTitle(),
                                             item.getOrganization(),
-                                            "Chọn để nộp hồ sơ"));
+                                            "Not verified"));
                     applyFilterAndSearch();
                     if (allScholarships.isEmpty())
                         ApiUi.error(this, "Chưa có học bổng công khai để nộp hồ sơ.");

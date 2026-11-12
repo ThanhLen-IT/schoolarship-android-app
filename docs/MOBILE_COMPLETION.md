@@ -22,6 +22,10 @@ Implemented:
 - Mentor profile → choose PDF from the device → submit an application. Private CVs
   are downloaded with Bearer auth to app cache and opened via FileProvider. The
   server authorizes access; private storage is not exposed publicly.
+- In Become a Mentor, an enabled Verify button opens the selected scholarship's
+  PDF evidence form. Button enablement and click handling use one eligibility
+  decision, including pending/approved API states and legacy UI states. The
+  submission button stays disabled until a PDF is selected.
 - Application lists show viewer role and actual state: mentor accept/reject/start,
   mentee confirm completion, explicit support requests/replies and mentor reviews.
 - Conversations are created only after acceptance. Chat uses 5-second foreground
@@ -63,8 +67,10 @@ embedded in the app.
 Validation includes model/Retrofit contract tests and a successful debug build.
 Robolectric tests also launch discovery with its actual Android resources, open
 it through Home's view-all action and dispatch swipe gestures across six mocked
-results and back to the filters. These are simulated Android view tests, not a
-physical-device/emulator pass.
+results and back to the filters. Mentor-verification tests load scholarships from
+a mock API, click Verify, open the correct submission form and launch the PDF
+picker; they also check blocked pending/approved states when a holder is rebound.
+These are simulated Android view tests, not a physical-device/emulator pass.
 Final validation results are recorded with the PR. Real email deep links depend on
 backend sender configuration (`scholarship://reset-password` is supported); no
 production email was sent during development.
@@ -72,10 +78,12 @@ production email was sent during development.
 Final validation:
 
 - `assembleDebug` and `testDebugUnitTest` passed with the default production origin;
-  16 tests passed (13 API contract tests, the existing example and two Robolectric
-  navigation/scrolling regressions on simulated SDK 35). Both new tests reproduced
+  18 tests passed (13 API contract tests, the existing example and four Robolectric
+  navigation/scrolling/verification regressions on simulated SDK 35). Discovery tests reproduced
   `RecyclerView has no LayoutManager` on the earlier initialization order and pass
   after installing the LayoutManager before header/footer inflation.
+  Verification tests reproduced the enabled-but-inactive Verify button before
+  using the same eligibility decision for rendering and navigation.
 - An isolated debug APK was also built for local HTTP testing. No local URL is
   embedded in the default/release configuration.
 - Backend tests passed against PostgreSQL 18.6/PGlite through real HTTP, including
