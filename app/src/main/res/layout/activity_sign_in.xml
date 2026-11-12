@@ -166,7 +166,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="horizontal" android:visibility="gone">
 
             <View
                 android:layout_width="0dp"

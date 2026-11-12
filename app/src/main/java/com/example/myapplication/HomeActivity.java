@@ -33,101 +33,163 @@ public class HomeActivity extends AppCompatActivity {
 
         View rootView = findViewById(R.id.main);
         if (rootView != null) {
-            ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
-                Insets systemBars = insets.getInsets(
-                        WindowInsetsCompat.Type.systemBars()
-                );
+            ViewCompat.setOnApplyWindowInsetsListener(
+                    rootView,
+                    (v, insets) -> {
+                        Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
 
-                v.setPadding(
-                        systemBars.left,
-                        systemBars.top,
-                        systemBars.right,
-                        systemBars.bottom
-                );
+                        v.setPadding(
+                                systemBars.left,
+                                systemBars.top,
+                                systemBars.right,
+                                systemBars.bottom);
 
-                return insets;
-            });
+                        return insets;
+                    });
         }
 
         // Notifications button
         View btnNotifications = findViewById(R.id.btn_notifications);
         if (btnNotifications != null) {
-            btnNotifications.setOnClickListener(v -> {
-                Intent intent = new Intent(HomeActivity.this, NotificationsActivity.class);
-                startActivity(intent);
-            });
+            btnNotifications.setOnClickListener(
+                    v -> {
+                        Intent intent = new Intent(HomeActivity.this, NotificationsActivity.class);
+                        startActivity(intent);
+                    });
         }
 
-        findViewById(R.id.btn_home_search).setOnClickListener(v -> {
-            Intent intent = new Intent(this, ScholarshipDiscoveryActivity.class);
-            intent.putExtra(ScholarshipDiscoveryActivity.EXTRA_FOCUS_SEARCH, true);
-            startActivity(intent);
-        });
+        findViewById(R.id.btn_home_search)
+                .setOnClickListener(
+                        v -> {
+                            Intent intent = new Intent(this, ScholarshipDiscoveryActivity.class);
+                            intent.putExtra(ScholarshipDiscoveryActivity.EXTRA_FOCUS_SEARCH, true);
+                            startActivity(intent);
+                        });
 
         // Setup Banner Carousel (3 banners: slide_1, nen1, nen2)
         setupBannerCarousel();
 
-        // Cards open their own scholarship; View All still opens discovery.
-        bindScholarshipCard(R.id.card_scholarship_1, "1", R.drawable.nen1,
-                R.id.home_scholarship_title_a, R.id.home_scholarship_type_a,
-                R.id.home_scholarship_deadline_a, R.id.home_scholarship_meta_a, R.id.home_scholarship_image_a);
-        bindScholarshipCard(R.id.card_scholarship_2, "2", R.drawable.nen2,
-                R.id.home_scholarship_title_b, R.id.home_scholarship_type_b,
-                R.id.home_scholarship_deadline_b, R.id.home_scholarship_meta_b, R.id.home_scholarship_image_b);
-
-        // Setup Mentor Cards click listeners
-        View cardMentor1 = findViewById(R.id.card_mentor_1);
-        View cardMentor2 = findViewById(R.id.card_mentor_2);
-        if (cardMentor1 != null) {
-            cardMentor1.setOnClickListener(v -> Toast.makeText(this, "Mentor 1 clicked", Toast.LENGTH_SHORT).show());
-        }
-        if (cardMentor2 != null) {
-            cardMentor2.setOnClickListener(v -> Toast.makeText(this, "Mentor 2 clicked", Toast.LENGTH_SHORT).show());
-        }
+        findViewById(R.id.card_scholarship_1).setVisibility(View.GONE);
+        findViewById(R.id.card_scholarship_2).setVisibility(View.GONE);
+        // Mentor suggestions need a scholarship context; use the real ranking picker.
+        findViewById(R.id.card_mentor_1).setVisibility(View.GONE);
+        findViewById(R.id.card_mentor_2).setVisibility(View.GONE);
+        loadScholarships();
 
         // View All Scholarships -> open ScholarshipDiscoveryActivity
         TextView tvViewAllScholarships = findViewById(R.id.tv_view_all_scholarships);
         if (tvViewAllScholarships != null) {
-            tvViewAllScholarships.setOnClickListener(v -> {
-                Intent intent = new Intent(HomeActivity.this, ScholarshipDiscoveryActivity.class);
-                startActivity(intent);
-            });
+            tvViewAllScholarships.setOnClickListener(
+                    v -> {
+                        Intent intent =
+                                new Intent(HomeActivity.this, ScholarshipDiscoveryActivity.class);
+                        startActivity(intent);
+                    });
         }
 
         TextView tvViewAllMentors = findViewById(R.id.tv_view_all_mentors);
         if (tvViewAllMentors != null) {
-            tvViewAllMentors.setOnClickListener(v -> {
-                Intent intent = new Intent(HomeActivity.this, MentorRankingActivity.class);
-                startActivity(intent);
-            });
+            tvViewAllMentors.setOnClickListener(
+                    v -> {
+                        Intent intent = new Intent(HomeActivity.this, MentorRankingActivity.class);
+                        startActivity(intent);
+                    });
         }
 
         // Bottom Navigation Tabs
         setupBottomNavigation();
     }
 
-    private void bindScholarshipCard(int cardId, String scholarshipId, int imageResId,
-                                     int titleId, int typeId, int deadlineId, int metaId, int imageId) {
+    private void loadScholarships() {
+        ApiUi.request(
+                this,
+                ApiClient.getApiService()
+                        .getScholarships(
+                                null, null, null, 1, 2, "deadline_asc", null, null, null, null),
+                result -> {
+                    List<Scholarship> items = result.getData();
+                    TextView heading = findViewById(R.id.tv_view_all_scholarships);
+                    heading.setText(
+                            items == null || items.isEmpty()
+                                    ? "Chưa có học bổng · Tải lại"
+                                    : "Xem tất cả");
+                    heading.setOnClickListener(
+                            v -> {
+                                if (items == null || items.isEmpty()) loadScholarships();
+                                else
+                                    startActivity(
+                                            new Intent(this, ScholarshipDiscoveryActivity.class));
+                            });
+                    if (items != null && !items.isEmpty())
+                        bindScholarshipCard(
+                                R.id.card_scholarship_1,
+                                items.get(0),
+                                R.drawable.nen1,
+                                R.id.home_scholarship_title_a,
+                                R.id.home_scholarship_type_a,
+                                R.id.home_scholarship_deadline_a,
+                                R.id.home_scholarship_meta_a,
+                                R.id.home_scholarship_image_a);
+                    if (items != null && items.size() > 1)
+                        bindScholarshipCard(
+                                R.id.card_scholarship_2,
+                                items.get(1),
+                                R.drawable.nen2,
+                                R.id.home_scholarship_title_b,
+                                R.id.home_scholarship_type_b,
+                                R.id.home_scholarship_deadline_b,
+                                R.id.home_scholarship_meta_b,
+                                R.id.home_scholarship_image_b);
+                },
+                message -> {
+                    TextView retry = findViewById(R.id.tv_view_all_scholarships);
+                    retry.setText("Lỗi tải · Chạm thử lại");
+                    retry.setOnClickListener(v -> loadScholarships());
+                    ApiUi.error(this, message);
+                });
+    }
+
+    private void bindScholarshipCard(
+            int cardId,
+            Scholarship scholarship,
+            int imageResId,
+            int titleId,
+            int typeId,
+            int deadlineId,
+            int metaId,
+            int imageId) {
         View card = findViewById(cardId);
-        Scholarship scholarship = LocalDemoCatalog.find(scholarshipId);
+
         if (card == null) return;
         if (scholarship == null) {
             card.setVisibility(View.GONE);
             return;
         }
+        card.setVisibility(View.VISIBLE);
+        RemoteImage.show(findViewById(imageId), scholarship.getImageUrl());
         ((TextView) findViewById(titleId)).setText(scholarship.getTitle());
         ((TextView) findViewById(typeId)).setText(scholarship.getFundingType());
-        ((TextView) findViewById(deadlineId)).setText(getString(R.string.scholarship_deadline_value, scholarship.getDeadlineStr()));
-        ((TextView) findViewById(metaId)).setText(scholarship.getCountry() + " · " + scholarship.getDegreeLevel());
+        ((TextView) findViewById(deadlineId))
+                .setText(
+                        getString(
+                                R.string.scholarship_deadline_value, scholarship.getDeadlineStr()));
+        ((TextView) findViewById(metaId))
+                .setText(scholarship.getCountry() + " · " + scholarship.getDegreeLevel());
         findViewById(imageId).setContentDescription(scholarship.getTitle());
-        card.setOnClickListener(v -> {
-            Intent intent = new Intent(this, ScholarshipDetailActivity.class);
-            intent.putExtra(ScholarshipDetailActivity.EXTRA_SCHOLARSHIP_ID, scholarship.getId());
-            intent.putExtra(ScholarshipDetailActivity.EXTRA_SCHOLARSHIP_TITLE, scholarship.getTitle());
-            intent.putExtra(ScholarshipDetailActivity.EXTRA_SCHOLARSHIP_CATEGORY, scholarship.getDegreeLevel());
-            intent.putExtra(ScholarshipDetailActivity.EXTRA_SCHOLARSHIP_IMAGE, imageResId);
-            startActivity(intent);
-        });
+        card.setOnClickListener(
+                v -> {
+                    Intent intent = new Intent(this, ScholarshipDetailActivity.class);
+                    intent.putExtra(
+                            ScholarshipDetailActivity.EXTRA_SCHOLARSHIP_ID, scholarship.getId());
+                    intent.putExtra(
+                            ScholarshipDetailActivity.EXTRA_SCHOLARSHIP_TITLE,
+                            scholarship.getTitle());
+                    intent.putExtra(
+                            ScholarshipDetailActivity.EXTRA_SCHOLARSHIP_CATEGORY,
+                            scholarship.getDegreeLevel());
+                    intent.putExtra(ScholarshipDetailActivity.EXTRA_SCHOLARSHIP_IMAGE, imageResId);
+                    startActivity(intent);
+                });
     }
 
     private void setupBannerCarousel() {
@@ -136,31 +198,33 @@ public class HomeActivity extends AppCompatActivity {
 
         if (viewPagerBanners == null || layoutDots == null) return;
 
-        List<HomeSliderItem> sliderItems = Arrays.asList(
-                new HomeSliderItem(
-                        "Kết nối hôm nay,\nkiến tạo tương lai",
-                        "Cùng bạn khám phá học bổng và\ntìm Mentor phù hợp nhất.",
-                        "Khám phá cơ hội",
-                        R.drawable.slide_1
-                ),
-                new HomeSliderItem(
-                        "Khám phá học bổng",
-                        "Tìm kiếm cơ hội học tập phù hợp với bạn.",
-                        "Khám phá học bổng",
-                        R.drawable.nen1
-                ),
-                new HomeSliderItem(
-                        "Kết nối cùng Mentor",
-                        "Cùng Mentor phát triển hành trình học tập và sự nghiệp.",
-                        "Tìm Mentor",
-                        R.drawable.nen2
-                )
-        );
+        List<HomeSliderItem> sliderItems =
+                Arrays.asList(
+                        new HomeSliderItem(
+                                "Kết nối hôm nay,\nkiến tạo tương lai",
+                                "Cùng bạn khám phá học bổng và\ntìm Mentor phù hợp nhất.",
+                                "Khám phá cơ hội",
+                                R.drawable.slide_1),
+                        new HomeSliderItem(
+                                "Khám phá học bổng",
+                                "Tìm kiếm cơ hội học tập phù hợp với bạn.",
+                                "Khám phá học bổng",
+                                R.drawable.nen1),
+                        new HomeSliderItem(
+                                "Kết nối cùng Mentor",
+                                "Cùng Mentor phát triển hành trình học tập và sự nghiệp.",
+                                "Tìm Mentor",
+                                R.drawable.nen2));
 
-        HomeSliderAdapter adapter = new HomeSliderAdapter(sliderItems, (item, position) -> {
-            Intent intent = new Intent(HomeActivity.this, ScholarshipDiscoveryActivity.class);
-            startActivity(intent);
-        });
+        HomeSliderAdapter adapter =
+                new HomeSliderAdapter(
+                        sliderItems,
+                        (item, position) -> {
+                            Intent intent =
+                                    new Intent(
+                                            HomeActivity.this, ScholarshipDiscoveryActivity.class);
+                            startActivity(intent);
+                        });
         viewPagerBanners.setAdapter(adapter);
 
         // Setup 3 pagination dots
@@ -169,26 +233,33 @@ public class HomeActivity extends AppCompatActivity {
 
         for (int i = 0; i < sliderItems.size(); i++) {
             dots[i] = new ImageView(this);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-            );
+            LinearLayout.LayoutParams params =
+                    new LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT);
             params.setMargins(6, 0, 6, 0);
             dots[i].setLayoutParams(params);
 
-            dots[i].setImageResource(i == 0 ? android.R.drawable.presence_online : android.R.drawable.presence_invisible);
+            dots[i].setImageResource(
+                    i == 0
+                            ? android.R.drawable.presence_online
+                            : android.R.drawable.presence_invisible);
             layoutDots.addView(dots[i]);
         }
 
-        viewPagerBanners.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageSelected(int position) {
-                super.onPageSelected(position);
-                for (int i = 0; i < dots.length; i++) {
-                    dots[i].setImageResource(i == position ? android.R.drawable.presence_online : android.R.drawable.presence_invisible);
-                }
-            }
-        });
+        viewPagerBanners.registerOnPageChangeCallback(
+                new ViewPager2.OnPageChangeCallback() {
+                    @Override
+                    public void onPageSelected(int position) {
+                        super.onPageSelected(position);
+                        for (int i = 0; i < dots.length; i++) {
+                            dots[i].setImageResource(
+                                    i == position
+                                            ? android.R.drawable.presence_online
+                                            : android.R.drawable.presence_invisible);
+                        }
+                    }
+                });
     }
 
     private void setupBottomNavigation() {
@@ -198,31 +269,39 @@ public class HomeActivity extends AppCompatActivity {
         View navMessages = findViewById(R.id.nav_messages);
         View navProfile = findViewById(R.id.nav_profile);
 
-        if (navHome != null) navHome.setOnClickListener(v -> Toast.makeText(this, "Already on Home", Toast.LENGTH_SHORT).show());
+        if (navHome != null)
+            navHome.setOnClickListener(v -> getWindow().getDecorView().requestFocus());
         if (navRanking != null) {
-            navRanking.setOnClickListener(v -> {
-                Intent intent = new Intent(HomeActivity.this, MentorRankingActivity.class);
-                startActivity(intent);
-            });
+            navRanking.setOnClickListener(
+                    v -> {
+                        Intent intent = new Intent(HomeActivity.this, MentorRankingActivity.class);
+                        startActivity(intent);
+                    });
         }
-        if (navCommunity != null) navCommunity.setOnClickListener(v -> {
-            Intent intent = new Intent(HomeActivity.this, CommunityActivity.class);
-            startActivity(intent);
-        });
+        if (navCommunity != null)
+            navCommunity.setOnClickListener(
+                    v -> {
+                        Intent intent = new Intent(HomeActivity.this, CommunityActivity.class);
+                        startActivity(intent);
+                    });
         if (navMessages != null) {
-            navMessages.setOnClickListener(v -> {
-                Intent intent = new Intent(HomeActivity.this, MessagesActivity.class);
-                startActivity(intent);
-            });
+            navMessages.setOnClickListener(
+                    v -> {
+                        Intent intent = new Intent(HomeActivity.this, MessagesActivity.class);
+                        startActivity(intent);
+                    });
         }
-        if (navProfile != null) navProfile.setOnClickListener(v -> {
-            Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
-            startActivity(intent);
-        });
+        if (navProfile != null)
+            navProfile.setOnClickListener(
+                    v -> {
+                        Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
+                        startActivity(intent);
+                    });
     }
 
     // Banner Adapter for ViewPager2
-    private static class BannerAdapter extends RecyclerView.Adapter<BannerAdapter.BannerViewHolder> {
+    private static class BannerAdapter
+            extends RecyclerView.Adapter<BannerAdapter.BannerViewHolder> {
         private final List<Integer> images;
 
         public BannerAdapter(List<Integer> images) {
@@ -232,18 +311,23 @@ public class HomeActivity extends AppCompatActivity {
         @NonNull
         @Override
         public BannerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_banner, parent, false);
-            view.setLayoutParams(new ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-            ));
+            View view =
+                    LayoutInflater.from(parent.getContext())
+                            .inflate(R.layout.item_banner, parent, false);
+            view.setLayoutParams(
+                    new ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT));
             return new BannerViewHolder(view);
         }
 
         @Override
         public void onBindViewHolder(@NonNull BannerViewHolder holder, int position) {
             holder.imageView.setImageResource(images.get(position));
-            holder.ctaButton.setOnClickListener(v -> Toast.makeText(v.getContext(), "Banner CTA clicked", Toast.LENGTH_SHORT).show());
+            holder.ctaButton.setOnClickListener(
+                    v ->
+                            Toast.makeText(v.getContext(), "Banner CTA clicked", Toast.LENGTH_SHORT)
+                                    .show());
         }
 
         @Override

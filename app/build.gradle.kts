@@ -8,7 +8,14 @@ android {
         version = release(37)
     }
 
+    buildFeatures { buildConfig = true }
+
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+    }
+
     defaultConfig {
+        buildConfigField("String", "API_BASE_URL", "\"https://scholarship-uit.duckdns.org/\"")
         applicationId = "com.example.myapplication"
         minSdk = 24
         targetSdk = 37
@@ -19,6 +26,9 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "API_BASE_URL", "\"${providers.gradleProperty("apiBaseUrl").getOrElse("https://scholarship-uit.duckdns.org/")}\"")
+        }
         release {
             optimization {
                 enable = true
@@ -33,13 +43,16 @@ android {
 }
 
 dependencies {
+    implementation("com.github.bumptech.glide:glide:4.16.0")
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
     implementation(libs.activity.ktx)
     implementation(libs.appcompat)
     implementation(libs.constraintlayout)
     implementation(libs.material)
+    testImplementation("com.squareup.okhttp3:mockwebserver:3.14.9")
     testImplementation(libs.junit)
+    testImplementation("org.robolectric:robolectric:4.17")
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.ext.junit)
 }

@@ -24,7 +24,8 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class CreatePostActivity extends AppCompatActivity {
 
-    private EditText etPostContent;
+    private EditText etPostContent, titleInput;
+    private String imageUrl = "";
     private ImageView ivMediaPreview;
     private Uri selectedImageUri = null;
 
@@ -40,29 +41,31 @@ public class CreatePostActivity extends AppCompatActivity {
 
         View rootView = findViewById(R.id.main);
         if (rootView != null) {
-            ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
-                Insets systemBars = insets.getInsets(
-                        WindowInsetsCompat.Type.systemBars()
-                );
+            ViewCompat.setOnApplyWindowInsetsListener(
+                    rootView,
+                    (v, insets) -> {
+                        Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
 
-                v.setPadding(
-                        systemBars.left,
-                        systemBars.top,
-                        systemBars.right,
-                        systemBars.bottom
-                );
+                        v.setPadding(
+                                systemBars.left,
+                                systemBars.top,
+                                systemBars.right,
+                                systemBars.bottom);
 
-                return insets;
-            });
+                        return insets;
+                    });
         }
 
         // Back gesture callback
-        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                handleBackNavigation();
-            }
-        });
+        getOnBackPressedDispatcher()
+                .addCallback(
+                        this,
+                        new OnBackPressedCallback(true) {
+                            @Override
+                            public void handleOnBackPressed() {
+                                handleBackNavigation();
+                            }
+                        });
 
         // Back button
         ImageButton btnBack = findViewById(R.id.btn_back_create_post);
@@ -70,46 +73,61 @@ public class CreatePostActivity extends AppCompatActivity {
             btnBack.setOnClickListener(v -> handleBackNavigation());
         }
 
+        ApiUi.requireLogin(this);
         // Inputs & Preview
         etPostContent = findViewById(R.id.et_post_content);
         ivMediaPreview = findViewById(R.id.iv_selected_media_preview);
+        titleInput = findViewById(R.id.et_post_title);
+        if (savedInstanceState != null) {
+            imageUrl = savedInstanceState.getString("draft_image_url", "");
+            RemoteImage.show(ivMediaPreview, imageUrl);
+            ivMediaPreview.setVisibility(imageUrl.isEmpty() ? View.GONE : View.VISIBLE);
+        }
+        findViewById(R.id.chip_location).setVisibility(View.GONE);
+        findViewById(R.id.chip_mood).setVisibility(View.GONE);
 
         if (etPostContent != null) {
             etPostContent.setOnClickListener(v -> openTextComposer());
-            etPostContent.setOnFocusChangeListener((v, hasFocus) -> {
-                if (hasFocus) {
-                    openTextComposer();
-                }
-            });
+            etPostContent.setOnFocusChangeListener(
+                    (v, hasFocus) -> {
+                        if (hasFocus) {
+                            openTextComposer();
+                        }
+                    });
         }
 
         // Text Composer Launcher
-        textComposerLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                        String updatedText = result.getData().getStringExtra(TextComposerActivity.EXTRA_DRAFT_TEXT);
-                        if (updatedText != null && etPostContent != null) {
-                            etPostContent.setText(updatedText);
-                            etPostContent.setSelection(updatedText.length());
-                        }
-                    }
-                }
-        );
+        textComposerLauncher =
+                registerForActivityResult(
+                        new ActivityResultContracts.StartActivityForResult(),
+                        result -> {
+                            if (result.getResultCode() == Activity.RESULT_OK
+                                    && result.getData() != null) {
+                                String updatedText =
+                                        result.getData()
+                                                .getStringExtra(
+                                                        TextComposerActivity.EXTRA_DRAFT_TEXT);
+                                if (updatedText != null && etPostContent != null) {
+                                    etPostContent.setText(updatedText);
+                                    etPostContent.setSelection(updatedText.length());
+                                }
+                            }
+                        });
 
         // Photo Picker launcher
-        photoPickerLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                        selectedImageUri = result.getData().getData();
-                        if (selectedImageUri != null && ivMediaPreview != null) {
-                            ivMediaPreview.setImageURI(selectedImageUri);
-                            ivMediaPreview.setVisibility(View.VISIBLE);
-                        }
-                    }
-                }
-        );
+        photoPickerLauncher =
+                registerForActivityResult(
+                        new ActivityResultContracts.StartActivityForResult(),
+                        result -> {
+                            if (result.getResultCode() == Activity.RESULT_OK
+                                    && result.getData() != null) {
+                                selectedImageUri = result.getData().getData();
+                                if (selectedImageUri != null && ivMediaPreview != null) {
+                                    ivMediaPreview.setImageURI(selectedImageUri);
+                                    ivMediaPreview.setVisibility(View.VISIBLE);
+                                }
+                            }
+                        });
 
         // Image Selection Button
         ImageButton btnAddImage = findViewById(R.id.btn_add_post_image);
@@ -125,16 +143,16 @@ public class CreatePostActivity extends AppCompatActivity {
 
         View chipLocation = findViewById(R.id.chip_location);
         if (chipLocation != null) {
-            chipLocation.setOnClickListener(v -> 
-                Toast.makeText(this, "Vị trí selected", Toast.LENGTH_SHORT).show()
-            );
+            chipLocation.setOnClickListener(
+                    v -> Toast.makeText(this, "Vị trí selected", Toast.LENGTH_SHORT).show());
         }
 
         View chipMood = findViewById(R.id.chip_mood);
         if (chipMood != null) {
-            chipMood.setOnClickListener(v -> 
-                Toast.makeText(this, "Cảm xúc/hoạt động selected", Toast.LENGTH_SHORT).show()
-            );
+            chipMood.setOnClickListener(
+                    v ->
+                            Toast.makeText(this, "Cảm xúc/hoạt động selected", Toast.LENGTH_SHORT)
+                                    .show());
         }
 
         // Publish Button
@@ -152,31 +170,66 @@ public class CreatePostActivity extends AppCompatActivity {
     }
 
     private void openPhotoPicker() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("image/*");
-        photoPickerLauncher.launch(Intent.createChooser(intent, "Chọn hình ảnh"));
+        EditText url = new EditText(this);
+        url.setHint("https://…");
+        url.setText(imageUrl);
+        new AlertDialog.Builder(this)
+                .setTitle("URL ảnh công khai")
+                .setMessage("Dán đường dẫn ảnh công khai để đính kèm vào bài viết.")
+                .setView(url)
+                .setNegativeButton("Hủy", null)
+                .setPositiveButton(
+                        "Dùng ảnh",
+                        (d, w) -> {
+                            String value = url.getText().toString().trim();
+                            Uri parsed = Uri.parse(value);
+                            if (!value.isEmpty()
+                                    && (!("https".equalsIgnoreCase(parsed.getScheme())
+                                                    || "http".equalsIgnoreCase(parsed.getScheme()))
+                                            || parsed.getHost() == null)) {
+                                ApiUi.error(this, "URL ảnh không hợp lệ.");
+                                return;
+                            }
+                            imageUrl = value;
+                            RemoteImage.show(ivMediaPreview, value);
+                            ivMediaPreview.setVisibility(
+                                    value.isEmpty() ? View.GONE : View.VISIBLE);
+                        })
+                .show();
     }
 
     private void showAudienceDialog() {
-        String[] audiences = {"Mọi người (Public)", "Người theo dõi (Followers)", "Chỉ mình tôi (Only me)"};
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Chọn đối tượng xem");
-        builder.setItems(audiences, (dialog, which) -> 
-            Toast.makeText(this, "Đối tượng: " + audiences[which], Toast.LENGTH_SHORT).show()
-        );
-        builder.show();
+        ApiUi.error(this, "Bài viết được đăng công khai trên cộng đồng.");
     }
 
     private void attemptPublish() {
-        String content = etPostContent != null ? etPostContent.getText().toString().trim() : "";
-
-        if (TextUtils.isEmpty(content) && selectedImageUri == null) {
-            Toast.makeText(this, "Vui lòng nhập nội dung hoặc chọn hình ảnh để đăng bài", Toast.LENGTH_SHORT).show();
+        if (!ApiUi.requireLogin(this)) return;
+        String content = etPostContent.getText().toString().trim(),
+                title = titleInput.getText().toString().trim();
+        if (title.isEmpty() || title.length() > 255) {
+            titleInput.setError("Tiêu đề cần từ 1–255 ký tự.");
             return;
         }
-
-        Toast.makeText(this, "Đã đăng bài viết thành công!", Toast.LENGTH_SHORT).show();
-        finish();
+        if (content.isEmpty() || content.length() > 20000) {
+            etPostContent.setError("Nội dung cần từ 1–20000 ký tự.");
+            return;
+        }
+        java.util.Map<String, Object> body = new java.util.HashMap<>();
+        body.put("title", title);
+        body.put("content", content);
+        if (!imageUrl.isEmpty()) body.put("image_url", imageUrl);
+        findViewById(R.id.btn_publish_post).setEnabled(false);
+        ApiUi.request(
+                this,
+                ApiClient.getApiService().createPost(ApiUi.bearer(this), body),
+                result -> {
+                    ApiUi.error(this, "Đã đăng bài viết trên máy chủ.");
+                    finish();
+                },
+                message -> {
+                    findViewById(R.id.btn_publish_post).setEnabled(true);
+                    ApiUi.error(this, message);
+                });
     }
 
     private void handleBackNavigation() {
@@ -192,5 +245,11 @@ public class CreatePostActivity extends AppCompatActivity {
         } else {
             finish();
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle state) {
+        state.putString("draft_image_url", imageUrl);
+        super.onSaveInstanceState(state);
     }
 }

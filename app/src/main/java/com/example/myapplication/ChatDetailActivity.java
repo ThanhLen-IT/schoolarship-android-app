@@ -1,147 +1,185 @@
 package com.example.myapplication;
 
-import android.os.Bundle;
-import android.text.TextUtils;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.os.*;
+import android.widget.*;
 
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import java.util.*;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-
-public class ChatDetailActivity extends AppCompatActivity {
-
-    public static final String EXTRA_CHAT_NAME = "extra_chat_name";
-    public static final String EXTRA_CHAT_AVATAR = "extra_chat_avatar";
-
-    private List<ChatMessageItem> messageList;
-    private ChatMessageAdapter adapter;
-    private RecyclerView recyclerView;
-    private EditText etMessage;
+public class ChatDetailActivity extends androidx.appcompat.app.AppCompatActivity {
+    public static final String EXTRA_CHAT_NAME = "extra_chat_name",
+            EXTRA_CHAT_AVATAR = "extra_chat_avatar";
+    private MobileScreen ui;
+    private String cid, self, latest, oldest, pendingKey;
+    private boolean loading, older = true, sending, active;
+    private EditText input;
+    private Button send;
+    private final List<MobileData.Message> items = new ArrayList<>();
+    private final Handler poll = new Handler(Looper.getMainLooper());
+    private retrofit2.Call<?> activeCall;
+    private final Runnable refresh = () -> load(false);
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_chat_detail);
-
-        View rootView = findViewById(R.id.main);
-        if (rootView != null) {
-            ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
-                Insets systemBars = insets.getInsets(
-                        WindowInsetsCompat.Type.systemBars()
-                );
-
-                v.setPadding(
-                        systemBars.left,
-                        systemBars.top,
-                        systemBars.right,
-                        systemBars.bottom
-                );
-
-                return insets;
-            });
+    protected void onCreate(Bundle b) {
+        super.onCreate(b);
+        cid = getIntent().getStringExtra("conversation_id");
+        ui =
+                new MobileScreen(
+                        this,
+                        getIntent().getStringExtra("peer_name") == null
+                                ? "Trò chuyện"
+                                : getIntent().getStringExtra("peer_name"));
+        if (cid == null) {
+            finish();
+            return;
         }
-
-        // Back Button
-        ImageButton btnBack = findViewById(R.id.btn_back);
-        if (btnBack != null) {
-            btnBack.setOnClickListener(v -> finish());
+        input = new EditText(this);
+        input.setHint("Nhập tin nhắn…");
+        input.setFilters(
+                new android.text.InputFilter[] {new android.text.InputFilter.LengthFilter(4000)});
+        ui.footer.addView(input);
+        send = ui.button(ui.footer, "Gửi", () -> send());
+        if (b != null) {
+            pendingKey = b.getString("pending_key");
+            input.setText(b.getString("draft", ""));
+            if (pendingKey != null) input.setEnabled(false);
         }
-
-        // Partner Details
-        String chatName = getIntent().getStringExtra(EXTRA_CHAT_NAME);
-        int avatarResId = getIntent().getIntExtra(EXTRA_CHAT_AVATAR, R.drawable.avata_nu);
-
-        TextView tvName = findViewById(R.id.tv_chat_name);
-        ImageView ivAvatar = findViewById(R.id.iv_chat_avatar);
-
-        if (tvName != null && !TextUtils.isEmpty(chatName)) {
-            tvName.setText(chatName);
-        }
-        if (ivAvatar != null && avatarResId != 0) {
-            ivAvatar.setImageResource(avatarResId);
-        }
-
-        // Load Conversation Data
-        loadSampleConversation(avatarResId);
-
-        recyclerView = findViewById(R.id.message_list);
-        if (recyclerView != null) {
-            LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-            layoutManager.setStackFromEnd(true);
-            recyclerView.setLayoutManager(layoutManager);
-            adapter = new ChatMessageAdapter(messageList);
-            recyclerView.setAdapter(adapter);
-        }
-
-        // Send Button
-        etMessage = findViewById(R.id.et_message);
-        ImageButton btnSend = findViewById(R.id.btn_send);
-        if (btnSend != null) {
-            btnSend.setOnClickListener(v -> sendMessage());
-        }
+        ApiUi.request(
+                this,
+                ApiClient.getApiService().getCurrentUser(ApiUi.bearer(this)),
+                r -> {
+                    if (r.getData() != null) {
+                        self = r.getData().getId();
+                        render(false);
+                    }
+                },
+                m -> ApiUi.error(this, m));
     }
 
-    private void loadSampleConversation(int avatarResId) {
-        messageList = new ArrayList<>();
-
-        messageList.add(new ChatMessageItem("1", ChatMessageItem.TYPE_INCOMING, "Japan looks amazing!", "10:58 AM", avatarResId));
-        messageList.add(new ChatMessageItem("2", ChatMessageItem.TYPE_OUTGOING, "Do you know what time is it?", "10:59 AM", 0));
-        messageList.add(new ChatMessageItem("3", ChatMessageItem.TYPE_INCOMING, "Good morning!", "11:00 AM", avatarResId));
-        messageList.add(new ChatMessageItem("4", ChatMessageItem.TYPE_OUTGOING, "It's morning in Tokyo", "11:01 AM", 0));
-        messageList.add(new ChatMessageItem("5", ChatMessageItem.TYPE_INCOMING, "What is the most popular meal in Japan?", "11:02 AM", avatarResId));
-        messageList.add(new ChatMessageItem("6", ChatMessageItem.TYPE_INCOMING, "Do you like it?", "11:03 AM", avatarResId));
-        messageList.add(new ChatMessageItem("7", ChatMessageItem.TYPE_OUTGOING, "I think top two are:", "11:04 AM", 0));
-
-        // Image Attachments
-        messageList.add(new ChatMessageItem("8", ChatMessageItem.TYPE_ATTACHMENT, "IMG_0475.PNG", "2.4 MB", "11:05 AM", 0));
-        messageList.add(new ChatMessageItem("9", ChatMessageItem.TYPE_ATTACHMENT, "IMG_0481.PNG", "2.8 MB", "11:05 AM", 0));
-        messageList.add(new ChatMessageItem("10", ChatMessageItem.TYPE_ATTACHMENT, "IMG_0483.PNG", "2.8 MB", "11:05 AM", 0));
-        messageList.add(new ChatMessageItem("11", ChatMessageItem.TYPE_ATTACHMENT, "IMG_0484.PNG", "2.6 MB", "11:05 AM", 0));
+    @Override
+    protected void onStart() {
+        super.onStart();
+        active = true;
+        if (ApiUi.requireLogin(this)) load(false);
     }
 
-    private void sendMessage() {
-        if (etMessage == null) return;
+    private void load(boolean before) {
+        if (loading || !active) return;
+        loading = true;
+        if (items.isEmpty()) ui.loading();
+        String cursor = before ? oldest : null;
+        activeCall =
+                ApiUi.request(
+                        this,
+                        ApiClient.getApiService()
+                                .messages(
+                                        ApiUi.bearer(this),
+                                        cid,
+                                        cursor,
+                                        before ? null : latest,
+                                        50),
+                        r -> {
+                            loading = false;
+                            List<MobileData.Message> data =
+                                    r.getData() == null ? Collections.emptyList() : r.getData();
+                            boolean initial = items.isEmpty();
+                            Set<String> ids = new HashSet<>();
+                            for (MobileData.Message m : items) ids.add(m.id);
+                            List<MobileData.Message> fresh = new ArrayList<>();
+                            for (MobileData.Message m : data) if (ids.add(m.id)) fresh.add(m);
+                            if (before) items.addAll(0, fresh);
+                            else items.addAll(fresh);
+                            if (before || initial) older = r.hasMore();
+                            if (!items.isEmpty()) {
+                                oldest = items.get(0).id;
+                                latest = items.get(items.size() - 1).id;
+                                ApiUi.request(
+                                        this,
+                                        ApiClient.getApiService()
+                                                .readConversation(
+                                                        ApiUi.bearer(this),
+                                                        cid,
+                                                        MobileForms.body("through_id", latest)),
+                                        x -> {},
+                                        m -> {});
+                            }
+                            for (MobileData.Message message : items) {
+                                if (!sending
+                                        && pendingKey != null
+                                        && pendingKey.equals(message.client_message_id)) {
+                                    pendingKey = null;
+                                    input.setText("");
+                                    input.setEnabled(true);
+                                    break;
+                                }
+                            }
+                            render(!before && !fresh.isEmpty());
+                            poll.removeCallbacks(refresh);
+                            if (active)
+                                poll.postDelayed(
+                                        refresh, !before && !initial && r.hasMore() ? 0 : 5000);
+                        },
+                        m -> {
+                            loading = false;
+                            ui.failed(m, () -> load(false));
+                            poll.removeCallbacks(refresh);
+                            if (active) poll.postDelayed(refresh, 10000);
+                        });
+    }
 
-        String text = etMessage.getText().toString().trim();
-        if (TextUtils.isEmpty(text)) return;
-
-        SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a", Locale.US);
-        String timeStr = timeFormat.format(new Date());
-
-        messageList.add(new ChatMessageItem(
-                String.valueOf(System.currentTimeMillis()),
-                ChatMessageItem.TYPE_OUTGOING,
-                text,
-                timeStr,
-                0
-        ));
-
-        if (adapter != null) {
-            adapter.notifyItemInserted(messageList.size() - 1);
+    private void render(boolean bottom) {
+        ui.rows.removeAllViews();
+        if (older && !items.isEmpty()) ui.button(ui.rows, "Tin nhắn cũ hơn", () -> load(true));
+        for (MobileData.Message m : items) {
+            LinearLayout row = ui.card();
+            ui.text(row, Objects.equals(self, m.sender_id) ? "Bạn" : "Người đối thoại", 12);
+            ui.text(row, m.message, 16);
+            ui.text(row, m.created_at, 11);
         }
+        ui.ready(items.isEmpty());
+        if (bottom) ui.scroll.post(() -> ui.scroll.fullScroll(android.view.View.FOCUS_DOWN));
+    }
 
-        if (recyclerView != null) {
-            recyclerView.smoothScrollToPosition(messageList.size() - 1);
-        }
+    private void send() {
+        String value = input.getText().toString().trim();
+        if (value.isEmpty() || sending) return;
+        if (pendingKey == null) pendingKey = UUID.randomUUID().toString();
+        Map<String, String> body = MobileForms.body("message", value);
+        body.put("client_message_id", pendingKey);
+        sending = true;
+        send.setEnabled(false);
+        input.setEnabled(false);
+        ApiUi.request(
+                this,
+                ApiClient.getApiService().sendMessage(ApiUi.bearer(this), cid, body),
+                r -> {
+                    sending = false;
+                    send.setEnabled(true);
+                    input.setEnabled(true);
+                    input.setText("");
+                    pendingKey = null;
+                    load(false);
+                },
+                m -> {
+                    sending = false;
+                    send.setEnabled(true);
+                    input.setEnabled(false);
+                    ui.failed(m, () -> send());
+                });
+    }
 
-        etMessage.setText("");
-        Toast.makeText(this, "Tin nhắn đã được gửi cục bộ", Toast.LENGTH_SHORT).show();
+    @Override
+    protected void onStop() {
+        active = false;
+        poll.removeCallbacksAndMessages(null);
+        if (activeCall != null) activeCall.cancel();
+        loading = false;
+        super.onStop();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle b) {
+        b.putString("draft", input.getText().toString());
+        b.putString("pending_key", pendingKey);
+        super.onSaveInstanceState(b);
     }
 }

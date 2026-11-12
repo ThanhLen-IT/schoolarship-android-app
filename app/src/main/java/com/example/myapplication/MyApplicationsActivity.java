@@ -1,245 +1,201 @@
 package com.example.myapplication;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextUtils;
-import android.text.TextWatcher;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import java.util.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class MyApplicationsActivity extends AppCompatActivity {
-
-    private List<MyApplicationItem> allApplications;
-    private List<MyApplicationItem> filteredApplications;
-    private MyApplicationAdapter adapter;
-
-    private String currentSearchQuery = "";
-    private String currentStatusFilter = "All";
-
-    private TextView filterAll, filterPending, filterAccepted, filterRejected;
+public class MyApplicationsActivity extends androidx.appcompat.app.AppCompatActivity {
+    private MobileScreen ui;
+    private boolean loading;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_my_applications);
-
-        View rootView = findViewById(R.id.main);
-        if (rootView != null) {
-            ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
-                Insets systemBars = insets.getInsets(
-                        WindowInsetsCompat.Type.systemBars()
-                );
-
-                v.setPadding(
-                        systemBars.left,
-                        systemBars.top,
-                        systemBars.right,
-                        systemBars.bottom
-                );
-
-                return insets;
-            });
-        }
-
-        // Back button
-        ImageButton btnBack = findViewById(R.id.btn_back_my_applications);
-        if (btnBack != null) {
-            btnBack.setOnClickListener(v -> finish());
-        }
-
-        // Search Input
-        EditText etSearch = findViewById(R.id.et_app_search);
-
-        // Filter Tabs
-        filterAll = findViewById(R.id.filter_all);
-        filterPending = findViewById(R.id.filter_pending);
-        filterAccepted = findViewById(R.id.filter_accepted);
-        filterRejected = findViewById(R.id.filter_rejected);
-
-        if (filterAll != null) filterAll.setOnClickListener(v -> selectFilter("All", filterAll));
-        if (filterPending != null) filterPending.setOnClickListener(v -> selectFilter("Đang chờ phản hồi", filterPending));
-        if (filterAccepted != null) filterAccepted.setOnClickListener(v -> selectFilter("Đã được nhận", filterAccepted));
-        if (filterRejected != null) filterRejected.setOnClickListener(v -> selectFilter("Chưa phù hợp", filterRejected));
-
-        // Load Applications
-        loadApplications();
-
-        filteredApplications = new ArrayList<>(allApplications);
-        RecyclerView recyclerView = findViewById(R.id.recycler_my_applications);
-        if (recyclerView != null) {
-            recyclerView.setLayoutManager(new LinearLayoutManager(this));
-            adapter = new MyApplicationAdapter(filteredApplications);
-            recyclerView.setAdapter(adapter);
-        }
-
-        // Search TextWatcher
-        if (etSearch != null) {
-            etSearch.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    currentSearchQuery = s.toString().trim();
-                    applySearchAndFilter();
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {}
-            });
-        }
-
-        // Setup Bottom Navigation
-        setupBottomNavigation();
+    protected void onCreate(Bundle b) {
+        super.onCreate(b);
+        ui = new MobileScreen(this, "Hồ sơ mentoring");
+        ui.button(ui.footer, "Làm mới", () -> load());
     }
 
-    private void loadApplications() {
-        allApplications = new ArrayList<>();
-        allApplications.add(new MyApplicationItem(
-                "1",
-                "Nguyễn Minh Anh",
-                "Embedded Systems & IoT",
-                "10/10/2026",
-                "Đang chờ phản hồi",
-                "Tiêu biểu lĩnh vực phát triển dự án AIoT",
-                R.drawable.avata_nam
-        ));
-        allApplications.add(new MyApplicationItem(
-                "2",
-                "Trần Hoàng Nam",
-                "AIoT & Smart Agriculture",
-                "06/10/2026",
-                "Đã được nhận",
-                "Định hướng ứng dụng AIoT trong nông nghiệp thông minh",
-                R.drawable.avata_nu
-        ));
-        allApplications.add(new MyApplicationItem(
-                "3",
-                "Lê Thu Hà",
-                "Product Management & Technology",
-                "02/10/2026",
-                "Chưa phù hợp",
-                "Phát triển kỹ năng quản lý dự án công nghệ",
-                R.drawable.avata_nam
-        ));
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (ApiUi.requireLogin(this)) load();
     }
 
-    private void selectFilter(String status, TextView selectedTab) {
-        currentStatusFilter = status;
-
-        // Reset all tabs background and text color
-        resetTabStyle(filterAll);
-        resetTabStyle(filterPending);
-        resetTabStyle(filterAccepted);
-        resetTabStyle(filterRejected);
-
-        // Highlight selected tab
-        if (selectedTab != null) {
-            selectedTab.setBackgroundResource(R.drawable.bg_welcome_button_primary);
-            selectedTab.setTextColor(ContextCompat.getColor(this, android.R.color.white));
-        }
-
-        applySearchAndFilter();
+    private void load() {
+        if (loading) return;
+        loading = true;
+        ui.loading();
+        ApiUi.request(
+                this,
+                ApiClient.getApiService().myApplications(ApiUi.bearer(this)),
+                r -> {
+                    loading = false;
+                    ui.rows.removeAllViews();
+                    List<ApplicationData> rows =
+                            r.getData() == null ? Collections.emptyList() : r.getData();
+                    for (ApplicationData a : rows) render(a);
+                    ui.ready(rows.isEmpty());
+                },
+                m -> {
+                    loading = false;
+                    ui.failed(m, () -> load());
+                });
     }
 
-    private void resetTabStyle(TextView tab) {
-        if (tab != null) {
-            tab.setBackgroundResource(R.drawable.bg_input_field);
-            tab.setTextColor(ContextCompat.getColor(this, R.color.color_text_primary));
+    private void render(ApplicationData a) {
+        LinearLayout row = ui.card();
+        boolean mentor = "mentor".equals(a.viewer_role);
+        ui.text(row, a.scholarship_title, 20);
+        ui.text(
+                row,
+                (mentor ? "Mentee: " + a.mentee_name : "Mentor: " + a.mentor_name)
+                        + " · "
+                        + a.label(),
+                16);
+        ui.text(row, a.introduction, 14);
+        ui.button(row, "Xem CV", () -> MobileFiles.openCv(this, a.id));
+        ui.button(
+                row,
+                "Trò chuyện",
+                () -> MobileForms.chat(this, mentor ? a.mentee_id : a.mentor_id));
+        if (mentor && "pending".equals(a.status)) {
+            ui.button(row, "Chấp nhận", () -> progress(a, "accept"));
+            ui.button(row, "Từ chối", () -> progress(a, "reject"));
         }
+        if (mentor && "accepted".equals(a.status))
+            ui.button(row, "Bắt đầu mentoring", () -> progress(a, "start"));
+        if (!mentor && "in_progress".equals(a.status)) {
+            ui.button(row, "Xác nhận hoàn thành", () -> progress(a, "complete"));
+            ui.button(
+                    row,
+                    "Gửi yêu cầu hỗ trợ",
+                    () ->
+                            MobileForms.input(
+                                    this,
+                                    "Yêu cầu hỗ trợ",
+                                    "Nội dung cần Mentor phản hồi",
+                                    false,
+                                    value ->
+                                            ApiUi.request(
+                                                    this,
+                                                    ApiClient.getApiService()
+                                                            .responseRequest(
+                                                                    ApiUi.bearer(this),
+                                                                    a.id,
+                                                                    MobileForms.body(
+                                                                            "request_note", value)),
+                                                    r -> requests(a),
+                                                    m -> ApiUi.error(this, m))));
+        }
+        if ("in_progress".equals(a.status) || "completed".equals(a.status))
+            ui.button(row, "Các yêu cầu hỗ trợ", () -> requests(a));
+        if (!mentor && "completed".equals(a.status))
+            ui.button(
+                    row,
+                    "Đánh giá Mentor",
+                    () ->
+                            new androidx.appcompat.app.AlertDialog.Builder(this)
+                                    .setTitle("Chọn số sao")
+                                    .setItems(
+                                            new String[] {
+                                                "1 sao", "2 sao", "3 sao", "4 sao", "5 sao"
+                                            },
+                                            (d, n) -> {
+                                                Map<String, Object> body = new HashMap<>();
+                                                body.put("application_id", a.id);
+                                                body.put("rating", n + 1);
+                                                ApiUi.request(
+                                                        this,
+                                                        ApiClient.getApiService()
+                                                                .review(
+                                                                        ApiUi.bearer(this),
+                                                                        a.mentor_id,
+                                                                        body),
+                                                        r -> ApiUi.error(this, "Đã gửi đánh giá."),
+                                                        m -> ApiUi.error(this, m));
+                                            })
+                                    .show());
     }
 
-    private void applySearchAndFilter() {
-        filteredApplications.clear();
-
-        for (MyApplicationItem item : allApplications) {
-            // Search query filter
-            if (!TextUtils.isEmpty(currentSearchQuery)) {
-                boolean matchesName = item.getMentorName().toLowerCase().contains(currentSearchQuery.toLowerCase());
-                boolean matchesOrg = item.getOrganization().toLowerCase().contains(currentSearchQuery.toLowerCase());
-                boolean matchesObj = item.getObjective().toLowerCase().contains(currentSearchQuery.toLowerCase());
-                if (!matchesName && !matchesOrg && !matchesObj) {
-                    continue;
-                }
-            }
-
-            // Status filter
-            if (!"All".equalsIgnoreCase(currentStatusFilter) && !item.getStatus().equalsIgnoreCase(currentStatusFilter)) {
-                continue;
-            }
-
-            filteredApplications.add(item);
-        }
-
-        if (adapter != null) {
-            adapter.notifyDataSetChanged();
-        }
+    private void progress(ApplicationData a, String action) {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setMessage("Xác nhận thay đổi trạng thái hồ sơ?")
+                .setNegativeButton("Hủy", null)
+                .setPositiveButton(
+                        "Xác nhận",
+                        (d, w) ->
+                                ApiUi.request(
+                                        this,
+                                        ApiClient.getApiService()
+                                                .progress(
+                                                        ApiUi.bearer(this),
+                                                        a.id,
+                                                        MobileForms.body("action", action)),
+                                        r -> load(),
+                                        m -> ApiUi.error(this, m)))
+                .show();
     }
 
-    private void setupBottomNavigation() {
-        View navHome = findViewById(R.id.nav_home);
-        View navRanking = findViewById(R.id.nav_mentor_ranking);
-        View navCommunity = findViewById(R.id.nav_community);
-        View navMessages = findViewById(R.id.nav_messages);
-        View navProfile = findViewById(R.id.nav_profile);
-
-        if (navHome != null) {
-            navHome.setOnClickListener(v -> {
-                Intent intent = new Intent(MyApplicationsActivity.this, HomeActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(intent);
-                finish();
-            });
-        }
-
-        if (navRanking != null) {
-            navRanking.setOnClickListener(v -> {
-                Intent intent = new Intent(MyApplicationsActivity.this, MentorRankingActivity.class);
-                startActivity(intent);
-                finish();
-            });
-        }
-
-        if (navCommunity != null) {
-            navCommunity.setOnClickListener(v -> {
-                Intent intent = new Intent(MyApplicationsActivity.this, CommunityActivity.class);
-                startActivity(intent);
-                finish();
-            });
-        }
-
-        if (navMessages != null) {
-            navMessages.setOnClickListener(v -> {
-                Intent intent = new Intent(MyApplicationsActivity.this, MessagesActivity.class);
-                startActivity(intent);
-                finish();
-            });
-        }
-
-        if (navProfile != null) {
-            navProfile.setOnClickListener(v -> {
-                Intent intent = new Intent(MyApplicationsActivity.this, ProfileActivity.class);
-                startActivity(intent);
-                finish();
-            });
-        }
+    private void requests(ApplicationData a) {
+        ApiUi.request(
+                this,
+                ApiClient.getApiService().responseRequests(ApiUi.bearer(this), a.id),
+                r -> {
+                    List<MobileData.Request> list =
+                            r.getData() == null ? Collections.emptyList() : r.getData();
+                    if (list.isEmpty()) {
+                        ApiUi.error(this, "Chưa có yêu cầu hỗ trợ.");
+                        return;
+                    }
+                    String[] labels = new String[list.size()];
+                    for (int i = 0; i < labels.length; i++)
+                        labels[i] =
+                                list.get(i).request_note
+                                        + (list.get(i).responded_at == null
+                                                ? " · Chưa phản hồi"
+                                                : " · Đã phản hồi");
+                    new androidx.appcompat.app.AlertDialog.Builder(this)
+                            .setTitle("Yêu cầu hỗ trợ")
+                            .setItems(
+                                    labels,
+                                    (d, n) -> {
+                                        MobileData.Request q = list.get(n);
+                                        if ("mentor".equals(a.viewer_role)
+                                                && q.responded_at == null)
+                                            MobileForms.input(
+                                                    this,
+                                                    "Phản hồi",
+                                                    q.request_note,
+                                                    false,
+                                                    value ->
+                                                            ApiUi.request(
+                                                                    this,
+                                                                    ApiClient.getApiService()
+                                                                            .respond(
+                                                                                    ApiUi.bearer(
+                                                                                            this),
+                                                                                    q.id,
+                                                                                    MobileForms
+                                                                                            .body(
+                                                                                                    "response_note",
+                                                                                                    value)),
+                                                                    x -> requests(a),
+                                                                    m -> ApiUi.error(this, m)));
+                                        else
+                                            new androidx.appcompat.app.AlertDialog.Builder(this)
+                                                    .setMessage(
+                                                            q.request_note
+                                                                    + "\n\n"
+                                                                    + (q.response_note == null
+                                                                            ? "Đang chờ Mentor phản"
+                                                                                    + " hồi."
+                                                                            : q.response_note))
+                                                    .setPositiveButton("Đóng", null)
+                                                    .show();
+                                    })
+                            .show();
+                },
+                m -> ApiUi.error(this, m));
     }
 }

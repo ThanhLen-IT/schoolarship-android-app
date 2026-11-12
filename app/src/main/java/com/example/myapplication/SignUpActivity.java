@@ -3,7 +3,6 @@ package com.example.myapplication;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -22,10 +21,6 @@ import com.google.android.material.textfield.TextInputEditText;
 import java.util.Calendar;
 import java.util.Locale;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
 public class SignUpActivity extends AppCompatActivity {
 
     @Override
@@ -37,20 +32,19 @@ public class SignUpActivity extends AppCompatActivity {
 
         View rootView = findViewById(R.id.main);
         if (rootView != null) {
-            ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
-                Insets systemBars = insets.getInsets(
-                        WindowInsetsCompat.Type.systemBars()
-                );
+            ViewCompat.setOnApplyWindowInsetsListener(
+                    rootView,
+                    (v, insets) -> {
+                        Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
 
-                v.setPadding(
-                        systemBars.left,
-                        systemBars.top,
-                        systemBars.right,
-                        systemBars.bottom
-                );
+                        v.setPadding(
+                                systemBars.left,
+                                systemBars.top,
+                                systemBars.right,
+                                systemBars.bottom);
 
-                return insets;
-            });
+                        return insets;
+                    });
         }
 
         TextView tvSubtitle = findViewById(R.id.tv_sign_up_subtitle);
@@ -67,23 +61,32 @@ public class SignUpActivity extends AppCompatActivity {
         // Birth Date Picker Dialog
         TextInputEditText etBirthDate = findViewById(R.id.et_birth_date);
         if (etBirthDate != null) {
-            etBirthDate.setOnClickListener(v -> {
-                Calendar calendar = Calendar.getInstance();
-                int year = calendar.get(Calendar.YEAR);
-                int month = calendar.get(Calendar.MONTH);
-                int day = calendar.get(Calendar.DAY_OF_MONTH);
+            etBirthDate.setOnClickListener(
+                    v -> {
+                        Calendar calendar = Calendar.getInstance();
+                        int year = calendar.get(Calendar.YEAR);
+                        int month = calendar.get(Calendar.MONTH);
+                        int day = calendar.get(Calendar.DAY_OF_MONTH);
 
-                DatePickerDialog datePickerDialog = new DatePickerDialog(
-                        this,
-                        (view, selectedYear, selectedMonth, selectedDay) -> {
-                            String formattedDate = String.format(Locale.getDefault(), "%02d/%02d/%d", selectedDay, (selectedMonth + 1), selectedYear);
-                            etBirthDate.setText(formattedDate);
-                        },
-                        year, month, day
-                );
-                datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
-                datePickerDialog.show();
-            });
+                        DatePickerDialog datePickerDialog =
+                                new DatePickerDialog(
+                                        this,
+                                        (view, selectedYear, selectedMonth, selectedDay) -> {
+                                            String formattedDate =
+                                                    String.format(
+                                                            Locale.getDefault(),
+                                                            "%02d/%02d/%d",
+                                                            selectedDay,
+                                                            (selectedMonth + 1),
+                                                            selectedYear);
+                                            etBirthDate.setText(formattedDate);
+                                        },
+                                        year,
+                                        month,
+                                        day);
+                        datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
+                        datePickerDialog.show();
+                    });
         }
 
         // Register button -> API Integration
@@ -108,62 +111,52 @@ public class SignUpActivity extends AppCompatActivity {
 
         if (!FormValidation.required(etFullName)
                 || !FormValidation.email(etEmail)
-                || !FormValidation.required(etBirthDate)
-                || !FormValidation.phone(etPhone)
                 || !FormValidation.password(etPassword)) {
             return;
         }
 
         String fullName = etFullName.getText().toString().trim();
         String email = etEmail.getText().toString().trim();
-        String password = etPassword.getText().toString().trim();
+        String password = etPassword.getText().toString();
 
         // Generate username from email prefix
         String username = email.contains("@") ? email.split("@")[0] : email;
 
-        String university = "UIT";
-        String major = "Công nghệ thông tin";
+        String university = "";
+        String major = "";
 
         Toast.makeText(this, "Đang kết nối API đăng ký...", Toast.LENGTH_SHORT).show();
 
-        RegisterRequest registerRequest = new RegisterRequest(
-                email, password, fullName, username, university, major
-        );
+        RegisterRequest registerRequest =
+                new RegisterRequest(email, password, fullName, null, university, major);
 
-        ApiClient.getApiService().register(registerRequest).enqueue(new Callback<ApiResponse<AuthData>>() {
-            @Override
-            public void onResponse(Call<ApiResponse<AuthData>> call, Response<ApiResponse<AuthData>> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
-                    AuthData data = response.body().getData();
-
-                    if (data != null) {
-                        TokenManager tokenManager = new TokenManager(SignUpActivity.this);
-                        if (data.getToken() != null) {
-                            tokenManager.saveToken(data.getToken());
-                        }
-                        if (data.getUser() != null) {
-                            tokenManager.saveUser(data.getUser().getEmail(), data.getUser().getFullName());
-                        }
+        android.view.View submit = findViewById(R.id.btn_register);
+        submit.setEnabled(false);
+        ApiUi.request(
+                this,
+                ApiClient.getApiService().register(registerRequest),
+                result -> {
+                    submit.setEnabled(true);
+                    AuthData data = result.getData();
+                    if (data == null
+                            || data.getToken() == null
+                            || data.getToken().isEmpty()
+                            || data.getUser() == null) {
+                        ApiUi.error(this, "Phản hồi đăng nhập không hợp lệ.");
+                        return;
                     }
-
-                    Toast.makeText(SignUpActivity.this, "Đăng ký tài khoản thành công!", Toast.LENGTH_SHORT).show();
-
-                    Intent intent = new Intent(SignUpActivity.this, RegistrationSuccessActivity.class);
-                    startActivity(intent);
+                    TokenManager manager = new TokenManager(this);
+                    manager.saveToken(data.getToken());
+                    manager.saveUser(data.getUser().getEmail(), data.getUser().getFullName());
+                    ProfileStore.save(this, data.getUser());
+                    startActivity(
+                            new Intent(this, RegistrationSuccessActivity.class)
+                                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                     finish();
-                } else {
-                    String errorMsg = "Đăng ký không thành công. Kiểm tra lại thông tin!";
-                    if (response.body() != null && !TextUtils.isEmpty(response.body().getMessage())) {
-                        errorMsg = response.body().getMessage();
-                    }
-                    Toast.makeText(SignUpActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ApiResponse<AuthData>> call, Throwable t) {
-                Toast.makeText(SignUpActivity.this, "Lỗi kết nối máy chủ: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+                },
+                message -> {
+                    submit.setEnabled(true);
+                    ApiUi.error(this, message);
+                });
     }
 }

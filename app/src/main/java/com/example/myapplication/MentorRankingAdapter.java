@@ -13,6 +13,14 @@ import java.util.List;
 public class MentorRankingAdapter extends RecyclerView.Adapter<MentorRankingAdapter.ViewHolder> {
 
     private final List<MentorRankingItem> items;
+    private java.util.function.Consumer<MentorRankingItem> selected;
+
+    public MentorRankingAdapter(
+            List<MentorRankingItem> items,
+            java.util.function.Consumer<MentorRankingItem> selected) {
+        this(items);
+        this.selected = selected;
+    }
 
     public MentorRankingAdapter(List<MentorRankingItem> items) {
         this.items = items;
@@ -21,15 +29,21 @@ public class MentorRankingAdapter extends RecyclerView.Adapter<MentorRankingAdap
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_mentor_ranking_row, parent, false);
+        View view =
+                LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.item_mentor_ranking_row, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         MentorRankingItem item = items.get(position);
+        holder.itemView.setOnClickListener(
+                v -> {
+                    if (selected != null) selected.accept(item);
+                });
 
-        holder.tvRank.setText(String.valueOf(item.getRank()));
+        holder.tvRank.setText(item.getRank() == 0 ? "—" : String.valueOf(item.getRank()));
         holder.tvMentorName.setText(item.getMentorName());
         holder.tvTotal.setText(item.getTotal());
         holder.tvSuccessRate.setText(item.getSuccessRate());
@@ -44,7 +58,13 @@ public class MentorRankingAdapter extends RecyclerView.Adapter<MentorRankingAdap
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvRank, tvMentorName, tvTotal, tvSuccessRate, tvAvgRating, tvCompletionRate, tvResponseRate;
+        TextView tvRank,
+                tvMentorName,
+                tvTotal,
+                tvSuccessRate,
+                tvAvgRating,
+                tvCompletionRate,
+                tvResponseRate;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
