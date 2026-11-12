@@ -6,6 +6,11 @@ Backend setup and new API contracts are in its `docs/MOBILE_COMPLETION.md`.
 
 Implemented:
 
+- Launcher icons use the supplied Global Success logo. Legacy standard/round
+  assets cover mdpi through xxxhdpi; the adaptive foreground is a 432px lossless
+  WebP in drawable-xxxhdpi (108dp), with artwork inside the central 66dp safe zone
+  and an opaque white background. Adaptive and themed icon layers share the new
+  artwork instead of the Android Studio placeholder.
 - Restore a valid session using `/auth/me` on launch. HTTP 401 or
   `403/ACCOUNT_INACTIVE` clears local profile/session and opens sign-in. Offline
   restoration offers retry without silently discarding the saved token.
