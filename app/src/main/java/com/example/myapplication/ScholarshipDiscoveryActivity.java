@@ -74,6 +74,9 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_scholarship_discovery);
         RecyclerView recyclerView = findViewById(R.id.recycler_scholarship_results);
+        // Inflation asks the parent to generate LayoutParams, which requires
+        // the RecyclerView's LayoutManager to be installed already.
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         headerView = getLayoutInflater().inflate(
                 R.layout.view_scholarship_discovery_header, recyclerView, false);
         footerView = getLayoutInflater().inflate(
@@ -124,7 +127,6 @@ public class ScholarshipDiscoveryActivity extends AppCompatActivity {
 
         filteredScholarships = new ArrayList<>(allScholarships);
         if (recyclerView != null) {
-            recyclerView.setLayoutManager(new LinearLayoutManager(this));
             adapter = new ScholarshipResultAdapter(filteredScholarships);
             // Controls and cards must have the same scroll owner. An outer
             // ScrollView can clip the RecyclerView while consuming its gestures.

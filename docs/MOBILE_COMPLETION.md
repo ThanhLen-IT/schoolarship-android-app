@@ -17,6 +17,8 @@ Implemented:
   sections; the result list is not nested inside a ScrollView. Header/footer
   references remain available while their holders are offscreen, so changing
   filters and receiving API callbacks still update the original controls.
+  Its LayoutManager is assigned before inflating the header/footer against that
+  RecyclerView, because inflation asks the parent to generate LayoutParams.
 - Mentor profile → choose PDF from the device → submit an application. Private CVs
   are downloaded with Bearer auth to app cache and opened via FileProvider. The
   server authorizes access; private storage is not exposed publicly.
@@ -59,6 +61,10 @@ saved session onto a different device. No API credentials or test user tokens ar
 embedded in the app.
 
 Validation includes model/Retrofit contract tests and a successful debug build.
+Robolectric tests also launch discovery with its actual Android resources, open
+it through Home's view-all action and dispatch swipe gestures across six mocked
+results and back to the filters. These are simulated Android view tests, not a
+physical-device/emulator pass.
 Final validation results are recorded with the PR. Real email deep links depend on
 backend sender configuration (`scholarship://reset-password` is supported); no
 production email was sent during development.
@@ -66,7 +72,10 @@ production email was sent during development.
 Final validation:
 
 - `assembleDebug` and `testDebugUnitTest` passed with the default production origin;
-  14 tests passed (13 API contract tests plus the existing example).
+  16 tests passed (13 API contract tests, the existing example and two Robolectric
+  navigation/scrolling regressions on simulated SDK 35). Both new tests reproduced
+  `RecyclerView has no LayoutManager` on the earlier initialization order and pass
+  after installing the LayoutManager before header/footer inflation.
 - An isolated debug APK was also built for local HTTP testing. No local URL is
   embedded in the default/release configuration.
 - Backend tests passed against PostgreSQL 18.6/PGlite through real HTTP, including

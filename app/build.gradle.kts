@@ -10,6 +10,10 @@ android {
 
     buildFeatures { buildConfig = true }
 
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+    }
+
     defaultConfig {
         buildConfigField("String", "API_BASE_URL", "\"https://scholarship-uit.duckdns.org/\"")
         applicationId = "com.example.myapplication"
@@ -48,6 +52,7 @@ dependencies {
     implementation(libs.material)
     testImplementation("com.squareup.okhttp3:mockwebserver:3.14.9")
     testImplementation(libs.junit)
+    testImplementation("org.robolectric:robolectric:4.17")
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.ext.junit)
 }
