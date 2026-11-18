@@ -26,7 +26,9 @@ public class MyApplicationAdapter extends RecyclerView.Adapter<MyApplicationAdap
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_my_application, parent, false);
+        View view =
+                LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.item_my_application, parent, false);
         return new ViewHolder(view);
     }
 
@@ -50,7 +52,7 @@ public class MyApplicationAdapter extends RecyclerView.Adapter<MyApplicationAdap
             badgeBg.setColor(Color.parseColor("#DCFCE7"));
             holder.layoutBadge.setBackground(badgeBg);
             holder.tvStatusLabel.setTextColor(Color.parseColor("#15803D"));
-            holder.btnPrimaryAction.setVisibility(View.VISIBLE);
+            holder.btnPrimaryAction.setVisibility(View.GONE);
             holder.btnPrimaryAction.setText(R.string.action_start_chat);
         } else if ("Đang chờ phản hồi".equalsIgnoreCase(status)) {
             badgeBg.setColor(Color.parseColor("#FEF3C7"));
@@ -65,13 +67,29 @@ public class MyApplicationAdapter extends RecyclerView.Adapter<MyApplicationAdap
             holder.btnPrimaryAction.setVisibility(View.GONE);
         }
 
-        holder.btnPrimaryAction.setOnClickListener(v -> 
-            Toast.makeText(v.getContext(), "Bắt đầu trò chuyện với " + item.getMentorName(), Toast.LENGTH_SHORT).show()
-        );
+        holder.btnPrimaryAction.setOnClickListener(
+                v ->
+                        Toast.makeText(
+                                        v.getContext(),
+                                        "Bắt đầu trò chuyện với " + item.getMentorName(),
+                                        Toast.LENGTH_SHORT)
+                                .show());
 
-        holder.tvViewDetails.setOnClickListener(v -> 
-            Toast.makeText(v.getContext(), "Xem chi tiết đơn của " + item.getMentorName(), Toast.LENGTH_SHORT).show()
-        );
+        holder.tvViewDetails.setOnClickListener(
+                v ->
+                        new androidx.appcompat.app.AlertDialog.Builder(v.getContext())
+                                .setTitle(item.getOrganization())
+                                .setMessage(
+                                        "Mentor: "
+                                                + item.getMentorName()
+                                                + "\nTrạng thái: "
+                                                + item.getStatus()
+                                                + "\n"
+                                                + (item.getObjective() == null
+                                                        ? ""
+                                                        : item.getObjective()))
+                                .setPositiveButton("Đóng", null)
+                                .show());
     }
 
     @Override

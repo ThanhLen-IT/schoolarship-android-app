@@ -1,200 +1,92 @@
 package com.example.myapplication;
 
 import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.Toast;
+import android.os.*;
 
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import java.util.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class NotificationsActivity extends AppCompatActivity {
-
-    private List<NotificationItem> notificationList;
-    private NotificationAdapter adapter;
+public class NotificationsActivity extends androidx.appcompat.app.AppCompatActivity {
+    private MobileScreen ui;
+    private int page, pages;
+    private boolean loading;
+    private final List<MobileData.Notice> items = new ArrayList<>();
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_notifications);
-
-        View rootView = findViewById(R.id.main);
-        if (rootView != null) {
-            ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
-                Insets systemBars = insets.getInsets(
-                        WindowInsetsCompat.Type.systemBars()
-                );
-
-                v.setPadding(
-                        systemBars.left,
-                        systemBars.top,
-                        systemBars.right,
-                        systemBars.bottom
-                );
-
-                return insets;
-            });
-        }
-
-        // Back button
-        ImageButton btnBack = findViewById(R.id.btn_back_notifications);
-        if (btnBack != null) {
-            btnBack.setOnClickListener(v -> finish());
-        }
-
-        // Load Sample Notifications
-        loadNotifications();
-
-        RecyclerView recyclerView = findViewById(R.id.recycler_notifications);
-        if (recyclerView != null) {
-            recyclerView.setLayoutManager(new LinearLayoutManager(this));
-            adapter = new NotificationAdapter(notificationList);
-            recyclerView.setAdapter(adapter);
-        }
-
-        // Mark All as Read
-        Button btnMarkAllRead = findViewById(R.id.btn_mark_all_read);
-        if (btnMarkAllRead != null) {
-            btnMarkAllRead.setOnClickListener(v -> {
-                for (NotificationItem item : notificationList) {
-                    item.setRead(true);
-                }
-                if (adapter != null) {
-                    adapter.notifyDataSetChanged();
-                }
-                Toast.makeText(this, "Đã đánh dấu tất cả là đã đọc", Toast.LENGTH_SHORT).show();
-            });
-        }
-
-        // Setup Bottom Navigation
-        setupBottomNavigation();
+    protected void onCreate(Bundle b) {
+        super.onCreate(b);
+        ui = new MobileScreen(this, "Thông báo");
+        ui.button(ui.footer, "Làm mới", () -> load(1));
+        ui.button(
+                ui.footer,
+                "Đánh dấu tất cả đã đọc",
+                () ->
+                        ApiUi.request(
+                                this,
+                                ApiClient.getApiService().readNotices(ApiUi.bearer(this)),
+                                r -> load(1),
+                                m -> ApiUi.error(this, m)));
     }
 
-    private void loadNotifications() {
-        notificationList = new ArrayList<>();
-
-        // Notification 1 (Unread)
-        notificationList.add(new NotificationItem(
-                "1",
-                "Chúc mừng! Bạn vừa đạt Top #99 Học bổng NUS Singapore.",
-                "5 phút trước",
-                R.drawable.ic_star,
-                false
-        ));
-
-        // Notification 2 (Unread)
-        notificationList.add(new NotificationItem(
-                "2",
-                "Bạn đã giữ Streak 7 ngày liên tiếp và nhận thêm 15 XP.",
-                "2 giờ trước",
-                R.drawable.ic_star,
-                false
-        ));
-
-        // Notification 3 (Unread)
-        notificationList.add(new NotificationItem(
-                "3",
-                "Minh Anh đã thả tim bài viết \"Kinh nghiệm xin LOR\" của bạn.",
-                "18 phút trước",
-                R.drawable.ic_star,
-                false
-        ));
-
-        // Notification 4 (Unread)
-        notificationList.add(new NotificationItem(
-                "4",
-                "Học bổng MEXT Nhật Bản bạn theo dõi sắp hết hạn trong 3 ngày nữa!",
-                "1 giờ trước",
-                R.drawable.ic_calendar,
-                false
-        ));
-
-        // Notification 5 (Read)
-        notificationList.add(new NotificationItem(
-                "5",
-                "Bạn đã lọt Top 100 Mentor tuần này với thứ hạng #42.",
-                "Hôm qua",
-                R.drawable.ic_star,
-                true
-        ));
-
-        // Notification 6 (Read)
-        notificationList.add(new NotificationItem(
-                "6",
-                "Bùi Khánh Linh đã thả tim bài viết \"Lời khuyên chuẩn bị phỏng vấn\" của bạn.",
-                "Hôm qua",
-                R.drawable.ic_star,
-                true
-        ));
-
-        // Notification 7 (Read)
-        notificationList.add(new NotificationItem(
-                "7",
-                "Học bổng Fulbright Việt Nam đã mở nhận hồ sơ cho mùa tuyển sinh mới.",
-                "2 ngày trước",
-                R.drawable.ic_calendar,
-                true
-        ));
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (ApiUi.requireLogin(this)) load(1);
     }
 
-    private void setupBottomNavigation() {
-        View navHome = findViewById(R.id.nav_home);
-        View navRanking = findViewById(R.id.nav_mentor_ranking);
-        View navCommunity = findViewById(R.id.nav_community);
-        View navMessages = findViewById(R.id.nav_messages);
-        View navProfile = findViewById(R.id.nav_profile);
+    private void load(int n) {
+        if (loading) return;
+        loading = true;
+        ui.loading();
+        ApiUi.request(
+                this,
+                ApiClient.getApiService().notifications(ApiUi.bearer(this), n, 20),
+                r -> {
+                    loading = false;
+                    page = n;
+                    pages = r.getTotalPages() == null ? n : r.getTotalPages();
+                    if (n == 1) items.clear();
+                    if (r.getData() != null) items.addAll(r.getData());
+                    render();
+                },
+                m -> {
+                    loading = false;
+                    ui.failed(m, () -> load(n));
+                });
+    }
 
-        if (navHome != null) {
-            navHome.setOnClickListener(v -> {
-                Intent intent = new Intent(NotificationsActivity.this, HomeActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(intent);
-                finish();
-            });
+    private void render() {
+        ui.rows.removeAllViews();
+        for (MobileData.Notice n : items) {
+            android.widget.LinearLayout row = ui.card();
+            ui.text(row, (n.is_read ? "" : "● ") + n.title, 18);
+            ui.text(row, n.content, 14);
+            ui.text(row, n.created_at, 11);
+            ui.button(row, "Xem", () -> open(n));
         }
+        if (page < pages) ui.button(ui.rows, "Tải thêm", () -> load(page + 1));
+        ui.ready(items.isEmpty());
+    }
 
-        if (navRanking != null) {
-            navRanking.setOnClickListener(v -> {
-                Intent intent = new Intent(NotificationsActivity.this, MentorRankingActivity.class);
-                startActivity(intent);
-                finish();
-            });
-        }
-
-        if (navCommunity != null) {
-            navCommunity.setOnClickListener(v -> {
-                Intent intent = new Intent(NotificationsActivity.this, CommunityActivity.class);
-                startActivity(intent);
-                finish();
-            });
-        }
-
-        if (navMessages != null) {
-            navMessages.setOnClickListener(v -> {
-                Intent intent = new Intent(NotificationsActivity.this, MessagesActivity.class);
-                startActivity(intent);
-                finish();
-            });
-        }
-
-        if (navProfile != null) {
-            navProfile.setOnClickListener(v -> {
-                Intent intent = new Intent(NotificationsActivity.this, ProfileActivity.class);
-                startActivity(intent);
-                finish();
-            });
-        }
+    private void open(MobileData.Notice n) {
+        ApiUi.request(
+                this,
+                ApiClient.getApiService().readNotice(ApiUi.bearer(this), n.id),
+                r -> {
+                    n.is_read = true;
+                    render();
+                    if ("chat".equals(n.type))
+                        startActivity(
+                                new Intent(this, ChatDetailActivity.class)
+                                        .putExtra("conversation_id", n.reference_id));
+                    else if ("verification".equals(n.type))
+                        startActivity(
+                                new Intent(this, VerificationStatusActivity.class)
+                                        .putExtra("scholarship_id", n.reference_id));
+                    else if ("support".equals(n.type))
+                        startActivity(new Intent(this, SupportActivity.class));
+                    else if ("mentoring".equals(n.type))
+                        startActivity(new Intent(this, MyApplicationsActivity.class));
+                },
+                m -> ApiUi.error(this, m));
     }
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name">Global Success</string>
     <string name="welcome_headline">Find scholarships.\nMeet the right mentors!</string>
     <string name="account_prompt">If you already have an account</string>
     <string name="log_in">Log in</string>

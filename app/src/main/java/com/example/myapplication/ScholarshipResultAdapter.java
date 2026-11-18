@@ -5,25 +5,34 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-public class ScholarshipResultAdapter extends RecyclerView.Adapter<ScholarshipResultAdapter.ViewHolder> {
+public class ScholarshipResultAdapter
+        extends RecyclerView.Adapter<ScholarshipResultAdapter.ViewHolder> {
 
     private final List<Scholarship> scholarshipList;
+    private java.util.function.Consumer<String> remove;
 
     public ScholarshipResultAdapter(List<Scholarship> scholarshipList) {
         this.scholarshipList = scholarshipList;
     }
 
+    public ScholarshipResultAdapter(
+            List<Scholarship> items, java.util.function.Consumer<String> remove) {
+        this(items);
+        this.remove = remove;
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_scholarship_result_card, parent, false);
+        View view =
+                LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.item_scholarship_result_card, parent, false);
         return new ViewHolder(view);
     }
 
@@ -31,23 +40,50 @@ public class ScholarshipResultAdapter extends RecyclerView.Adapter<ScholarshipRe
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Scholarship scholarship = scholarshipList.get(position);
         holder.tvName.setText(scholarship.getTitle());
-        holder.tvCategory.setText(scholarship.getDegreeLevel() + " · " + scholarship.getFieldOfStudy());
+        holder.tvCategory.setText(
+                scholarship.getDegreeLevel() + " · " + scholarship.getFieldOfStudy());
         holder.tvDeadline.setText("Hạn: " + scholarship.getDeadlineStr());
 
-        holder.btnFollow.setOnClickListener(v -> Toast.makeText(v.getContext(), "Followed " + scholarship.getTitle(), Toast.LENGTH_SHORT).show());
-        holder.tvFindMentor.setOnClickListener(v -> {
-            android.content.Intent intent = new android.content.Intent(v.getContext(), MentorRankingActivity.class);
-            intent.putExtra(MentorRankingActivity.EXTRA_SCHOLARSHIP_ID, scholarship.getId());
-            v.getContext().startActivity(intent);
-        });
+        RemoteImage.show(holder.ivLogo, scholarship.getImageUrl());
+        holder.btnFollow.setText(remove == null ? "Lưu" : "Bỏ lưu");
+        holder.btnFollow.setOnClickListener(
+                v -> {
+                    if (remove != null) {
+                        remove.accept(scholarship.getId());
+                        return;
+                    }
+                    android.content.Context context = v.getContext();
+                    while (context instanceof android.content.ContextWrapper
+                            && !(context instanceof android.app.Activity))
+                        context = ((android.content.ContextWrapper) context).getBaseContext();
+                    if (context instanceof android.app.Activity)
+                        ApiUi.saveScholarship(
+                                (android.app.Activity) context, scholarship.getId(), null);
+                });
+        holder.tvFindMentor.setOnClickListener(
+                v -> {
+                    android.content.Intent intent =
+                            new android.content.Intent(v.getContext(), MentorRankingActivity.class);
+                    intent.putExtra(
+                            MentorRankingActivity.EXTRA_SCHOLARSHIP_ID, scholarship.getId());
+                    v.getContext().startActivity(intent);
+                });
 
-        holder.itemView.setOnClickListener(v -> {
-            android.content.Intent intent = new android.content.Intent(v.getContext(), ScholarshipDetailActivity.class);
-            intent.putExtra(ScholarshipDetailActivity.EXTRA_SCHOLARSHIP_ID, scholarship.getId());
-            intent.putExtra(ScholarshipDetailActivity.EXTRA_SCHOLARSHIP_TITLE, scholarship.getTitle());
-            intent.putExtra(ScholarshipDetailActivity.EXTRA_SCHOLARSHIP_CATEGORY, scholarship.getFieldOfStudy());
-            v.getContext().startActivity(intent);
-        });
+        holder.itemView.setOnClickListener(
+                v -> {
+                    android.content.Intent intent =
+                            new android.content.Intent(
+                                    v.getContext(), ScholarshipDetailActivity.class);
+                    intent.putExtra(
+                            ScholarshipDetailActivity.EXTRA_SCHOLARSHIP_ID, scholarship.getId());
+                    intent.putExtra(
+                            ScholarshipDetailActivity.EXTRA_SCHOLARSHIP_TITLE,
+                            scholarship.getTitle());
+                    intent.putExtra(
+                            ScholarshipDetailActivity.EXTRA_SCHOLARSHIP_CATEGORY,
+                            scholarship.getFieldOfStudy());
+                    v.getContext().startActivity(intent);
+                });
     }
 
     @Override

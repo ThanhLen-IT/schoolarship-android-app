@@ -45,20 +45,19 @@ public class SubmitVerificationActivity extends AppCompatActivity {
 
         View rootView = findViewById(R.id.main);
         if (rootView != null) {
-            ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
-                Insets systemBars = insets.getInsets(
-                        WindowInsetsCompat.Type.systemBars()
-                );
+            ViewCompat.setOnApplyWindowInsetsListener(
+                    rootView,
+                    (v, insets) -> {
+                        Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
 
-                v.setPadding(
-                        systemBars.left,
-                        systemBars.top,
-                        systemBars.right,
-                        systemBars.bottom
-                );
+                        v.setPadding(
+                                systemBars.left,
+                                systemBars.top,
+                                systemBars.right,
+                                systemBars.bottom);
 
-                return insets;
-            });
+                        return insets;
+                    });
         }
 
         // Back button
@@ -68,14 +67,16 @@ public class SubmitVerificationActivity extends AppCompatActivity {
         }
 
         // Retrieve passed scholarship
-        scholarshipItem = (ScholarshipVerifyItem) getIntent().getSerializableExtra(EXTRA_SCHOLARSHIP_ITEM);
+        scholarshipItem =
+                (ScholarshipVerifyItem) getIntent().getSerializableExtra(EXTRA_SCHOLARSHIP_ITEM);
 
         TextView tvScholarshipTitle = findViewById(R.id.tv_selected_scholarship_title);
         TextView tvInstitutionName = findViewById(R.id.tv_selected_institution_name);
 
         if (scholarshipItem != null) {
             if (tvScholarshipTitle != null) tvScholarshipTitle.setText(scholarshipItem.getTitle());
-            if (tvInstitutionName != null) tvInstitutionName.setText(scholarshipItem.getInstitution());
+            if (tvInstitutionName != null)
+                tvInstitutionName.setText(scholarshipItem.getInstitution());
         }
 
         // Upload Area Views
@@ -89,17 +90,18 @@ public class SubmitVerificationActivity extends AppCompatActivity {
         }
 
         // Document Picker launcher
-        documentPickerLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                        Uri uri = result.getData().getData();
-                        if (uri != null) {
-                            handleSelectedDocument(uri);
-                        }
-                    }
-                }
-        );
+        documentPickerLauncher =
+                registerForActivityResult(
+                        new ActivityResultContracts.StartActivityForResult(),
+                        result -> {
+                            if (result.getResultCode() == Activity.RESULT_OK
+                                    && result.getData() != null) {
+                                Uri uri = result.getData().getData();
+                                if (uri != null) {
+                                    handleSelectedDocument(uri);
+                                }
+                            }
+                        });
 
         // Submit Button Click
         if (btnSubmitDocument != null) {
@@ -138,7 +140,8 @@ public class SubmitVerificationActivity extends AppCompatActivity {
         }
         if (tvUploadSubtitle != null) {
             double sizeInMb = fileSize > 0 ? (double) fileSize / (1024 * 1024) : 0.0;
-            tvUploadSubtitle.setText(String.format(Locale.ROOT, "PDF selected (%.2f MB)", sizeInMb));
+            tvUploadSubtitle.setText(
+                    String.format(Locale.ROOT, "PDF selected (%.2f MB)", sizeInMb));
         }
 
         // Enable Submit Button
@@ -158,7 +161,8 @@ public class SubmitVerificationActivity extends AppCompatActivity {
                         fileName = cursor.getString(nameIndex);
                     }
                 }
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
         if (fileName == null) {
             fileName = uri.getPath();
@@ -182,7 +186,8 @@ public class SubmitVerificationActivity extends AppCompatActivity {
                         size = cursor.getLong(sizeIndex);
                     }
                 }
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
         return size;
     }
@@ -193,17 +198,79 @@ public class SubmitVerificationActivity extends AppCompatActivity {
             return;
         }
 
-        if (scholarshipItem != null) {
-            scholarshipItem.setVerificationStatus("Pending verification");
-        }
-
-        Toast.makeText(this, "Document submitted! Pending verification review.", Toast.LENGTH_SHORT).show();
-
-        Intent intent = new Intent(SubmitVerificationActivity.this, VerificationStatusActivity.class);
-        if (scholarshipItem != null) {
-            intent.putExtra(VerificationStatusActivity.EXTRA_NEW_SUBMISSION, scholarshipItem);
-        }
-        startActivity(intent);
-        finish();
+        if (scholarshipItem == null || !ApiUi.requireLogin(this)) return;
+        btnSubmitDocument.setEnabled(false);
+        android.net.Uri uri = selectedPdfUri;
+        java.util.concurrent.ExecutorService worker =
+                java.util.concurrent.Executors.newSingleThreadExecutor();
+        worker.execute(
+                () -> {
+                    try (java.io.InputStream input = getContentResolver().openInputStream(uri);
+                            java.io.ByteArrayOutputStream output =
+                                    new java.io.ByteArrayOutputStream()) {
+                        if (input == null) throw new java.io.IOException("Không đọc được tệp.");
+                        byte[] buffer = new byte[8192];
+                        int count;
+                        while ((count = input.read(buffer)) != -1) {
+                            if (output.size() + count > MAX_FILE_SIZE_BYTES)
+                                throw new java.io.IOException("PDF tối đa 5 MB.");
+                            output.write(buffer, 0, count);
+                        }
+                        byte[] bytes = output.toByteArray();
+                        if (bytes.length < 5
+                                || !new String(
+                                                bytes,
+                                                0,
+                                                5,
+                                                java.nio.charset.StandardCharsets.US_ASCII)
+                                        .equals("%PDF-"))
+                            throw new java.io.IOException("Tệp không phải PDF hợp lệ.");
+                        okhttp3.MultipartBody.Part evidence =
+                                okhttp3.MultipartBody.Part.createFormData(
+                                        "evidence_file",
+                                        "evidence.pdf",
+                                        okhttp3.RequestBody.create(
+                                                okhttp3.MediaType.parse("application/pdf"), bytes));
+                        okhttp3.RequestBody id =
+                                okhttp3.RequestBody.create(
+                                        okhttp3.MediaType.parse("text/plain"),
+                                        scholarshipItem.getId());
+                        runOnUiThread(
+                                () -> {
+                                    if (!ApiUi.alive(this)) return;
+                                    ApiUi.request(
+                                            this,
+                                            ApiClient.getApiService()
+                                                    .submitVerification(
+                                                            ApiUi.bearer(this), id, evidence),
+                                            result -> {
+                                                ApiUi.error(this, result.getMessage());
+                                                startActivity(
+                                                        new Intent(
+                                                                        this,
+                                                                        VerificationStatusActivity
+                                                                                .class)
+                                                                .putExtra(
+                                                                        "scholarship_id",
+                                                                        scholarshipItem.getId()));
+                                                finish();
+                                            },
+                                            message -> {
+                                                btnSubmitDocument.setEnabled(true);
+                                                ApiUi.error(this, message);
+                                            });
+                                });
+                    } catch (Exception error) {
+                        runOnUiThread(
+                                () -> {
+                                    if (ApiUi.alive(this)) {
+                                        btnSubmitDocument.setEnabled(true);
+                                        ApiUi.error(this, error.getMessage());
+                                    }
+                                });
+                    } finally {
+                        worker.shutdown();
+                    }
+                });
     }
 }

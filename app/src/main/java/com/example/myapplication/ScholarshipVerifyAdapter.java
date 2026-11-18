@@ -4,7 +4,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -34,22 +33,25 @@ public class ScholarshipVerifyAdapter extends RecyclerView.Adapter<ScholarshipVe
         holder.tvInstitution.setText(item.getInstitution());
 
         String status = item.getVerificationStatus();
-        if ("Verified".equalsIgnoreCase(status)) {
+        boolean verified = "Verified".equalsIgnoreCase(status) || "approved".equalsIgnoreCase(status);
+        boolean pending = "Pending verification".equalsIgnoreCase(status) || "pending".equalsIgnoreCase(status);
+        final boolean canVerify = !verified && !pending;
+        if (verified) {
             holder.btnVerify.setText(R.string.status_verified);
-            holder.btnVerify.setEnabled(false);
             holder.btnVerify.setAlpha(0.6f);
-        } else if ("Pending verification".equalsIgnoreCase(status)) {
+        } else if (pending) {
             holder.btnVerify.setText(R.string.status_pending);
-            holder.btnVerify.setEnabled(false);
             holder.btnVerify.setAlpha(0.8f);
         } else {
             holder.btnVerify.setText(R.string.verify_this_button);
-            holder.btnVerify.setEnabled(true);
             holder.btnVerify.setAlpha(1.0f);
         }
+        holder.btnVerify.setEnabled(canVerify);
 
         holder.btnVerify.setOnClickListener(v -> {
-            if ("Not verified".equalsIgnoreCase(item.getVerificationStatus())) {
+            // Use the same eligibility decision as the visible button. A label
+            // or legacy state must not produce an enabled button that does nothing.
+            if (canVerify) {
                 android.content.Intent intent = new android.content.Intent(v.getContext(), SubmitVerificationActivity.class);
                 intent.putExtra(SubmitVerificationActivity.EXTRA_SCHOLARSHIP_ITEM, item);
                 if (v.getContext() instanceof android.app.Activity) {
