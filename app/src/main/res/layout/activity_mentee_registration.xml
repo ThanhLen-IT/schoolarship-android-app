@@ -1,0 +1,559 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/color_surface"
+    tools:context=".MenteeRegistrationActivity">
+
+    <!-- Top Toolbar Header -->
+    <LinearLayout
+        android:id="@+id/layout_top_bar"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@color/color_surface"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
+
+        <ImageButton
+            android:id="@+id/btn_back_mentee_registration"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="6dp"
+            android:src="@drawable/ic_arrow_back"
+            android:contentDescription="@string/back_button_desc" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="36dp"
+            android:gravity="center"
+            android:text="@string/mentee_registration_title"
+            android:textColor="@color/color_text_primary"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/color_border" />
+
+    <!-- Scrollable Form Container -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="24dp">
+
+            <!-- Field 1 — Họ và tên -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_mentee_input"
+                android:orientation="vertical"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_full_name"
+                    android:textColor="@color/color_text_hint"
+                    android:textSize="10sp" />
+
+                <EditText
+                    android:id="@+id/et_full_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="24dp"
+                    android:background="@null"
+                    android:hint="Khương Thành Lên"
+                    android:inputType="textPersonName"
+                    android:autofillHints="name"
+                    android:padding="0dp"
+                    android:singleLine="true"
+                    android:textColor="@color/color_text_primary"
+                    android:textColorHint="@color/color_text_hint"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <!-- Field 2 — Bạn đang sống ở đâu -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_mentee_input"
+                android:orientation="vertical"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_location"
+                    android:textColor="@color/color_text_hint"
+                    android:textSize="10sp" />
+
+                <EditText
+                    android:id="@+id/et_location"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="24dp"
+                    android:background="@null"
+                    android:hint="Thủ Đức, HCM"
+                    android:inputType="text"
+                    android:autofillHints=""
+                    android:padding="0dp"
+                    android:singleLine="true"
+                    android:textColor="@color/color_text_primary"
+                    android:textColorHint="@color/color_text_hint"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <!-- Field 3 — Gmail -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_mentee_input"
+                android:orientation="vertical"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_gmail"
+                    android:textColor="@color/color_text_hint"
+                    android:textSize="10sp" />
+
+                <EditText
+                    android:id="@+id/et_gmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="24dp"
+                    android:background="@null"
+                    android:hint="lenkhuong.work@gmail.com"
+                    android:inputType="textEmailAddress"
+                    android:autofillHints="email"
+                    android:padding="0dp"
+                    android:singleLine="true"
+                    android:textColor="@color/color_text_primary"
+                    android:textColorHint="@color/color_text_hint"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <!-- Field 4 — Năm sinh -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_mentee_input"
+                android:orientation="vertical"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_birth_year"
+                    android:textColor="@color/color_text_hint"
+                    android:textSize="10sp" />
+
+                <EditText
+                    android:id="@+id/et_birth_year"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="24dp"
+                    android:background="@null"
+                    android:hint="2006"
+                    android:inputType="number"
+                    android:autofillHints=""
+                    android:padding="0dp"
+                    android:singleLine="true"
+                    android:textColor="@color/color_text_primary"
+                    android:textColorHint="@color/color_text_hint"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <!-- Field 5 — Số điện thoại with Flag -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_mentee_input"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp">
+
+                <ImageView
+                    android:id="@+id/iv_country_flag"
+                    android:layout_width="24dp"
+                    android:layout_height="18dp"
+                    android:layout_marginEnd="8dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_globe"
+                    android:contentDescription="@string/label_phone_number" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_phone_number"
+                        android:textColor="@color/color_text_hint"
+                        android:textSize="10sp" />
+
+                    <EditText
+                        android:id="@+id/et_phone_number"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="24dp"
+                        android:background="@null"
+                        android:hint="123-456-7890"
+                        android:inputType="phone"
+                        android:autofillHints="phone"
+                        android:padding="0dp"
+                        android:singleLine="true"
+                        android:textColor="@color/color_text_primary"
+                        android:textColorHint="@color/color_text_hint"
+                        android:textSize="13sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Field 6 — Quốc gia and Giới tính Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:orientation="horizontal"
+                android:weightSum="100">
+
+                <!-- Left: Quốc gia -->
+                <LinearLayout
+                    android:id="@+id/layout_select_country"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="55"
+                    android:layout_marginEnd="4dp"
+                    android:background="@drawable/bg_mentee_input"
+                    android:orientation="vertical"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="6dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_country"
+                        android:textColor="@color/color_text_hint"
+                        android:textSize="10sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tv_selected_country"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Vietnam"
+                            android:textColor="@color/color_text_primary"
+                            android:textSize="13sp" />
+
+                        <ImageView
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
+                            android:rotation="90"
+                            android:src="@drawable/ic_chevron_right"
+                            android:contentDescription="@string/label_country" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Right: Giới tính -->
+                <LinearLayout
+                    android:id="@+id/layout_select_gender"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="45"
+                    android:layout_marginStart="4dp"
+                    android:background="@drawable/bg_mentee_input"
+                    android:orientation="vertical"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="6dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_gender"
+                        android:textColor="@color/color_text_hint"
+                        android:textSize="10sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tv_selected_gender"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Nam"
+                            android:textColor="@color/color_text_primary"
+                            android:textSize="13sp" />
+
+                        <ImageView
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
+                            android:rotation="90"
+                            android:src="@drawable/ic_chevron_right"
+                            android:contentDescription="@string/label_gender" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Field 7 — Sinh viên trường -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_mentee_input"
+                android:orientation="vertical"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_university"
+                    android:textColor="@color/color_text_hint"
+                    android:textSize="10sp" />
+
+                <EditText
+                    android:id="@+id/et_university"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="24dp"
+                    android:background="@null"
+                    android:hint="Đại học Công nghệ Thông tin - ĐHQGHCM"
+                    android:inputType="text"
+                    android:autofillHints=""
+                    android:padding="0dp"
+                    android:singleLine="true"
+                    android:textColor="@color/color_text_primary"
+                    android:textColorHint="@color/color_text_hint"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <!-- Field 8 — Bạn muốn Mentor hướng dẫn học bổng nào? -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_mentee_input"
+                android:orientation="vertical"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_target_scholarship"
+                    android:textColor="@color/color_text_hint"
+                    android:textSize="10sp" />
+
+                <EditText
+                    android:id="@+id/et_target_scholarship"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="24dp"
+                    android:background="@null"
+                    android:hint="MEXT Japan Scholarship"
+                    android:inputType="text"
+                    android:autofillHints=""
+                    android:padding="0dp"
+                    android:singleLine="true"
+                    android:textColor="@color/color_text_primary"
+                    android:textColorHint="@color/color_text_hint"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <!-- Field 9 — Lý do bạn chọn Mentor này là gì? -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_mentee_input"
+                android:orientation="vertical"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_mentor_reason"
+                    android:textColor="@color/color_text_hint"
+                    android:textSize="10sp" />
+
+                <EditText
+                    android:id="@+id/et_mentor_reason"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="24dp"
+                    android:background="@null"
+                    android:hint="Đại học Công nghệ Thông tin - ĐHQGHCM"
+                    android:inputType="text"
+                    android:autofillHints=""
+                    android:padding="0dp"
+                    android:singleLine="true"
+                    android:textColor="@color/color_text_primary"
+                    android:textColorHint="@color/color_text_hint"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <!-- Field 10 — Hãy giới thiệu bản thân... -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:background="@drawable/bg_mentee_input"
+                android:minHeight="110dp"
+                android:orientation="vertical"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_self_introduction"
+                    android:textColor="@color/color_text_hint"
+                    android:textSize="10sp" />
+
+                <EditText
+                    android:id="@+id/et_self_introduction"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:background="@null"
+                    android:gravity="top|start"
+                    android:hint="Em là muốn bước ra khỏi vùng an toàn của mình để thử thách với những điều mới mẻ..."
+                    android:inputType="textMultiLine"
+                    android:padding="0dp"
+                    android:textColor="@color/color_text_primary"
+                    android:textColorHint="@color/color_text_hint"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <!-- CV Upload Section -->
+            <LinearLayout
+                android:id="@+id/btn_upload_cv"
+                android:layout_width="180dp"
+                android:layout_height="38dp"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/bg_dashed_border"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_marginEnd="6dp"
+                    android:src="@drawable/ic_action_edit"
+                    android:contentDescription="@string/upload_cv_button" />
+
+                <TextView
+                    android:id="@+id/tv_cv_filename"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:text="@string/upload_cv_button"
+                    android:textColor="@color/color_primary"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="16dp"
+                android:gravity="center"
+                android:text="@string/upload_cv_hint"
+                android:textColor="@color/color_text_hint"
+                android:textSize="10sp" />
+
+            <!-- Submit Button -->
+            <Button
+                android:id="@+id/btn_submit_mentee_registration"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:background="@drawable/bg_welcome_button_primary"
+                app:backgroundTint="@null"
+                android:text="@string/submit_mentee_application"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:stateListAnimator="@null"
+                android:elevation="0dp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>
