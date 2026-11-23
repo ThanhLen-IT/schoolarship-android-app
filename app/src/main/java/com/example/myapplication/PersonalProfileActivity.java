@@ -80,11 +80,11 @@ public class PersonalProfileActivity extends AppCompatActivity {
             });
         }
 
-        // Register Mentee Button -> BecomeMentorActivity
+        // Register Mentee Button -> MenteeRegistrationActivity
         Button btnRegisterMentee = findViewById(R.id.btn_register_mentee);
         if (btnRegisterMentee != null) {
             btnRegisterMentee.setOnClickListener(v -> {
-                Intent intent = new Intent(PersonalProfileActivity.this, BecomeMentorActivity.class);
+                Intent intent = new Intent(PersonalProfileActivity.this, MenteeRegistrationActivity.class);
                 startActivity(intent);
             });
         }

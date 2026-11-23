@@ -82,13 +82,16 @@ public class ProfileActivity extends AppCompatActivity {
         View menuRoleAction = findViewById(R.id.menu_role_action);
         if (menuRoleAction != null) {
             menuRoleAction.setOnClickListener(v -> {
-                if (isVerifiedMentor) {
-                    Toast.makeText(this, "Quản lý Mentee", Toast.LENGTH_SHORT).show();
-                } else {
-                    Intent intent = new Intent(ProfileActivity.this, BecomeMentorActivity.class);
-                    startActivity(intent);
-                }
+                Intent intent = new Intent(ProfileActivity.this, BecomeMentorActivity.class);
+                startActivity(intent);
             });
+        }
+
+        View menuManageMentee = findViewById(R.id.menu_manage_mentee);
+        if (menuManageMentee != null) {
+            menuManageMentee.setOnClickListener(v -> 
+                Toast.makeText(this, "Mở trang Quản lý Mentee", Toast.LENGTH_SHORT).show()
+            );
         }
 
         View menuMyApps = findViewById(R.id.menu_my_applications);
@@ -139,13 +142,19 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void updateProfileModeUI() {
+        View menuManageMentee = findViewById(R.id.menu_manage_mentee);
+        View dividerManageMentee = findViewById(R.id.divider_manage_mentee);
+
         if (isVerifiedMentor) {
             if (layoutMentorBadge != null) layoutMentorBadge.setVisibility(View.VISIBLE);
             if (cardMentorRanking != null) cardMentorRanking.setVisibility(View.VISIBLE);
-            if (tvMenuRoleLabel != null) tvMenuRoleLabel.setText(R.string.menu_manage_mentee);
+            if (menuManageMentee != null) menuManageMentee.setVisibility(View.VISIBLE);
+            if (dividerManageMentee != null) dividerManageMentee.setVisibility(View.VISIBLE);
         } else {
             if (layoutMentorBadge != null) layoutMentorBadge.setVisibility(View.GONE);
             if (cardMentorRanking != null) cardMentorRanking.setVisibility(View.GONE);
+            if (menuManageMentee != null) menuManageMentee.setVisibility(View.GONE);
+            if (dividerManageMentee != null) dividerManageMentee.setVisibility(View.GONE);
             if (tvMenuRoleLabel != null) tvMenuRoleLabel.setText(R.string.menu_register_mentor);
         }
     }

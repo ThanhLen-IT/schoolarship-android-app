@@ -191,65 +191,21 @@
             </LinearLayout>
 
             <!-- 2. Streak / Steak Statistics Card -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:background="@drawable/bg_input_field"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:src="@drawable/ic_star"
-                        android:contentDescription="@string/streak_card_title" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:text="@string/streak_card_title"
-                        android:textColor="@color/color_text_primary"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight="1" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_welcome_button_secondary"
-                        android:paddingStart="8dp"
-                        android:paddingEnd="8dp"
-                        android:paddingTop="2dp"
-                        android:paddingBottom="2dp"
-                        android:text="@string/streak_days_label"
-                        android:textColor="@color/color_primary"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <!-- Streak Activity Grid Placeholder -->
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginTop="12dp"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/bg_heatmap_cell"
-                    android:contentDescription="@string/streak_card_title" />
-            </LinearLayout>
 
             <!-- 3. Mentor Ranking and XP Card (Conditional - Verified Mentor Mode Only) -->
+            <Button
+                android:id="@+id/btn_toggle_user_mode"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_welcome_button_secondary"
+                android:text="Chuyển chế độ: Mentee / Verified Mentor"
+                android:textColor="@color/color_primary"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:stateListAnimator="@null"
+                android:elevation="0dp" />
+
             <LinearLayout
                 android:id="@+id/card_mentor_ranking"
                 android:layout_width="match_parent"
@@ -363,7 +319,7 @@
                         android:id="@+id/iv_menu_role_icon"
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@drawable/ic_nav_metor_ranking"
+                        android:src="@drawable/ic_star"
                         android:contentDescription="@string/menu_register_mentor" />
 
                     <TextView
@@ -387,6 +343,47 @@
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:background="@color/color_border" />
+
+                <!-- Row 1B: Quản lý Mentee (Visibile ONLY for Verified Mentor) -->
+                <LinearLayout
+                    android:id="@+id/menu_manage_mentee"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_nav_community"
+                        android:contentDescription="@string/menu_manage_mentee" />
+
+                    <TextView
+                        android:id="@+id/tv_menu_manage_mentee_label"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="12dp"
+                        android:text="@string/menu_manage_mentee"
+                        android:textColor="@color/color_text_primary"
+                        android:textSize="13sp" />
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_chevron_right"
+                        android:contentDescription="@string/menu_manage_mentee" />
+                </LinearLayout>
+
+                <View
+                    android:id="@+id/divider_manage_mentee"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/color_border"
+                    android:visibility="gone" />
 
                 <!-- Row 2: My Applications -->
                 <LinearLayout
@@ -462,6 +459,47 @@
                     android:layout_height="1dp"
                     android:background="@color/color_border" />
 
+                <!-- Row 1B: Quản lý Mentee (Visibile ONLY for Verified Mentor) -->
+                <LinearLayout
+                    android:id="@+id/menu_manage_mentee"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_nav_metor_ranking"
+                        android:contentDescription="@string/menu_manage_mentee" />
+
+                    <TextView
+                        android:id="@+id/tv_menu_manage_mentee_label"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="12dp"
+                        android:text="@string/menu_manage_mentee"
+                        android:textColor="@color/color_text_primary"
+                        android:textSize="13sp" />
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_chevron_right"
+                        android:contentDescription="@string/menu_manage_mentee" />
+                </LinearLayout>
+
+                <View
+                    android:id="@+id/divider_manage_mentee"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/color_border"
+                    android:visibility="gone" />
+
                 <!-- Row 4: Account Settings -->
                 <LinearLayout
                     android:id="@+id/menu_account_settings"
@@ -499,6 +537,47 @@
                     android:layout_height="1dp"
                     android:background="@color/color_border" />
 
+                <!-- Row 1B: Quản lý Mentee (Visibile ONLY for Verified Mentor) -->
+                <LinearLayout
+                    android:id="@+id/menu_manage_mentee"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_nav_metor_ranking"
+                        android:contentDescription="@string/menu_manage_mentee" />
+
+                    <TextView
+                        android:id="@+id/tv_menu_manage_mentee_label"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="12dp"
+                        android:text="@string/menu_manage_mentee"
+                        android:textColor="@color/color_text_primary"
+                        android:textSize="13sp" />
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_chevron_right"
+                        android:contentDescription="@string/menu_manage_mentee" />
+                </LinearLayout>
+
+                <View
+                    android:id="@+id/divider_manage_mentee"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/color_border"
+                    android:visibility="gone" />
+
                 <!-- Row 5: Help Center -->
                 <LinearLayout
                     android:id="@+id/menu_help_center"
@@ -534,18 +613,6 @@
             </LinearLayout>
 
             <!-- Mode Toggle Button (Demo / Test Mentee <-> Verified Mentor mode) -->
-            <Button
-                android:id="@+id/btn_toggle_user_mode"
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:layout_marginTop="20dp"
-                android:background="@drawable/bg_welcome_button_secondary"
-                android:text="Chuyển chế độ: Mentee / Verified Mentor"
-                android:textColor="@color/color_primary"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:stateListAnimator="@null"
-                android:elevation="0dp" />
 
         </LinearLayout>
     </ScrollView>
