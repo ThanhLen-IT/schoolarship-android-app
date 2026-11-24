@@ -193,18 +193,19 @@
             <!-- 2. Streak / Steak Statistics Card -->
 
             <!-- 3. Mentor Ranking and XP Card (Conditional - Verified Mentor Mode Only) -->
+
             <Button
                 android:id="@+id/btn_toggle_user_mode"
                 android:layout_width="match_parent"
                 android:layout_height="36dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/bg_welcome_button_secondary"
+                android:elevation="0dp"
+                android:stateListAnimator="@null"
                 android:text="Chuyển chế độ: Mentee / Verified Mentor"
                 android:textColor="@color/color_primary"
                 android:textSize="11sp"
-                android:textStyle="bold"
-                android:stateListAnimator="@null"
-                android:elevation="0dp" />
+                android:textStyle="bold" />
 
             <LinearLayout
                 android:id="@+id/card_mentor_ranking"
@@ -358,7 +359,7 @@
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@drawable/ic_nav_community"
+                        android:src="@drawable/userss"
                         android:contentDescription="@string/menu_manage_mentee" />
 
                     <TextView
@@ -398,7 +399,7 @@
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@drawable/ic_action_edit"
+                        android:src="@drawable/book"
                         android:contentDescription="@string/menu_my_applications" />
 
                     <TextView
@@ -513,7 +514,7 @@
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@drawable/ic_action_filter"
+                        android:src="@drawable/ic_settings"
                         android:contentDescription="@string/menu_account_settings" />
 
                     <TextView

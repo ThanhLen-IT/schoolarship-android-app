@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_input_field"
+    android:padding="12dp"
+    android:layout_marginBottom="12dp">
+
+    <!-- Top Section: Avatar + Details + Status Badge -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <!-- Avatar Container -->
+        <FrameLayout
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_welcome_button_secondary">
+
+            <TextView
+                android:id="@+id/tv_avatar_initials"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="NVA"
+                android:textColor="@color/color_text_primary"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </FrameLayout>
+
+        <!-- Mentee Name & University -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="6dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_mentee_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Nguyễn Văn A"
+                android:textColor="@color/color_text_primary"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_mentee_university"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Sinh viên ĐH Công nghệ Thông tin - ĐHQG-HCM"
+                android:textColor="@color/color_text_hint"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <!-- Status Badge -->
+        <TextView
+            android:id="@+id/tv_status_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_status_pending"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingTop="3dp"
+            android:paddingBottom="3dp"
+            android:text="Chờ duyệt"
+            android:textColor="#E65100"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Scholarship Badge Pill -->
+    <TextView
+        android:id="@+id/tv_scholarship_pill"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_welcome_button_secondary"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:text="🎓 Học bổng MEXT Japan 2026"
+        android:textColor="@color/color_primary"
+        android:textSize="11sp"
+        android:textStyle="bold" />
+
+    <!-- Description / Reason -->
+    <TextView
+        android:id="@+id/tv_reason_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Lý do chọn Mentor:"
+        android:textColor="@color/color_text_primary"
+        android:textSize="11sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tv_mentee_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:text="Em muốn hướng dẫn sửa đề cương nghiên cứu và luyện phỏng vấn áp lực..."
+        android:textColor="@color/color_text_hint"
+        android:textSize="11sp" />
+
+    <!-- View Full Profile Link -->
+    <TextView
+        android:id="@+id/btn_view_full_profile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:text="@string/view_full_profile"
+        android:textColor="@color/color_primary"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:clickable="true"
+        android:focusable="true" />
+
+    <!-- Card Action Buttons (for Pending Status) -->
+    <LinearLayout
+        android:id="@+id/layout_card_actions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        android:weightSum="2">
+
+        <Button
+            android:id="@+id/btn_card_reject"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_welcome_button_secondary"
+            app:backgroundTint="@null"
+            android:text="✕  Từ chối"
+            android:textColor="#D32F2F"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:stateListAnimator="@null"
+            android:elevation="0dp" />
+
+        <Button
+            android:id="@+id/btn_card_approve"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_welcome_button_primary"
+            app:backgroundTint="@null"
+            android:text="✓  Duyệt &amp; Nhắn tin"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:stateListAnimator="@null"
+            android:elevation="0dp" />
+    </LinearLayout>
+
+</LinearLayout>

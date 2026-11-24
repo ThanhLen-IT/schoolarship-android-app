@@ -128,7 +128,7 @@
                 <ImageView
                     android:layout_width="28dp"
                     android:layout_height="28dp"
-                    android:src="@drawable/logo"
+                    android:src="@drawable/avata_app"
                     android:contentDescription="@string/app_logo_desc" />
 
                 <TextView

@@ -89,9 +89,10 @@ public class ProfileActivity extends AppCompatActivity {
 
         View menuManageMentee = findViewById(R.id.menu_manage_mentee);
         if (menuManageMentee != null) {
-            menuManageMentee.setOnClickListener(v -> 
-                Toast.makeText(this, "Mở trang Quản lý Mentee", Toast.LENGTH_SHORT).show()
-            );
+            menuManageMentee.setOnClickListener(v -> {
+                Intent intent = new Intent(ProfileActivity.this, MenteeManagementActivity.class);
+                startActivity(intent);
+            });
         }
 
         View menuMyApps = findViewById(R.id.menu_my_applications);

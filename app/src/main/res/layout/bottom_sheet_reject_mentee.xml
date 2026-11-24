@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_bottom_sheet"
+    android:orientation="vertical"
+    android:paddingStart="18dp"
+    android:paddingEnd="18dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="24dp">
+
+    <!-- Drag Handle -->
+    <View
+        android:layout_width="36dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_welcome_button_secondary" />
+
+    <!-- Header Row -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/reject_bottom_sheet_title"
+            android:textColor="@color/color_text_primary"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:text="@string/reject_bottom_sheet_subtitle"
+        android:textColor="@color/color_text_hint"
+        android:textSize="12sp" />
+
+    <!-- Reason Chips -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/chip_reason_1"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/bg_reason_chip_selected"
+            android:gravity="center"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:text="@string/reason_slot_full"
+            android:textColor="@color/color_primary"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <TextView
+            android:id="@+id/chip_reason_2"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/bg_reason_chip_unselected"
+            android:gravity="center"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:text="@string/reason_not_suitable"
+            android:textColor="@color/color_text_primary"
+            android:textSize="12sp"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <TextView
+            android:id="@+id/chip_reason_3"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:background="@drawable/bg_reason_chip_unselected"
+            android:gravity="center"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:text="@string/reason_other"
+            android:textColor="@color/color_text_primary"
+            android:textSize="12sp"
+            android:clickable="true"
+            android:focusable="true" />
+    </LinearLayout>
+
+    <!-- Feedback Input Box -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:layout_marginTop="12dp">
+
+        <EditText
+            android:id="@+id/et_reject_feedback"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_input_field"
+            android:gravity="top|start"
+            android:hint="@string/feedback_placeholder"
+            android:inputType="textMultiLine"
+            android:maxLength="200"
+            android:padding="10dp"
+            android:textColor="@color/color_text_primary"
+            android:textColorHint="@color/color_text_hint"
+            android:textSize="12sp"
+            android:autofillHints="" />
+
+        <TextView
+            android:id="@+id/tv_char_counter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="8dp"
+            android:text="0/200"
+            android:textColor="@color/color_text_hint"
+            android:textSize="10sp" />
+    </RelativeLayout>
+
+    <!-- Submit Rejection Button -->
+    <Button
+        android:id="@+id/btn_submit_reject"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_marginTop="14dp"
+        android:background="@drawable/bg_welcome_button_primary"
+        app:backgroundTint="@null"
+        android:text="@string/btn_submit_rejection"
+        android:textColor="@android:color/white"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:stateListAnimator="@null"
+        android:elevation="0dp" />
+
+</LinearLayout>

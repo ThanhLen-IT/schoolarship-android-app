@@ -40,7 +40,7 @@
             android:layout_marginTop="16dp"
             android:adjustViewBounds="true"
             android:scaleType="fitCenter"
-            android:src="@drawable/logo"
+            android:src="@drawable/avata_app"
             android:contentDescription="@string/app_logo_desc" />
 
         <!-- Headline (Suez One) -->

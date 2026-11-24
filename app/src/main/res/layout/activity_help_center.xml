@@ -426,7 +426,7 @@
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@drawable/ic_action_edit"
+                    android:src="@drawable/ic_alert_circle"
                     android:contentDescription="@string/report_issue_title" />
 
                 <LinearLayout
@@ -465,7 +465,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:background="@drawable/bg_welcome_button_secondary"
+                android:background="@drawable/bg_input_field"
                 android:orientation="vertical"
                 android:padding="16dp">
 

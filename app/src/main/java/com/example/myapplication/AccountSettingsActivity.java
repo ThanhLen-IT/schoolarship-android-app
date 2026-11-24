@@ -54,9 +54,10 @@ public class AccountSettingsActivity extends AppCompatActivity {
 
         View rowEnableMentor = findViewById(R.id.row_enable_mentor_mode);
         if (rowEnableMentor != null) {
-            rowEnableMentor.setOnClickListener(v -> 
-                Toast.makeText(this, "Bật chế độ Mentor", Toast.LENGTH_SHORT).show()
-            );
+            rowEnableMentor.setOnClickListener(v -> {
+                Intent intent = new Intent(AccountSettingsActivity.this, BecomeMentorActivity.class);
+                startActivity(intent);
+            });
         }
 
         // Section 2: Hiển thị
