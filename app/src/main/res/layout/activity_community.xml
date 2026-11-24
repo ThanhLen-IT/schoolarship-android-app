@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
@@ -124,25 +125,28 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/scholarship_gateway_title"
-                android:textColor="@color/color_primary"
-                android:textSize="15sp"
+                android:textColor="@color/color_text_primary"
+                android:textSize="17sp"
+                android:textStyle="bold"
                 android:fontFamily="@font/suez_one" />
 
             <LinearLayout
                 android:id="@+id/btn_write_post"
                 android:layout_width="wrap_content"
-                android:layout_height="32dp"
-                android:background="@drawable/bg_input_field"
+                android:layout_height="36dp"
+                android:background="@drawable/bg_welcome_button_primary"
+                app:backgroundTint="@null"
                 android:gravity="center_vertical"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
                 android:clickable="true"
                 android:focusable="true">
 
                 <ImageView
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
-                    android:src="@drawable/ic_action_edit"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_write_post"
+                    app:tint="@android:color/white"
                     android:contentDescription="@string/write_post_button" />
 
                 <TextView
@@ -150,8 +154,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
                     android:text="@string/write_post_button"
-                    android:textColor="@color/color_primary"
-                    android:textSize="11sp"
+                    android:textColor="@android:color/white"
+                    android:textSize="12sp"
                     android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
