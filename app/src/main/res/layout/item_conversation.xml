@@ -10,14 +10,28 @@
     android:paddingTop="10dp"
     android:paddingBottom="10dp">
 
-    <!-- Avatar -->
-    <ImageView
-        android:id="@+id/iv_conv_avatar"
+    <!-- Avatar Container with Online Green Dot -->
+    <RelativeLayout
         android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/avata_nam"
-        android:contentDescription="@string/app_logo_desc" />
+        android:layout_height="48dp">
+
+        <ImageView
+            android:id="@+id/iv_conv_avatar"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/avata_nam"
+            android:contentDescription="@string/app_logo_desc" />
+
+        <View
+            android:id="@+id/view_conv_online_dot"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:background="@drawable/bg_online_dot"
+            android:visibility="gone" />
+    </RelativeLayout>
 
     <!-- Name & Message Preview -->
     <LinearLayout

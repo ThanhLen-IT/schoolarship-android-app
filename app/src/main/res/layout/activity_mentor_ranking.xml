@@ -138,13 +138,23 @@
                     android:contentDescription="@string/back_button_desc" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:layout_marginStart="12dp"
                     android:text="@string/mentor_ranking_title"
                     android:textColor="@color/color_text_primary"
                     android:textSize="16sp"
                     android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/iv_top_logo"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/logo"
+                    android:contentDescription="@string/app_logo_desc" />
             </LinearLayout>
 
             <!-- Selected scholarship heading -->

@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -38,17 +37,40 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         holder.tvPreview.setText(item.getPreview());
         holder.tvTime.setText(item.getTimestamp());
 
-        if (item.isUnread()) {
-            holder.tvPreview.setTypeface(null, Typeface.BOLD);
-            holder.tvPreview.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.color_text_primary));
-            holder.viewUnreadDot.setVisibility(View.VISIBLE);
-        } else {
-            holder.tvPreview.setTypeface(null, Typeface.NORMAL);
-            holder.tvPreview.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.color_text_hint));
-            holder.viewUnreadDot.setVisibility(View.GONE);
+        // Chấm xanh lá cây hiển thị trạng thái Đang hoạt động (Online)
+        if (holder.viewConvOnlineDot != null) {
+            holder.viewConvOnlineDot.setVisibility(item.isOnline() ? View.VISIBLE : View.GONE);
         }
 
+        // Kiểm tra điều kiện if-else cho tin nhắn chưa đọc / đã đọc
+        if (item.isUnread()) {
+            // Tin nhắn chưa đọc -> In đậm nội dung và hiển thị chấm thông báo
+            holder.tvPreview.setTypeface(null, Typeface.BOLD);
+            holder.tvPreview.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.color_text_primary));
+            if (holder.viewUnreadDot != null) {
+                holder.viewUnreadDot.setVisibility(View.VISIBLE);
+            }
+        } else {
+            // Tin nhắn đã mở đọc -> Bỏ bôi đen (phông chữ thường) và ẩn chấm thông báo
+            holder.tvPreview.setTypeface(null, Typeface.NORMAL);
+            holder.tvPreview.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.color_text_hint));
+            if (holder.viewUnreadDot != null) {
+                holder.viewUnreadDot.setVisibility(View.GONE);
+            }
+        }
+
+        // Khi người dùng bấm mở cuộc trò chuyện
         holder.itemView.setOnClickListener(v -> {
+            // Nếu là tin nhắn chưa đọc -> Đổi trạng thái thành đã đọc (bỏ bôi đen)
+            if (item.isUnread()) {
+                item.setUnread(false);
+                int pos = holder.getBindingAdapterPosition();
+                if (pos != RecyclerView.NO_POSITION) {
+                    notifyItemChanged(pos);
+                }
+            }
+
+            // Mở màn hình Chi tiết nhắn tin ChatDetailActivity
             android.content.Intent intent = new android.content.Intent(v.getContext(), ChatDetailActivity.class);
             intent.putExtra(ChatDetailActivity.EXTRA_CHAT_NAME, item.getName());
             intent.putExtra(ChatDetailActivity.EXTRA_CHAT_AVATAR, item.getAvatarResId());
@@ -65,6 +87,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         ImageView ivAvatar;
         TextView tvName, tvPreview, tvTime;
         View viewUnreadDot;
+        View viewConvOnlineDot;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -73,6 +96,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
             tvPreview = itemView.findViewById(R.id.tv_conv_preview);
             tvTime = itemView.findViewById(R.id.tv_conv_time);
             viewUnreadDot = itemView.findViewById(R.id.view_unread_dot);
+            viewConvOnlineDot = itemView.findViewById(R.id.view_conv_online_dot);
         }
     }
 }

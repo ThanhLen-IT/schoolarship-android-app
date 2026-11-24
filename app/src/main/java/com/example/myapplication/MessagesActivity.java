@@ -99,11 +99,10 @@ public class MessagesActivity extends AppCompatActivity {
 
     private void loadContacts() {
         contactList = new ArrayList<>();
+        // Thanh phía trên: Chỉ hiển thị những người đang hoạt động (Online)
         contactList.add(new ContactAvatarItem("1", "Tâm Anh", R.drawable.avata_nam, true));
         contactList.add(new ContactAvatarItem("2", "DABI's", R.drawable.avata_nu, true));
-        contactList.add(new ContactAvatarItem("3", "Kim Ngân", R.drawable.avata_nam, false));
         contactList.add(new ContactAvatarItem("4", "Lên", R.drawable.avata_nu, true));
-        contactList.add(new ContactAvatarItem("5", "Thu Trâm", R.drawable.avata_nam, false));
     }
 
     private void loadConversations() {
@@ -114,7 +113,8 @@ public class MessagesActivity extends AppCompatActivity {
                 "Bạn: Chúc em thành công.",
                 "10:58",
                 R.drawable.avata_nam,
-                false
+                false,
+                true
         ));
         conversationList.add(new ConversationItem(
                 "2",
@@ -122,7 +122,8 @@ public class MessagesActivity extends AppCompatActivity {
                 "DABI's đã gửi một file đính kèm.",
                 "10:28",
                 R.drawable.avata_nu,
-                false
+                false,
+                true
         ));
         conversationList.add(new ConversationItem(
                 "3",
@@ -130,7 +131,8 @@ public class MessagesActivity extends AppCompatActivity {
                 "2 tin nhắn mới",
                 "09:14",
                 R.drawable.avata_nam,
-                true
+                true,
+                false
         ));
         conversationList.add(new ConversationItem(
                 "4",
@@ -138,6 +140,7 @@ public class MessagesActivity extends AppCompatActivity {
                 "526 tin nhắn mới",
                 "T.5",
                 R.drawable.avata_nu,
+                true,
                 true
         ));
         conversationList.add(new ConversationItem(
@@ -146,6 +149,7 @@ public class MessagesActivity extends AppCompatActivity {
                 "Đã bày tỏ cảm xúc ❤️ về tin nhắn của...",
                 "T.5",
                 R.drawable.avata_nam,
+                false,
                 false
         ));
         conversationList.add(new ConversationItem(
@@ -154,6 +158,7 @@ public class MessagesActivity extends AppCompatActivity {
                 "Ok bé",
                 "T.4",
                 R.drawable.avata_nu,
+                false,
                 false
         ));
     }

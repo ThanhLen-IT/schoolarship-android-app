@@ -104,7 +104,7 @@
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@drawable/ic_star"
+                        android:src="@drawable/ic_waiting"
                         android:contentDescription="@string/stat_pending_label" />
 
                     <TextView
@@ -133,7 +133,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginStart="6dp"
-                    android:background="@drawable/bg_welcome_button_secondary"
+                    android:background="@drawable/bg_status_approved"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
                     android:padding="12dp">
@@ -141,7 +141,7 @@
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@drawable/ic_nav_community"
+                        android:src="@drawable/ic_da_nhan"
                         android:contentDescription="@string/stat_approved_label" />
 
                     <TextView

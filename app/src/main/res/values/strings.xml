@@ -226,6 +226,7 @@
     <string name="status_accepted">Đã được nhận</string>
     <string name="status_rejected_vi">Chưa phù hợp</string>
     <string name="action_start_chat">Bắt đầu trò chuyện</string>
+    <string name="action_rate_mentor">Đánh giá Mentor</string>
     <string name="action_view_details">Xem chi tiết đơn</string>
     <string name="header_daphne_peers">DAPHNE AND PEERS</string>
     <string name="messages_search_hint">Tìm kiếm</string>
@@ -318,4 +319,14 @@
     <string name="approve_subtitle">Thao tác này sẽ mở cuộc hội thoại 1-1 và gửi thông báo chúc mừng tới Mentee.</string>
     <string name="btn_approve_start_chat">Đồng ý &amp; Bắt đầu Chat</string>
     <string name="btn_later">Để sau</string>
+    <string name="mentor_review_title">Đánh giá Mentor</string>
+    <string name="label_rate_mentor">Đánh giá Mentor</string>
+    <string name="label_add_evidence">Thêm minh chứng đã đậu học bổng</string>
+    <string name="hint_upload_evidence">Hình ảnh/Video/Video theo mẫu</string>
+    <string name="label_write_review_50">Viết đánh giá từ 50 ký tự</string>
+    <string name="hint_review_placeholder">Hãy chia sẻ nhận xét cho sản phẩm này bạn nhé!</string>
+    <string name="checkbox_anonymous_review">Đánh giá ẩn danh</string>
+    <string name="btn_submit_label">Gửi</string>
+    <string name="char_count_format">%1$d ký tự</string>
+    <string name="error_min_50_chars">Đánh giá cần ít nhất 50 ký tự</string>
 </resources>

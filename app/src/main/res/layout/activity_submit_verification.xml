@@ -165,7 +165,7 @@
                     android:layout_height="32dp"
                     android:background="@drawable/bg_welcome_button_secondary"
                     android:padding="6dp"
-                    android:src="@drawable/ic_action_edit"
+                    android:src="@drawable/ic_download"
                     android:contentDescription="@string/upload_proof_label" />
 
                 <TextView

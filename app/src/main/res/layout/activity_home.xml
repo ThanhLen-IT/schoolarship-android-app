@@ -131,14 +131,14 @@
                 <ImageView
                     android:layout_width="28dp"
                     android:layout_height="28dp"
-                    android:src="@drawable/avata_app"
+                    android:src="@drawable/logo"
                     android:contentDescription="@string/app_logo_desc" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:text="@string/brand_name"
+                    android:text="GLOBAL SUCCESS"
                     android:textColor="@color/color_primary"
                     android:textSize="16sp"
                     android:fontFamily="@font/suez_one" />
