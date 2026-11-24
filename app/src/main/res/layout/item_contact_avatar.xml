@@ -24,7 +24,7 @@
             android:layout_height="12dp"
             android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true"
-            android:background="@drawable/bg_welcome_button_primary"
+            android:background="@drawable/bg_online_dot"
             android:visibility="visible" />
     </RelativeLayout>
 
